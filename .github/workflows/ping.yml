@@ -1,0 +1,33 @@
+name: Schedule Ping
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update ping file
+        run: date -u +"%Y-%m-%dT%H:%M:%SZ" > ping.txt
+
+      - name: Commit ping file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add ping.txt
+
+          if git diff --cached --quiet; then
+            echo "No ping changes."
+          else
+            git commit -m "Update schedule ping"
+            git push
+          fi
