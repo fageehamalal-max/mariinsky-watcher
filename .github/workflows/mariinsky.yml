@@ -1,9 +1,9 @@
 name: Mariinsky Watcher
 
 on:
-  schedule:
-    - cron: "7,37 * * * *"
   workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
 
 concurrency:
   group: mariinsky-watcher
