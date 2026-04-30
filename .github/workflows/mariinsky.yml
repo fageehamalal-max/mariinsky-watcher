@@ -409,13 +409,16 @@ jobs:
           STATE_FILE: state.json
           SEND_INITIAL: "0"
 
+      - name: Update heartbeat
+        run: date -u +"%Y-%m-%dT%H:%M:%SZ" > last_run_utc.txt
+
       - name: Commit updated state
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if [[ -n "$(git status --porcelain state.json)" ]]; then
-            git add state.json
+          if [[ -n "$(git status --porcelain state.json last_run_utc.txt)" ]]; then
+            git add state.json last_run_utc.txt
             git commit -m "Update Mariinsky watcher state"
             git push
           else
