@@ -1,6 +1,6 @@
 name: Mariinsky Watcher
 
-"on":
+on:
   workflow_dispatch:
   schedule:
     - cron: "13,43 5-20 * * *"
@@ -16,6 +16,7 @@ jobs:
   watch:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,6 +43,7 @@ jobs:
           from datetime import date, datetime
           from pathlib import Path
           from urllib.parse import urljoin, urldefrag
+          from zoneinfo import ZoneInfo
 
           import requests
           from bs4 import BeautifulSoup
@@ -49,13 +51,17 @@ jobs:
 
           PLAYBILL_URL = "https://www.mariinsky.ru/playbill/playbill/"
           STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
+
           TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
           TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+
           SEND_INITIAL = os.getenv("SEND_INITIAL", "0") == "1"
           STATE_VERSION = 3
 
+          THEATRE_TZ = ZoneInfo("Europe/Moscow")
+
           HEADERS = {
-              "User-Agent": "Mozilla/5.0 MariinskyWatcher/1.2 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+              "User-Agent": "Mozilla/5.0 MariinskyWatcher/1.3 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
               "Accept-Language": "ru,en;q=0.9",
           }
 
@@ -97,30 +103,38 @@ jobs:
           NOISE_PATTERNS = [
               r"^@@",
               r"^(---|\+\+\+)\s",
-
               r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|Новости|Для прессы|Афиша|Абонементы|Фестивали|Тур по закулисью|Орган|Пушкинская карта|Участникам СВО|Репертуар)$",
               r"^(Изменения в афише|Выбрать сцену|Выбрать тип представления|Выбрать месяц|Показать спектакли.*|Все площадки|Все спектакли|Ближайший|Архив афиши)$",
-
               r"(купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|касс[аеы]|tickets@mariinsky\.ru)",
-
               r"(авторизация|войти|регистрация|забыли пароль|user_name|выход|профиль|корзина|заказы|личный кабинет)",
-
               r"(подписаться|поиск|версия для слабовидящих|cookie|опрос|закрыть)",
-
               r"(для обращений|справочная служба|post@mariinsky\.ru|скачать мобильное приложение|mariinsky\.tv|mariinsky\.fm|правообладател)",
-
               r"(театр:|театральная площадь|ул\.|улица|декабристов|писарева|фастовская|владикавказ|миллера|приморская сцена|филиал)",
-
               r"^(facebook|instagram|youtube|vk|telegram)$",
           ]
 
-          FOOTER_START_REGEXES = [re.compile(pattern, re.IGNORECASE) for pattern in FOOTER_START_PATTERNS]
-          CONTENT_STOP_REGEXES = [re.compile(pattern, re.IGNORECASE) for pattern in CONTENT_STOP_PATTERNS]
-          NOISE_REGEXES = [re.compile(pattern, re.IGNORECASE) for pattern in NOISE_PATTERNS]
+          FOOTER_START_REGEXES = [
+              re.compile(pattern, re.IGNORECASE)
+              for pattern in FOOTER_START_PATTERNS
+          ]
+
+          CONTENT_STOP_REGEXES = [
+              re.compile(pattern, re.IGNORECASE)
+              for pattern in CONTENT_STOP_PATTERNS
+          ]
+
+          NOISE_REGEXES = [
+              re.compile(pattern, re.IGNORECASE)
+              for pattern in NOISE_PATTERNS
+          ]
 
 
           def utc_now_iso():
               return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+
+          def today_moscow():
+              return datetime.now(THEATRE_TZ).date()
 
 
           def fetch(url):
@@ -151,8 +165,10 @@ jobs:
 
           def is_noise_line(line):
               line = clean_line(line)
+
               if not line:
                   return True
+
               return any(regex.search(line) for regex in NOISE_REGEXES)
 
 
@@ -207,6 +223,7 @@ jobs:
               for line in lines:
                   if line != previous:
                       result.append(line)
+
                   previous = line
 
               return "\n".join(result)
@@ -236,6 +253,7 @@ jobs:
                       continue
 
                   old_title = events.get(url, "")
+
                   if len(title) > len(old_title):
                       events[url] = title
 
@@ -244,8 +262,10 @@ jobs:
 
           def extract_title(detail_soup, fallback):
               h1 = detail_soup.find("h1")
+
               if h1:
                   title = clean_line(h1.get_text(" ", strip=True))
+
                   if title:
                       return title
 
@@ -257,7 +277,11 @@ jobs:
 
 
           def extract_venue_line(detail_text):
-              lines = [clean_line(line) for line in detail_text.splitlines() if clean_line(line)]
+              lines = [
+                  clean_line(line)
+                  for line in detail_text.splitlines()
+                  if clean_line(line)
+              ]
 
               for line in lines[:40]:
                   if line.startswith("Санкт-Петербург,"):
@@ -300,13 +324,18 @@ jobs:
 
 
           def is_ballet_event(title, detail_text):
-              lines = [clean_line(line) for line in detail_text.splitlines() if clean_line(line)]
+              lines = [
+                  clean_line(line)
+                  for line in detail_text.splitlines()
+                  if clean_line(line)
+              ]
 
               for line in lines[:35]:
                   if line_says_ballet(line):
                       return True
 
               title_low = title.lower()
+
               if "балетмейстер" in title_low:
                   return False
 
@@ -314,7 +343,11 @@ jobs:
 
 
           def date_from_event_url(url):
-              match = re.search(r"/playbill/playbill/(\d{4})/(\d{1,2})/(\d{1,2})/", url)
+              match = re.search(
+                  r"/playbill/playbill/(\d{4})/(\d{1,2})/(\d{1,2})/",
+                  url,
+              )
+
               if not match:
                   return None
 
@@ -328,33 +361,59 @@ jobs:
 
           def is_past_event(url):
               event_date = date_from_event_url(url)
+
               if event_date is None:
                   return False
-              return event_date < date.today()
+
+              return event_date < today_moscow()
+
+
+          def is_past_or_today_event(url):
+              event_date = date_from_event_url(url)
+
+              if event_date is None:
+                  return False
+
+              return event_date <= today_moscow()
 
 
           def load_state():
               if not STATE_FILE.exists():
-                  return {"schema_version": 0, "events": {}}
+                  return {
+                      "schema_version": 0,
+                      "events": {},
+                  }
 
               try:
                   state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
               except Exception:
-                  return {"schema_version": 0, "events": {}}
+                  return {
+                      "schema_version": 0,
+                      "events": {},
+                  }
 
               if not isinstance(state, dict):
-                  return {"schema_version": 0, "events": {}}
+                  return {
+                      "schema_version": 0,
+                      "events": {},
+                  }
 
               if "events" not in state or not isinstance(state["events"], dict):
                   state["events"] = {}
 
               state.setdefault("schema_version", 0)
+
               return state
 
 
           def save_state(state):
               STATE_FILE.write_text(
-                  json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True),
+                  json.dumps(
+                      state,
+                      ensure_ascii=False,
+                      indent=2,
+                      sort_keys=True,
+                  ),
                   encoding="utf-8",
               )
 
@@ -365,7 +424,11 @@ jobs:
                   return
 
               url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-              chunks = [text[i:i + 3900] for i in range(0, len(text), 3900)]
+
+              chunks = [
+                  text[i:i + 3900]
+                  for i in range(0, len(text), 3900)
+              ]
 
               for chunk in chunks:
                   response = requests.post(
@@ -377,6 +440,7 @@ jobs:
                       },
                       timeout=30,
                   )
+
                   response.raise_for_status()
 
 
@@ -481,14 +545,18 @@ jobs:
 
                   try:
                       record = build_event_record(url, fallback_title)
+
                       if record is not None:
                           new_events[url] = record
+
                       time.sleep(0.35)
+
                   except Exception as exc:
                       print(f"Failed to read {url}: {type(exc).__name__}: {exc}")
 
               if not old_events:
                   save_state(make_state(new_events))
+
                   print(f"Initial state created. Events tracked: {len(new_events)}")
 
                   if SEND_INITIAL:
@@ -502,10 +570,12 @@ jobs:
 
               if old_version < STATE_VERSION:
                   save_state(make_state(new_events))
+
                   print(
                       f"State migrated from version {old_version} to {STATE_VERSION}. "
                       f"Events tracked: {len(new_events)}. Telegram messages were not sent."
                   )
+
                   return
 
               changes = []
@@ -514,7 +584,9 @@ jobs:
                   old = old_events.get(url)
 
                   if old is None:
-                      summary = record.get("summary") or make_summary(record.get("detail_text", ""))
+                      summary = record.get("summary") or make_summary(
+                          record.get("detail_text", "")
+                      )
 
                       changes.append(
                           "Новое событие в афише Мариинского театра\n\n"
@@ -522,10 +594,14 @@ jobs:
                           f"{summary}\n\n"
                           f"Ссылка: {url}"
                       )
+
                       continue
 
                   if old.get("digest") != record.get("digest"):
-                      diff = make_diff(old.get("detail_text", ""), record.get("detail_text", ""))
+                      diff = make_diff(
+                          old.get("detail_text", ""),
+                          record.get("detail_text", ""),
+                      )
 
                       if not diff:
                           continue
@@ -538,20 +614,27 @@ jobs:
                       )
 
               for url, old in old_events.items():
-                  if url not in new_events and not is_past_event(url):
-                      title = old.get("title", "Без названия")
+                  if url in new_events:
+                      continue
 
-                      changes.append(
-                          "Событие исчезло из текущей афиши Мариинского театра\n\n"
-                          f"Название: {title}\n"
-                          f"Ссылка: {url}"
-                      )
+                  if is_past_or_today_event(url):
+                      print(f"Skipped removed past or today event: {url}")
+                      continue
+
+                  title = old.get("title", "Без названия")
+
+                  changes.append(
+                      "Событие исчезло из текущей афиши Мариинского театра\n\n"
+                      f"Название: {title}\n"
+                      f"Ссылка: {url}"
+                  )
 
               save_state(make_state(new_events))
 
               if changes:
                   for message in changes:
                       send_telegram(message)
+
                   print(f"Changes sent: {len(changes)}")
               else:
                   print(f"No changes. Events scanned: {len(new_events)}")
@@ -584,10 +667,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if [[ -n "$(git status --porcelain state.json last_run_utc.txt)" ]]; then
-            git add state.json last_run_utc.txt
-            git commit -m "Update Mariinsky watcher state"
-            git push
-          else
-            echo "No state changes to commit."
-          fi
+          if [[ -n "$(git status --porcelain state.json last_run_utc.txt)
