@@ -1,6 +1,6 @@
 name: Mariinsky Watcher
 
-on:
+"on":
   workflow_dispatch:
   schedule:
     - cron: "13,43 5-20 * * *"
@@ -368,13 +368,13 @@ jobs:
               return event_date < today_moscow()
 
 
-          def is_past_or_today_event(url):
+          def is_future_event(url):
               event_date = date_from_event_url(url)
 
               if event_date is None:
-                  return False
+                  return True
 
-              return event_date <= today_moscow()
+              return event_date > today_moscow()
 
 
           def load_state():
@@ -584,9 +584,7 @@ jobs:
                   old = old_events.get(url)
 
                   if old is None:
-                      summary = record.get("summary") or make_summary(
-                          record.get("detail_text", "")
-                      )
+                      summary = record.get("summary") or make_summary(record.get("detail_text", ""))
 
                       changes.append(
                           "Новое событие в афише Мариинского театра\n\n"
@@ -598,10 +596,7 @@ jobs:
                       continue
 
                   if old.get("digest") != record.get("digest"):
-                      diff = make_diff(
-                          old.get("detail_text", ""),
-                          record.get("detail_text", ""),
-                      )
+                      diff = make_diff(old.get("detail_text", ""), record.get("detail_text", ""))
 
                       if not diff:
                           continue
@@ -614,20 +609,14 @@ jobs:
                       )
 
               for url, old in old_events.items():
-                  if url in new_events:
-                      continue
+                  if url not in new_events and is_future_event(url):
+                      title = old.get("title", "Без названия")
 
-                  if is_past_or_today_event(url):
-                      print(f"Skipped removed past or today event: {url}")
-                      continue
-
-                  title = old.get("title", "Без названия")
-
-                  changes.append(
-                      "Событие исчезло из текущей афиши Мариинского театра\n\n"
-                      f"Название: {title}\n"
-                      f"Ссылка: {url}"
-                  )
+                      changes.append(
+                          "Событие исчезло из текущей афиши Мариинского театра\n\n"
+                          f"Название: {title}\n"
+                          f"Ссылка: {url}"
+                      )
 
               save_state(make_state(new_events))
 
@@ -649,6 +638,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Validate watcher syntax
+        run: python -m py_compile mariinsky_agent.py
+
       - name: Run watcher
         run: python mariinsky_agent.py
         env:
@@ -667,4 +659,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if [[ -n "$(git status --porcelain state.json last_run_utc.txt)
+          if [[ -n "$(git status --porcelain state.json last_run_utc.txt)" ]]; then
+            git add state.json last_run_utc.txt
+            git commit -m "Update Mariinsky watcher state"
+            git push
+          else
+            echo "No state changes to commit."
+          fi
