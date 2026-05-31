@@ -3,8 +3,8 @@ name: Mariinsky Watcher
 "on":
   workflow_dispatch:
   schedule:
-  - cron: "13,43 * * * *"
-  
+    - cron: "13,33,53 * * * *"
+
 concurrency:
   group: mariinsky-watcher
   cancel-in-progress: false
@@ -56,12 +56,12 @@ jobs:
           TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
 
           SEND_INITIAL = os.getenv("SEND_INITIAL", "0") == "1"
-          STATE_VERSION = 4
+          STATE_VERSION = 5
 
           THEATRE_TZ = ZoneInfo("Europe/Moscow")
 
           HEADERS = {
-              "User-Agent": "Mozilla/5.0 MariinskyWatcher/1.4 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+              "User-Agent": "Mozilla/5.0 MariinskyWatcher/1.5 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
               "Accept-Language": "ru,en;q=0.9",
           }
 
@@ -98,6 +98,17 @@ jobs:
           CONTENT_STOP_PATTERNS = [
               r"^Краткое содержание$",
               r"^Содержание$",
+
+              # Всё ниже возрастной категории на страницах Мариинского обычно относится
+              # уже не к текущему событию, а к нижним блокам страницы: фестивальная афиша,
+              # рекомендации, соседний репертуар и похожие служебные/промо-блоки.
+              r"^Возрастная категория\s*\d+\+?$",
+              r"^Возрастная категория\s*[:：]?\s*\d+\+?$",
+
+              # Страховка от нижнего блока фестиваля «Звезды белых ночей».
+              r"^[IVXLCDM]+\s+Музыкальный фестиваль\s+«?Зв[её]зды белых ночей»?$",
+              r"^Музыкальный фестиваль\s+«?Зв[её]зды белых ночей»?$",
+              r"^.*Зв[её]зды белых ночей.*$",
           ]
 
           NOISE_PATTERNS = [
@@ -563,7 +574,7 @@ jobs:
                       send_telegram(
                           "Мониторинг афиши Мариинского театра запущен.\n\n"
                           f"Событий в базе: {len(new_events)}\n"
-                          "Балеты исключены. Билетные, кассовые и служебные строки исключены."
+                          "Балеты исключены. Билетные, кассовые, служебные и нижние фестивальные блоки исключены."
                       )
 
                   return
