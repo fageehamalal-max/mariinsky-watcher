@@ -39,7 +39,7 @@ jobs:
           import re
           import time as time_module
           from copy import deepcopy
-          from datetime import date, datetime, time as dt_time
+          from datetime import date, datetime, time as dt_time, timezone
           from pathlib import Path
           from urllib.parse import urljoin, urldefrag
           from zoneinfo import ZoneInfo
@@ -56,14 +56,14 @@ jobs:
           TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
           SEND_INITIAL = os.getenv("SEND_INITIAL", "0") == "1"
 
-          STATE_VERSION = 11
+          STATE_VERSION = 12
           MAX_TELEGRAM_MESSAGES_PER_RUN = int(os.getenv("MAX_TELEGRAM_MESSAGES_PER_RUN", "3"))
           MAX_PENDING_MESSAGES = int(os.getenv("MAX_PENDING_MESSAGES", "80"))
           MESSAGE_SEND_DELAY_SECONDS = float(os.getenv("MESSAGE_SEND_DELAY_SECONDS", "2"))
           THEATRE_TZ = ZoneInfo("Europe/Moscow")
 
           HEADERS = {
-              "User-Agent": "Mozilla/5.0 TheatreWatcher/2.0 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+              "User-Agent": "Mozilla/5.0 TheatreWatcher/2.1 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
               "Accept-Language": "ru,en;q=0.9",
           }
 
@@ -85,6 +85,17 @@ jobs:
               "Камерные залы",
               "Зал Щедрина",
               "Зал Мусоргского",
+          ]
+
+          MARIINSKY_VENUE_DISPLAY_PRIORITY = [
+              "Зал Стравинского",
+              "Зал Щедрина",
+              "Зал Мусоргского",
+              "Камерные залы",
+              "Концертный зал Мариинского театра",
+              "Концертный зал",
+              "Мариинский-2",
+              "Мариинский театр",
           ]
 
           MARIINSKY_EXCLUDED_VENUE_PARTS = [
@@ -182,7 +193,7 @@ jobs:
 
 
           def utc_now_iso():
-              return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+              return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
           def now_moscow():
@@ -557,6 +568,107 @@ jobs:
               return remaining, sent_count
 
 
+          def diff_line_is_program_header(line):
+              normalized = clean_line(line).lower().replace("ё", "е")
+              return normalized in {
+                  "в программе:",
+                  "в программе",
+                  "исполнители:",
+                  "исполнители",
+                  "солисты:",
+                  "солисты",
+              }
+
+
+          def diff_line_looks_like_name(line):
+              line = clean_line(line)
+
+              if not line or len(line) > 90:
+                  return False
+
+              if line.startswith(("«", "\"", "„")):
+                  return False
+
+              if any(char in line for char in [":", ",", ";", "(", ")", "№"]):
+                  return False
+
+              words = line.replace("-", " ").split()
+
+              if not 1 <= len(words) <= 5:
+                  return False
+
+              capitalized = 0
+
+              for word in words:
+                  if not word:
+                      continue
+
+                  if re.match(r"^[A-ZА-ЯЁ][a-zа-яё]+$", word):
+                      capitalized += 1
+
+              return capitalized >= 1 and capitalized == len(words)
+
+
+          def diff_line_looks_like_piece(line):
+              line = clean_line(line)
+
+              if not line:
+                  return False
+
+              if line.startswith(("«", "\"", "„")):
+                  return True
+
+              if any(marker in line.lower() for marker in ["соч.", "романс", "ария", "каватина", "вариации", "попурри", "песня"]):
+                  return True
+
+              if any(char in line for char in [",", "…", "...", "№"]):
+                  return True
+
+              return False
+
+
+          def format_diff_block(lines):
+              result = []
+              previous_kind = None
+
+              for raw in lines:
+                  line = clean_line(raw)
+
+                  if not line:
+                      continue
+
+                  if diff_line_is_program_header(line):
+                      if result and result[-1] != "":
+                          result.append("")
+                      result.append(line)
+                      result.append("")
+                      previous_kind = "header"
+                      continue
+
+                  current_kind = "other"
+
+                  if diff_line_looks_like_name(line):
+                      current_kind = "name"
+                  elif diff_line_looks_like_piece(line):
+                      current_kind = "piece"
+
+                  if (
+                      result
+                      and result[-1] != ""
+                      and current_kind == "name"
+                      and previous_kind not in {None, "header", "name"}
+                  ):
+                      result.append("")
+
+                  result.append(line)
+                  previous_kind = current_kind
+
+              while result and result[-1] == "":
+                  result.pop()
+
+              return "\n".join(result).strip()
+
+
           def make_diff(old_text, new_text, normalizer, max_chars=2300):
               old_text = normalizer(old_text)
               new_text = normalizer(new_text)
@@ -570,7 +682,8 @@ jobs:
                   n=1,
               )
 
-              lines = []
+              added = []
+              removed = []
 
               for line in diff:
                   if line.startswith(("---", "+++", "@@")):
@@ -586,11 +699,19 @@ jobs:
                       continue
 
                   if sign == "+":
-                      lines.append(f"✅ {content}")
+                      added.append(content)
                   elif sign == "-":
-                      lines.append(f"⛔ {content}")
+                      removed.append(content)
 
-              text = "\n".join(lines).strip()
+              blocks = []
+
+              if added:
+                  blocks.append("✅ Добавлено:\n\n" + format_diff_block(added))
+
+              if removed:
+                  blocks.append("⛔ Удалено:\n\n" + format_diff_block(removed))
+
+              text = "\n\n".join(blocks).strip()
 
               if len(text) > max_chars:
                   text = text[:max_chars].rstrip() + "\n\n[diff обрезан]"
@@ -679,6 +800,17 @@ jobs:
               return ""
 
 
+          def mariinsky_extract_venue_display(detail_text):
+              venue_line = mariinsky_extract_venue_line(detail_text)
+              source = "\n".join([venue_line, detail_text])
+
+              for venue in MARIINSKY_VENUE_DISPLAY_PRIORITY:
+                  if venue.lower() in source.lower():
+                      return venue
+
+              return venue_line
+
+
           def mariinsky_venue_is_allowed(detail_text):
               venue_line = mariinsky_extract_venue_line(detail_text)
               source = venue_line or detail_text
@@ -761,6 +893,7 @@ jobs:
                   "url": url,
                   "title": title,
                   "source": "mariinsky",
+                  "venue": mariinsky_extract_venue_display(normalized),
                   "event_date": event_date.isoformat() if event_date else "",
                   "date_display": event_date.isoformat() if event_date else "",
                   "event_time": event_time,
@@ -957,6 +1090,7 @@ jobs:
                       "url": PHILHARMONIA_GRAND_URL,
                       "title": title,
                       "source": "philharmonia_grand",
+                      "venue": "Большой зал",
                       "event_date": event_date.isoformat(),
                       "date_display": event_date.isoformat(),
                       "event_time": event_time,
@@ -980,6 +1114,8 @@ jobs:
               for event_key, record in new_events.items():
                   old = old_events.get(event_key)
                   event_datetime = format_event_datetime(record)
+                  venue = record.get("venue", "")
+                  venue_line = f"Площадка: {venue}\n" if venue else ""
 
                   if old is None:
                       summary = record.get("summary") or make_summary(record.get("detail_text", ""), normalizer)
@@ -988,7 +1124,8 @@ jobs:
                           f"{label}\n"
                           "🐣 Новое событие\n\n"
                           f"Название: {record.get('title', 'Без названия')}\n"
-                          f"Дата и время: {event_datetime}\n\n"
+                          f"Дата и время: {event_datetime}\n"
+                          f"{venue_line}\n"
                           f"{summary}\n\n"
                           f"Ссылка: {record.get('url', '')}"
                       )
@@ -1005,6 +1142,7 @@ jobs:
                           "Изменение в афише\n\n"
                           f"Название: {record.get('title', 'Без названия')}\n"
                           f"Дата и время: {event_datetime}\n"
+                          f"{venue_line}"
                           f"Ссылка: {record.get('url', '')}\n\n"
                           f"Изменения:\n{diff}"
                       )
@@ -1012,12 +1150,15 @@ jobs:
               for event_key, old in old_events.items():
                   if event_key not in new_events and record_is_future(old):
                       event_datetime = format_event_datetime(old)
+                      venue = old.get("venue", "")
+                      venue_line = f"Площадка: {venue}\n" if venue else ""
 
                       changes.append(
                           f"{label}\n"
                           "⛔ Событие исчезло из текущей афиши\n\n"
                           f"Название: {old.get('title', 'Без названия')}\n"
                           f"Дата и время: {event_datetime}\n"
+                          f"{venue_line}"
                           f"Ссылка: {old.get('url', '')}"
                       )
 
@@ -1174,8 +1315,9 @@ jobs:
           if [[ -n "$(git status --porcelain state.json last_run_utc.txt)" ]]; then
             git add state.json last_run_utc.txt
             git commit -m "Update theatre watcher state"
-            git pull --rebase --autostash origin main
-            git push
+            if ! git push; then
+              echo "Push failed, probably because the repository changed during this run. State will refresh on the next run."
+            fi
           else
             echo "No state changes to commit."
           fi
