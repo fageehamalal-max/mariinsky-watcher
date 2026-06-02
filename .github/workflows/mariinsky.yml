@@ -57,14 +57,14 @@ jobs:
           TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
           SEND_INITIAL = os.getenv("SEND_INITIAL", "0") == "1"
 
-          STATE_VERSION = 14
+          STATE_VERSION = 15
           MAX_TELEGRAM_MESSAGES_PER_RUN = int(os.getenv("MAX_TELEGRAM_MESSAGES_PER_RUN", "3"))
           MAX_PENDING_MESSAGES = int(os.getenv("MAX_PENDING_MESSAGES", "80"))
           MESSAGE_SEND_DELAY_SECONDS = float(os.getenv("MESSAGE_SEND_DELAY_SECONDS", "2"))
           THEATRE_TZ = ZoneInfo("Europe/Moscow")
 
           HEADERS = {
-              "User-Agent": "Mozilla/5.0 TheatreWatcher/2.2 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+              "User-Agent": "Mozilla/5.0 TheatreWatcher/2.3 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
               "Accept-Language": "ru,en;q=0.9",
           }
 
@@ -1748,7 +1748,11 @@ jobs:
                       events = scan_func()
 
                       if old_events and not events:
-                          raise RuntimeError(f"{label}: parsed zero events while old state has {len(old_events)} events")
+                          print(
+                              f"{label}: parsed zero events while old state has {len(old_events)} events. "
+                              "Keeping old state for this source."
+                          )
+                          events = old_events
 
                       scanned[source_key] = {
                           "label": label,
@@ -1764,8 +1768,23 @@ jobs:
                       print(f"{label}: events scanned: {len(events)}")
 
                   except Exception as exc:
-                      print(f"{label}: scan failed: {type(exc).__name__}: {exc}")
-                      raise
+                      print(
+                          f"{label}: scan failed: {type(exc).__name__}: {exc}. "
+                          "Keeping old state for this source."
+                      )
+
+                      scanned[source_key] = {
+                          "label": label,
+                          "events": old_events,
+                          "normalizer": normalizer,
+                      }
+
+                      new_sources[source_key] = {
+                          "label": label,
+                          "events": old_events,
+                      }
+
+                      continue
 
               if not old_had_events:
                   save_state(new_sources, pending_messages=[])
