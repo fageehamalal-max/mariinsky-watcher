@@ -1,6 +1,6 @@
 {
   "pending_messages": [],
-  "schema_version": 12,
+  "schema_version": 14,
   "sources": {
     "mariinsky": {
       "events": {
@@ -697,5 +697,5 @@
       "label": "СПб филармония, Большой зал"
     }
   },
-  "updated_at": "2026-06-02T11:12:39Z"
+  "updated_at": "2026-06-02T11:26:00Z"
 }
