@@ -34,6 +34,7 @@ jobs:
           cat > theatre_agent.py <<'PY'
           import difflib
           import hashlib
+          import html
           import json
           import os
           import re
@@ -56,14 +57,14 @@ jobs:
           TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
           SEND_INITIAL = os.getenv("SEND_INITIAL", "0") == "1"
 
-          STATE_VERSION = 12
+          STATE_VERSION = 14
           MAX_TELEGRAM_MESSAGES_PER_RUN = int(os.getenv("MAX_TELEGRAM_MESSAGES_PER_RUN", "3"))
           MAX_PENDING_MESSAGES = int(os.getenv("MAX_PENDING_MESSAGES", "80"))
           MESSAGE_SEND_DELAY_SECONDS = float(os.getenv("MESSAGE_SEND_DELAY_SECONDS", "2"))
           THEATRE_TZ = ZoneInfo("Europe/Moscow")
 
           HEADERS = {
-              "User-Agent": "Mozilla/5.0 TheatreWatcher/2.1 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+              "User-Agent": "Mozilla/5.0 TheatreWatcher/2.2 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
               "Accept-Language": "ru,en;q=0.9",
           }
 
@@ -130,6 +131,378 @@ jobs:
           )
 
           TIME_RE = re.compile(r"\b([01]?\d|2[0-3])[:.](\d{2})\b")
+
+          COMPOSER_ALIASES = {
+              "Адан": "Адольф Адан",
+              "Адольф Адан": "Адольф Адан",
+              "Альбинони": "Томазо Альбинони",
+              "Томазо Альбинони": "Томазо Альбинони",
+              "Андерсон": "Лерой Андерсон",
+              "Лерой Андерсон": "Лерой Андерсон",
+              "Аренский": "Антон Аренский",
+              "Антон Аренский": "Антон Аренский",
+              "Асафьев": "Борис Асафьев",
+              "Борис Асафьев": "Борис Асафьев",
+              "Балакирев": "Милий Балакирев",
+              "Милий Балакирев": "Милий Балакирев",
+              "Барток": "Бела Барток",
+              "Бела Барток": "Бела Барток",
+              "Бах": "Иоганн Себастьян Бах",
+              "Иоганн Себастьян Бах": "Иоганн Себастьян Бах",
+              "Баштан": "Сергей Баштан",
+              "Сергей Баштан": "Сергей Баштан",
+              "Беллини": "Винченцо Беллини",
+              "Винченцо Беллини": "Винченцо Беллини",
+              "Берио": "Лучано Берио",
+              "Лучано Берио": "Лучано Берио",
+              "Берлиоз": "Гектор Берлиоз",
+              "Гектор Берлиоз": "Гектор Берлиоз",
+              "Бернстайн": "Леонард Бернстайн",
+              "Леонард Бернстайн": "Леонард Бернстайн",
+              "Бетховен": "Людвиг ван Бетховен",
+              "Людвиг ван Бетховен": "Людвиг ван Бетховен",
+              "Бизе": "Жорж Бизе",
+              "Жорж Бизе": "Жорж Бизе",
+              "Биксио": "Чезаре Андреа Биксио",
+              "Чезаре Андреа Биксио": "Чезаре Андреа Биксио",
+              "Богданов-Березовский": "Валериан Богданов-Березовский",
+              "Валериан Богданов-Березовский": "Валериан Богданов-Березовский",
+              "Боккерини": "Луиджи Боккерини",
+              "Луиджи Боккерини": "Луиджи Боккерини",
+              "Бородин": "Александр Бородин",
+              "Александр Бородин": "Александр Бородин",
+              "Брамс": "Иоганнес Брамс",
+              "Иоганнес Брамс": "Иоганнес Брамс",
+              "Бриттен": "Бенджамин Бриттен",
+              "Бенджамин Бриттен": "Бенджамин Бриттен",
+              "Брукнер": "Антон Брукнер",
+              "Антон Брукнер": "Антон Брукнер",
+              "Брух": "Макс Брух",
+              "Макс Брух": "Макс Брух",
+              "Булез": "Пьер Булез",
+              "Пьер Булез": "Пьер Булез",
+              "Вагнер": "Рихард Вагнер",
+              "Рихард Вагнер": "Рихард Вагнер",
+              "Вебер": "Карл Мария фон Вебер",
+              "Карл Мария фон Вебер": "Карл Мария фон Вебер",
+              "Верди": "Джузеппе Верди",
+              "Джузеппе Верди": "Джузеппе Верди",
+              "Вивальди": "Антонио Вивальди",
+              "Антонио Вивальди": "Антонио Вивальди",
+              "Витали": "Томазо Антонио Витали",
+              "Томазо Антонио Витали": "Томазо Антонио Витали",
+              "Воан-Уильямс": "Ральф Воан-Уильямс",
+              "Воан Уильямс": "Ральф Воан-Уильямс",
+              "Ральф Воан-Уильямс": "Ральф Воан-Уильямс",
+              "Гаврилин": "Валерий Гаврилин",
+              "Валерий Гаврилин": "Валерий Гаврилин",
+              "Гайдн": "Йозеф Гайдн",
+              "Йозеф Гайдн": "Йозеф Гайдн",
+              "Герасименко": "Оксана Герасименко",
+              "Оксана Герасименко": "Оксана Герасименко",
+              "Гендель": "Георг Фридрих Гендель",
+              "Георг Фридрих Гендель": "Георг Фридрих Гендель",
+              "Гершвин": "Джордж Гершвин",
+              "Джордж Гершвин": "Джордж Гершвин",
+              "Глазунов": "Александр Глазунов",
+              "Александр Глазунов": "Александр Глазунов",
+              "Гладков": "Геннадий Гладков",
+              "Геннадий Гладков": "Геннадий Гладков",
+              "Гласс": "Филип Гласс",
+              "Филип Гласс": "Филип Гласс",
+              "Глинка": "Михаил Глинка",
+              "Михаил Глинка": "Михаил Глинка",
+              "Глиэр": "Рейнгольд Глиэр",
+              "Рейнгольд Глиэр": "Рейнгольд Глиэр",
+              "Глюк": "Кристоф Виллибальд Глюк",
+              "Кристоф Виллибальд Глюк": "Кристоф Виллибальд Глюк",
+              "Годар": "Бенжамен Годар",
+              "Бенжамен Годар": "Бенжамен Годар",
+              "Гольдмарк": "Карл Гольдмарк",
+              "Карл Гольдмарк": "Карл Гольдмарк",
+              "Гранадос": "Энрике Гранадос",
+              "Энрике Гранадос": "Энрике Гранадос",
+              "Гречанинов": "Александр Гречанинов",
+              "Александр Гречанинов": "Александр Гречанинов",
+              "Григ": "Эдвард Григ",
+              "Эдвард Григ": "Эдвард Григ",
+              "Гуно": "Шарль Гуно",
+              "Шарль Гуно": "Шарль Гуно",
+              "Далла": "Лучо Далла",
+              "Лучо Далла": "Лучо Далла",
+              "Даргомыжский": "Александр Даргомыжский",
+              "Александр Даргомыжский": "Александр Даргомыжский",
+              "Дебюсси": "Клод Дебюсси",
+              "Клод Дебюсси": "Клод Дебюсси",
+              "Делиб": "Лео Делиб",
+              "Лео Делиб": "Лео Делиб",
+              "Денца": "Луиджи Денца",
+              "Луиджи Денца": "Луиджи Денца",
+              "Де Фалья": "Мануэль де Фалья",
+              "Фалья": "Мануэль де Фалья",
+              "Мануэль де Фалья": "Мануэль де Фалья",
+              "Дворжак": "Антонин Дворжак",
+              "Антонин Дворжак": "Антонин Дворжак",
+              "Дженкинс": "Карл Дженкинс",
+              "Карл Дженкинс": "Карл Дженкинс",
+              "Джонс": "Куинси Джонс",
+              "Куинси Джонс": "Куинси Джонс",
+              "Динику": "Григораш Динику",
+              "Григораш Динику": "Григораш Динику",
+              "Доницетти": "Гаэтано Доницетти",
+              "Гаэтано Доницетти": "Гаэтано Доницетти",
+              "Дунаевский": "Исаак Дунаевский",
+              "Исаак Дунаевский": "Исаак Дунаевский",
+              "Дюка": "Поль Дюка",
+              "Поль Дюка": "Поль Дюка",
+              "Жоливе": "Андре Жоливе",
+              "Андре Жоливе": "Андре Жоливе",
+              "Землинский": "Александр фон Землинский",
+              "Александр фон Землинский": "Александр фон Землинский",
+              "Ибер": "Жак Ибер",
+              "Жак Ибер": "Жак Ибер",
+              "Ипполитов-Иванов": "Михаил Ипполитов-Иванов",
+              "Михаил Ипполитов-Иванов": "Михаил Ипполитов-Иванов",
+              "Кабалевский": "Дмитрий Кабалевский",
+              "Дмитрий Кабалевский": "Дмитрий Кабалевский",
+              "Калинников": "Василий Калинников",
+              "Василий Калинников": "Василий Калинников",
+              "Канчели": "Гия Канчели",
+              "Гия Канчели": "Гия Канчели",
+              "Капустин": "Николай Капустин",
+              "Николай Капустин": "Николай Капустин",
+              "Караев": "Кара Караев",
+              "Кара Караев": "Кара Караев",
+              "Кастельнуово-Тедеско": "Марио Кастельнуово-Тедеско",
+              "Марио Кастельнуово-Тедеско": "Марио Кастельнуово-Тедеско",
+              "Кодаи": "Золтан Кодаи",
+              "Золтан Кодаи": "Золтан Кодаи",
+              "Корнгольд": "Эрих Вольфганг Корнгольд",
+              "Эрих Вольфганг Корнгольд": "Эрих Вольфганг Корнгольд",
+              "Крейслер": "Фриц Крейслер",
+              "Фриц Крейслер": "Фриц Крейслер",
+              "Кшенек": "Эрнст Кшенек",
+              "Эрнст Кшенек": "Эрнст Кшенек",
+              "Кусевицкий": "Сергей Кусевицкий",
+              "Сергей Кусевицкий": "Сергей Кусевицкий",
+              "Кюи": "Цезарь Кюи",
+              "Цезарь Кюи": "Цезарь Кюи",
+              "Лазарев": "Осип Лазарев",
+              "Осип Лазарев": "Осип Лазарев",
+              "Лало": "Эдуар Лало",
+              "Эдуар Лало": "Эдуар Лало",
+              "Легар": "Франц Легар",
+              "Франц Легар": "Франц Легар",
+              "Леклер": "Жан-Мари Леклер",
+              "Жан-Мари Леклер": "Жан-Мари Леклер",
+              "Леонкавалло": "Руджеро Леонкавалло",
+              "Руджеро Леонкавалло": "Руджеро Леонкавалло",
+              "Лигети": "Дьёрдь Лигети",
+              "Дьёрдь Лигети": "Дьёрдь Лигети",
+              "Лист": "Ференц Лист",
+              "Ференц Лист": "Ференц Лист",
+              "Лядов": "Анатолий Лядов",
+              "Анатолий Лядов": "Анатолий Лядов",
+              "Майкапар": "Самуил Майкапар",
+              "Самуил Майкапар": "Самуил Майкапар",
+              "Малер": "Густав Малер",
+              "Густав Малер": "Густав Малер",
+              "Манчини": "Генри Манчини",
+              "Генри Манчини": "Генри Манчини",
+              "Марчелло": "Алессандро Марчелло",
+              "Алессандро Марчелло": "Алессандро Марчелло",
+              "Мартину": "Богуслав Мартину",
+              "Богуслав Мартину": "Богуслав Мартину",
+              "Массне": "Жюль Массне",
+              "Жюль Массне": "Жюль Массне",
+              "Мейербер": "Джакомо Мейербер",
+              "Джакомо Мейербер": "Джакомо Мейербер",
+              "Мендельсон": "Феликс Мендельсон",
+              "Феликс Мендельсон": "Феликс Мендельсон",
+              "Менотти": "Джан Карло Менотти",
+              "Джан Карло Менотти": "Джан Карло Менотти",
+              "Мессиан": "Оливье Мессиан",
+              "Оливье Мессиан": "Оливье Мессиан",
+              "Мийо": "Дариюс Мийо",
+              "Дариюс Мийо": "Дариюс Мийо",
+              "Минкис": "Людвиг Минкус",
+              "Минкус": "Людвиг Минкус",
+              "Людвиг Минкус": "Людвиг Минкус",
+              "Минков": "Марк Минков",
+              "Марк Минков": "Марк Минков",
+              "Монти": "Витторио Монти",
+              "Витторио Монти": "Витторио Монти",
+              "Монюшко": "Станислав Монюшко",
+              "Станислав Монюшко": "Станислав Монюшко",
+              "Морриконе": "Эннио Морриконе",
+              "Эннио Морриконе": "Эннио Морриконе",
+              "Моцарт": "Вольфганг Амадей Моцарт",
+              "Вольфганг Амадей Моцарт": "Вольфганг Амадей Моцарт",
+              "Мошковский": "Мориц Мошковский",
+              "Мориц Мошковский": "Мориц Мошковский",
+              "Мусоргский": "Модест Мусоргский",
+              "Модест Мусоргский": "Модест Мусоргский",
+              "Мясковский": "Николай Мясковский",
+              "Николай Мясковский": "Николай Мясковский",
+              "Нильсен": "Карл Нильсен",
+              "Карл Нильсен": "Карл Нильсен",
+              "Оффенбах": "Жак Оффенбах",
+              "Жак Оффенбах": "Жак Оффенбах",
+              "Орф": "Карл Орф",
+              "Карл Орф": "Карл Орф",
+              "Паганини": "Никколо Паганини",
+              "Никколо Паганини": "Никколо Паганини",
+              "Паршута": "Василий Паршута",
+              "Василий Паршута": "Василий Паршута",
+              "Пендерецкий": "Кшиштоф Пендерецкий",
+              "Кшиштоф Пендерецкий": "Кшиштоф Пендерецкий",
+              "Петров": "Андрей Петров",
+              "Андрей Петров": "Андрей Петров",
+              "Пиццетти": "Ильдебрандо Пиццетти",
+              "Ильдебрандо Пиццетти": "Ильдебрандо Пиццетти",
+              "Прокофьев": "Сергей Прокофьев",
+              "Сергей Прокофьев": "Сергей Прокофьев",
+              "Пуленк": "Франсис Пуленк",
+              "Франсис Пуленк": "Франсис Пуленк",
+              "Пулккинен": "Ари Пулккинен",
+              "Ари Пулккинен": "Ари Пулккинен",
+              "Пуни": "Цезарь Пуни",
+              "Цезарь Пуни": "Цезарь Пуни",
+              "Пуччини": "Джакомо Пуччини",
+              "Джакомо Пуччини": "Джакомо Пуччини",
+              "Пёрселл": "Генри Пёрселл",
+              "Пурселл": "Генри Пёрселл",
+              "Генри Пёрселл": "Генри Пёрселл",
+              "Пьяццолла": "Астор Пьяццолла",
+              "Астор Пьяццолла": "Астор Пьяццолла",
+              "Равель": "Морис Равель",
+              "Морис Равель": "Морис Равель",
+              "Рахманинов": "Сергей Рахманинов",
+              "Сергей Рахманинов": "Сергей Рахманинов",
+              "Регер": "Макс Регер",
+              "Макс Регер": "Макс Регер",
+              "Рейх": "Стив Райх",
+              "Райх": "Стив Райх",
+              "Стив Райх": "Стив Райх",
+              "Респиги": "Отторино Респиги",
+              "Отторино Респиги": "Отторино Респиги",
+              "Римский-Корсаков": "Николай Римский-Корсаков",
+              "Николай Римский-Корсаков": "Николай Римский-Корсаков",
+              "Родриго": "Хоакин Родриго",
+              "Хоакин Родриго": "Хоакин Родриго",
+              "Россини": "Джоаккино Россини",
+              "Джоаккино Россини": "Джоаккино Россини",
+              "Рота": "Нино Рота",
+              "Нино Рота": "Нино Рота",
+              "Рубинштейн": "Антон Рубинштейн",
+              "Антон Рубинштейн": "Антон Рубинштейн",
+              "Руссель": "Альбер Руссель",
+              "Альбер Руссель": "Альбер Руссель",
+              "Саариахо": "Кайя Саариахо",
+              "Кайя Саариахо": "Кайя Саариахо",
+              "Сальери": "Антонио Сальери",
+              "Антонио Сальери": "Антонио Сальери",
+              "Сарасате": "Пабло де Сарасате",
+              "Пабло де Сарасате": "Пабло де Сарасате",
+              "Сати": "Эрик Сати",
+              "Эрик Сати": "Эрик Сати",
+              "Свиридов": "Георгий Свиридов",
+              "Георгий Свиридов": "Георгий Свиридов",
+              "Сен-Санс": "Камиль Сен-Санс",
+              "Камиль Сен-Санс": "Камиль Сен-Санс",
+              "Сибелиус": "Ян Сибелиус",
+              "Ян Сибелиус": "Ян Сибелиус",
+              "Скарлатти": "Доменико Скарлатти",
+              "Доменико Скарлатти": "Доменико Скарлатти",
+              "Скрябин": "Александр Скрябин",
+              "Александр Скрябин": "Александр Скрябин",
+              "Сметана": "Бедржих Сметана",
+              "Бедржих Сметана": "Бедржих Сметана",
+              "Соловьев-Седой": "Василий Соловьев-Седой",
+              "Соловьёв-Седой": "Василий Соловьев-Седой",
+              "Василий Соловьев-Седой": "Василий Соловьев-Седой",
+              "Василий Соловьёв-Седой": "Василий Соловьев-Седой",
+              "Стравинский": "Игорь Стравинский",
+              "Игорь Стравинский": "Игорь Стравинский",
+              "Суппе": "Франц фон Зуппе",
+              "Зуппе": "Франц фон Зуппе",
+              "Франц фон Зуппе": "Франц фон Зуппе",
+              "Такемицу": "Тору Такемицу",
+              "Тору Такемицу": "Тору Такемицу",
+              "Танеев": "Сергей Танеев",
+              "Сергей Танеев": "Сергей Танеев",
+              "Тартини": "Джузеппе Тартини",
+              "Джузеппе Тартини": "Джузеппе Тартини",
+              "Телеман": "Георг Филипп Телеман",
+              "Георг Филипп Телеман": "Георг Филипп Телеман",
+              "Тищенко": "Борис Тищенко",
+              "Борис Тищенко": "Борис Тищенко",
+              "Турина": "Хоакин Турина",
+              "Хоакин Турина": "Хоакин Турина",
+              "Уильямс": "Джон Уильямс",
+              "Джон Уильямс": "Джон Уильямс",
+              "Фибих": "Зденек Фибих",
+              "Зденек Фибих": "Зденек Фибих",
+              "Форе": "Габриэль Форе",
+              "Габриэль Форе": "Габриэль Форе",
+              "Франк": "Сезар Франк",
+              "Сезар Франк": "Сезар Франк",
+              "Хачатурян": "Арам Хачатурян",
+              "Арам Хачатурян": "Арам Хачатурян",
+              "Хиндемит": "Пауль Хиндемит",
+              "Пауль Хиндемит": "Пауль Хиндемит",
+              "Холст": "Густав Холст",
+              "Густав Холст": "Густав Холст",
+              "Хорнер": "Джеймс Хорнер",
+              "Джеймс Хорнер": "Джеймс Хорнер",
+              "Чайковский": "Петр Чайковский",
+              "Петр Чайковский": "Петр Чайковский",
+              "Пётр Чайковский": "Петр Чайковский",
+              "Черепнин": "Николай Черепнин",
+              "Николай Черепнин": "Николай Черепнин",
+              "Черни": "Карл Черни",
+              "Карл Черни": "Карл Черни",
+              "Чюрлёнис": "Микалоюс Константинас Чюрлёнис",
+              "Микалоюс Константинас Чюрлёнис": "Микалоюс Константинас Чюрлёнис",
+              "Шарпантье": "Марк-Антуан Шарпантье",
+              "Марк-Антуан Шарпантье": "Марк-Антуан Шарпантье",
+              "Шенберг": "Арнольд Шёнберг",
+              "Шёнберг": "Арнольд Шёнберг",
+              "Арнольд Шёнберг": "Арнольд Шёнберг",
+              "Шимановский": "Кароль Шимановский",
+              "Кароль Шимановский": "Кароль Шимановский",
+              "Шнитке": "Альфред Шнитке",
+              "Альфред Шнитке": "Альфред Шнитке",
+              "Шопен": "Фридерик Шопен",
+              "Фридерик Шопен": "Фридерик Шопен",
+              "Шостакович": "Дмитрий Шостакович",
+              "Дмитрий Шостакович": "Дмитрий Шостакович",
+              "Штраус": "Рихард Штраус",
+              "Рихард Штраус": "Рихард Штраус",
+              "Иоганн Штраус": "Иоганн Штраус",
+              "Штраус-сын": "Иоганн Штраус",
+              "Иоганн Штраус-сын": "Иоганн Штраус",
+              "Шуберт": "Франц Шуберт",
+              "Франц Шуберт": "Франц Шуберт",
+              "Шуман": "Роберт Шуман",
+              "Роберт Шуман": "Роберт Шуман",
+              "Щедрин": "Родион Щедрин",
+              "Родион Щедрин": "Родион Щедрин",
+              "Элгар": "Эдвард Элгар",
+              "Эдвард Элгар": "Эдвард Элгар",
+              "Энеску": "Джордже Энеску",
+              "Джордже Энеску": "Джордже Энеску",
+              "Эшпай": "Андрей Эшпай",
+              "Андрей Эшпай": "Андрей Эшпай",
+              "Яначек": "Леош Яначек",
+              "Леош Яначек": "Леош Яначек",
+          }
+
+          COMPOSER_ALIASES_SORTED = sorted(
+              COMPOSER_ALIASES.items(),
+              key=lambda item: len(item[0]),
+              reverse=True,
+          )
 
           FOOTER_START_PATTERNS = [
               r"^Для обращений$",
@@ -222,6 +595,37 @@ jobs:
               line = str(line).replace("\xa0", " ")
               line = re.sub(r"\s+", " ", line)
               return line.strip()
+
+
+          def tg_escape(value):
+              return html.escape(str(value or ""), quote=False)
+
+
+          def normalize_composer_key(value):
+              return clean_line(value).lower().replace("ё", "е")
+
+
+          def split_composer_prefix(line):
+              line = clean_line(line)
+
+              if not line:
+                  return None, ""
+
+              normalized_line = normalize_composer_key(line)
+
+              for alias, full_name in COMPOSER_ALIASES_SORTED:
+                  normalized_alias = normalize_composer_key(alias)
+
+                  if normalized_line == normalized_alias:
+                      return full_name, ""
+
+                  pattern = rf"^{re.escape(alias)}\s*[\.\-–—]\s*(.+)$"
+                  match = re.match(pattern, line, flags=re.IGNORECASE)
+
+                  if match:
+                      return full_name, clean_line(match.group(1))
+
+              return None, line
 
 
           def is_footer_start(line):
@@ -525,6 +929,7 @@ jobs:
                           json={
                               "chat_id": TELEGRAM_CHAT_ID,
                               "text": chunk,
+                              "parse_mode": "HTML",
                               "disable_web_page_preview": True,
                           },
                           timeout=35,
@@ -568,100 +973,203 @@ jobs:
               return remaining, sent_count
 
 
-          def diff_line_is_program_header(line):
-              normalized = clean_line(line).lower().replace("ё", "е")
-              return normalized in {
-                  "в программе:",
-                  "в программе",
-                  "исполнители:",
+          def normalize_key(value):
+              return clean_line(value).lower().replace("ё", "е")
+
+
+          SECTION_ORDER = [
+              "performers",
+              "program",
+              "venue",
+              "date_time",
+              "title",
+              "other",
+          ]
+
+          SECTION_HEADINGS = {
+              "performers": "Изменения в исполнителях",
+              "program": "Изменения в программе",
+              "venue": "Изменения площадки",
+              "date_time": "Изменения даты или времени",
+              "title": "Изменения названия",
+              "other": "Прочие изменения",
+          }
+
+
+          def detect_section_marker(line):
+              normalized = normalize_key(line).strip(":")
+
+              if normalized in {
                   "исполнители",
-                  "солисты:",
+                  "исполнитель",
                   "солисты",
-              }
+                  "солист",
+                  "действующие лица и исполнители",
+                  "состав исполнителей",
+              }:
+                  return "performers"
+
+              if normalized in {
+                  "в программе",
+                  "программа",
+                  "программа концерта",
+              }:
+                  return "program"
+
+              if normalized in {
+                  "площадка",
+                  "место проведения",
+                  "сцена",
+              }:
+                  return "venue"
+
+              return None
 
 
-          def diff_line_looks_like_name(line):
-              line = clean_line(line)
+          def detect_content_section(line, current_section):
+              normalized = normalize_key(line)
 
-              if not line or len(line) > 90:
-                  return False
+              if re.search(
+                  r"(дириж[её]р|хормейстер|режисс[её]р|солист|сопрано|меццо|тенор|баритон|бас|"
+                  r"фортепиано|скрипка|виолончель|оркестр|хор|ансамбль|исполнител)",
+                  normalized,
+              ):
+                  return "performers"
 
-              if line.startswith(("«", "\"", "„")):
-                  return False
+              if re.search(r"(площадка|зал|сцена|театр|концертный зал)", normalized):
+                  return "venue"
 
-              if any(char in line for char in [":", ",", ";", "(", ")", "№"]):
-                  return False
+              if re.search(r"\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}[:.]\d{2}\b", normalized):
+                  return "date_time"
 
-              words = line.replace("-", " ").split()
+              if current_section in {"performers", "program", "venue", "date_time", "title"}:
+                  return current_section
 
-              if not 1 <= len(words) <= 5:
-                  return False
+              if (
+                  line.startswith(("«", "\"", "„"))
+                  or "соч." in normalized
+                  or "симфони" in normalized
+                  or "концерт" in normalized
+                  or "кантат" in normalized
+                  or "ария" in normalized
+                  or "романс" in normalized
+                  or "песня" in normalized
+                  or "вариаци" in normalized
+                  or "попурри" in normalized
+              ):
+                  return "program"
 
-              capitalized = 0
-
-              for word in words:
-                  if not word:
-                      continue
-
-                  if re.match(r"^[A-ZА-ЯЁ][a-zа-яё]+$", word):
-                      capitalized += 1
-
-              return capitalized >= 1 and capitalized == len(words)
-
-
-          def diff_line_looks_like_piece(line):
-              line = clean_line(line)
-
-              if not line:
-                  return False
-
-              if line.startswith(("«", "\"", "„")):
-                  return True
-
-              if any(marker in line.lower() for marker in ["соч.", "романс", "ария", "каватина", "вариации", "попурри", "песня"]):
-                  return True
-
-              if any(char in line for char in [",", "…", "...", "№"]):
-                  return True
-
-              return False
+              return "other"
 
 
-          def format_diff_block(lines):
+          def lines_with_sections(text, normalizer):
+              normalized_text = normalizer(text)
               result = []
-              previous_kind = None
+              current_section = "other"
 
-              for raw in lines:
+              for raw in normalized_text.splitlines():
                   line = clean_line(raw)
 
                   if not line:
                       continue
 
-                  if diff_line_is_program_header(line):
-                      if result and result[-1] != "":
-                          result.append("")
-                      result.append(line)
-                      result.append("")
-                      previous_kind = "header"
+                  marker = detect_section_marker(line)
+
+                  if marker:
+                      current_section = marker
                       continue
 
-                  current_kind = "other"
+                  section = detect_content_section(line, current_section)
+                  result.append((line, section))
 
-                  if diff_line_looks_like_name(line):
-                      current_kind = "name"
-                  elif diff_line_looks_like_piece(line):
-                      current_kind = "piece"
+              return result
 
-                  if (
-                      result
-                      and result[-1] != ""
-                      and current_kind == "name"
-                      and previous_kind not in {None, "header", "name"}
-                  ):
-                      result.append("")
 
-                  result.append(line)
-                  previous_kind = current_kind
+          def split_long_program_line(line, section):
+              line = clean_line(line)
+
+              if section != "program":
+                  return [line]
+
+              composer, rest = split_composer_prefix(line)
+
+              if composer and rest:
+                  parts = [composer]
+                  comma_parts = [clean_line(part) for part in rest.split(",") if clean_line(part)]
+
+                  if len(comma_parts) >= 2:
+                      parts.extend(comma_parts)
+                  else:
+                      parts.append(rest)
+
+                  return parts
+
+              if len(line) < 80:
+                  return [line]
+
+              if line.count(",") < 2:
+                  return [line]
+
+              parts = [clean_line(part) for part in line.split(",") if clean_line(part)]
+
+              if len(parts) < 3:
+                  return [line]
+
+              return parts
+
+
+          def format_program_line(line):
+              composer, rest = split_composer_prefix(line)
+
+              if composer:
+                  result = [f"<b>{tg_escape(composer)}</b>"]
+
+                  if rest:
+                      result.append(tg_escape(rest))
+
+                  return result
+
+              return [tg_escape(line)]
+
+
+          def format_diff_block(lines, section):
+              result = []
+              previous_line = None
+
+              for raw in lines:
+                  raw_line = clean_line(raw)
+
+                  if not raw_line:
+                      continue
+
+                  expanded_lines = split_long_program_line(raw_line, section)
+
+                  for line in expanded_lines:
+                      line = clean_line(line)
+
+                      if not line:
+                          continue
+
+                      if line == previous_line:
+                          continue
+
+                      if section == "program":
+                          formatted_lines = format_program_line(line)
+                      else:
+                          formatted_lines = [tg_escape(line)]
+
+                      for formatted_line in formatted_lines:
+                          if not formatted_line:
+                              continue
+
+                          is_composer_line = formatted_line.startswith("<b>") and formatted_line.endswith("</b>")
+
+                          if result and result[-1] != "" and is_composer_line:
+                              result.append("")
+
+                          result.append(formatted_line)
+
+                      previous_line = line
 
               while result and result[-1] == "":
                   result.pop()
@@ -669,47 +1177,83 @@ jobs:
               return "\n".join(result).strip()
 
 
-          def make_diff(old_text, new_text, normalizer, max_chars=2300):
-              old_text = normalizer(old_text)
-              new_text = normalizer(new_text)
+          def add_grouped_change(grouped, section, kind, line, ignored_keys):
+              line = clean_line(line)
 
-              diff = difflib.unified_diff(
-                  old_text.splitlines(),
-                  new_text.splitlines(),
-                  fromfile="было",
-                  tofile="стало",
-                  lineterm="",
-                  n=1,
-              )
+              if not line:
+                  return
 
-              added = []
-              removed = []
+              if normalize_key(line) in ignored_keys:
+                  return
 
-              for line in diff:
-                  if line.startswith(("---", "+++", "@@")):
+              if detect_section_marker(line):
+                  return
+
+              grouped.setdefault(section, {"added": [], "removed": []})
+              bucket = grouped[section][kind]
+
+              if line not in bucket:
+                  bucket.append(line)
+
+
+          def make_diff(old_text, new_text, normalizer, event_titles=None, max_chars=2300):
+              old_items = lines_with_sections(old_text, normalizer)
+              new_items = lines_with_sections(new_text, normalizer)
+
+              old_lines = [line for line, section in old_items]
+              new_lines = [line for line, section in new_items]
+
+              old_sections = [section for line, section in old_items]
+              new_sections = [section for line, section in new_items]
+
+              ignored_keys = set()
+
+              for title in event_titles or []:
+                  title = clean_line(title)
+
+                  if title:
+                      ignored_keys.add(normalize_key(title))
+
+              matcher = difflib.SequenceMatcher(a=old_lines, b=new_lines)
+              grouped = {}
+
+              for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+                  if tag == "equal":
                       continue
 
-                  if not line.startswith(("+", "-")):
-                      continue
+                  if tag in {"delete", "replace"}:
+                      for index in range(i1, i2):
+                          section = old_sections[index] if index < len(old_sections) else "other"
+                          add_grouped_change(grouped, section, "removed", old_lines[index], ignored_keys)
 
-                  sign = line[0]
-                  content = clean_line(line[1:])
-
-                  if not content:
-                      continue
-
-                  if sign == "+":
-                      added.append(content)
-                  elif sign == "-":
-                      removed.append(content)
+                  if tag in {"insert", "replace"}:
+                      for index in range(j1, j2):
+                          section = new_sections[index] if index < len(new_sections) else "other"
+                          add_grouped_change(grouped, section, "added", new_lines[index], ignored_keys)
 
               blocks = []
 
-              if added:
-                  blocks.append("✅ Добавлено:\n\n" + format_diff_block(added))
+              for section in SECTION_ORDER:
+                  section_changes = grouped.get(section)
 
-              if removed:
-                  blocks.append("⛔ Удалено:\n\n" + format_diff_block(removed))
+                  if not section_changes:
+                      continue
+
+                  added = section_changes.get("added", [])
+                  removed = section_changes.get("removed", [])
+
+                  if not added and not removed:
+                      continue
+
+                  section_blocks = [f"{SECTION_HEADINGS.get(section, 'Прочие изменения')}:"]
+
+                  if added:
+                      section_blocks.append("✅ Добавлено:\n\n" + format_diff_block(added, section))
+
+                  if removed:
+                      section_blocks.append("⛔ Удалено:\n\n" + format_diff_block(removed, section))
+
+                  blocks.append("\n\n".join(section_blocks))
 
               text = "\n\n".join(blocks).strip()
 
@@ -1067,8 +1611,8 @@ jobs:
 
 
           def scan_philharmonia_grand():
-              html = fetch(PHILHARMONIA_GRAND_URL)
-              soup = BeautifulSoup(html, "html.parser")
+              html_text = fetch(PHILHARMONIA_GRAND_URL)
+              soup = BeautifulSoup(html_text, "html.parser")
               lines = philharmonia_prefilter_lines(visible_lines_from_soup(soup))
               text = "\n".join(lines)
               blocks = philharmonia_extract_blocks(text)
@@ -1115,35 +1659,47 @@ jobs:
                   old = old_events.get(event_key)
                   event_datetime = format_event_datetime(record)
                   venue = record.get("venue", "")
-                  venue_line = f"Площадка: {venue}\n" if venue else ""
+                  venue_line = f"Площадка: {tg_escape(venue)}\n" if venue else ""
+
+                  title_safe = tg_escape(record.get("title", "Без названия"))
+                  event_datetime_safe = tg_escape(event_datetime)
+                  url_safe = tg_escape(record.get("url", ""))
 
                   if old is None:
                       summary = record.get("summary") or make_summary(record.get("detail_text", ""), normalizer)
 
                       changes.append(
-                          f"{label}\n"
+                          f"{tg_escape(label)}\n"
                           "🐣 Новое событие\n\n"
-                          f"Название: {record.get('title', 'Без названия')}\n"
-                          f"Дата и время: {event_datetime}\n"
+                          f"Название: {title_safe}\n"
+                          f"Дата и время: {event_datetime_safe}\n"
                           f"{venue_line}\n"
-                          f"{summary}\n\n"
-                          f"Ссылка: {record.get('url', '')}"
+                          f"{tg_escape(summary)}\n\n"
+                          f"Ссылка: {url_safe}"
                       )
                       continue
 
                   if old.get("digest") != record.get("digest"):
-                      diff = make_diff(old.get("detail_text", ""), record.get("detail_text", ""), normalizer)
+                      diff = make_diff(
+                          old.get("detail_text", ""),
+                          record.get("detail_text", ""),
+                          normalizer,
+                          event_titles=[
+                              record.get("title", ""),
+                              old.get("title", ""),
+                          ],
+                      )
 
                       if not diff:
                           continue
 
                       changes.append(
-                          f"{label}\n"
+                          f"{tg_escape(label)}\n"
                           "Изменение в афише\n\n"
-                          f"Название: {record.get('title', 'Без названия')}\n"
-                          f"Дата и время: {event_datetime}\n"
+                          f"Название: {title_safe}\n"
+                          f"Дата и время: {event_datetime_safe}\n"
                           f"{venue_line}"
-                          f"Ссылка: {record.get('url', '')}\n\n"
+                          f"Ссылка: {url_safe}\n\n"
                           f"Изменения:\n{diff}"
                       )
 
@@ -1151,15 +1707,15 @@ jobs:
                   if event_key not in new_events and record_is_future(old):
                       event_datetime = format_event_datetime(old)
                       venue = old.get("venue", "")
-                      venue_line = f"Площадка: {venue}\n" if venue else ""
+                      venue_line = f"Площадка: {tg_escape(venue)}\n" if venue else ""
 
                       changes.append(
-                          f"{label}\n"
+                          f"{tg_escape(label)}\n"
                           "⛔ Событие исчезло из текущей афиши\n\n"
-                          f"Название: {old.get('title', 'Без названия')}\n"
-                          f"Дата и время: {event_datetime}\n"
+                          f"Название: {tg_escape(old.get('title', 'Без названия'))}\n"
+                          f"Дата и время: {tg_escape(event_datetime)}\n"
                           f"{venue_line}"
-                          f"Ссылка: {old.get('url', '')}"
+                          f"Ссылка: {tg_escape(old.get('url', ''))}"
                       )
 
               return changes
