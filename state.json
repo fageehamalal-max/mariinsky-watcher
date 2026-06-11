@@ -1,7 +1,5 @@
 {
-  "pending_messages": [
-    "Мариинский театр\n🐣 Новое событие\n\nНазвание: Аттила\nДата и время: 2026-07-05, 19:00\nПлощадка: Мариинский-2\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/5/2_1900/"
-  ],
+  "pending_messages": [],
   "schema_version": 18,
   "sources": {
     "mariinsky": {
@@ -1092,5 +1090,5 @@
       "label": "СПб филармония, Большой зал"
     }
   },
-  "updated_at": "2026-06-11T11:13:55Z"
+  "updated_at": "2026-06-11T11:24:02Z"
 }
