@@ -45,7 +45,7 @@ jobs:
           import requests
           from bs4 import BeautifulSoup
 
-          STATE_VERSION = 33
+          STATE_VERSION = 34
           STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
           SELF_TEST = os.getenv("SELF_TEST", "0") == "1"
           DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
@@ -56,7 +56,7 @@ jobs:
           MARIINSKY_URL = "https://www.mariinsky.ru/playbill/playbill/"
           PHILHARMONIA_URL = "https://www.philharmonia.spb.ru/afisha/grand/"
           TZ = ZoneInfo("Europe/Moscow")
-          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.0", "Accept-Language": "ru,en;q=0.9"}
+          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.1", "Accept-Language": "ru,en;q=0.9"}
 
           EMOJI_NEW = "🐣"
           EMOJI_ADDED = "✅"
@@ -99,6 +99,10 @@ jobs:
 
           PERFORMER_WORDS = [
               "дириж", "солист", "солистка", "исполн", "состав", "партию", "партия", "сопрано", "тенор", "баритон", "бас",
+              "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "концертмейстер", "режиссер", "режиссёр", "хормейстер",
+          ]
+          ROLE_WORDS = [
+              "дирижер", "дирижёр", "солист", "солистка", "исполнитель", "исполнительница", "сопрано", "тенор", "баритон", "бас",
               "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "концертмейстер", "режиссер", "режиссёр", "хормейстер",
           ]
           PROGRAM_WORDS = [
@@ -150,7 +154,7 @@ jobs:
                       continue
                   out.append(line)
                   prev = line
-              return out
+              return merge_performer_role_lines(out)
 
           def is_date_line(line):
               return bool(re.search(r"\b\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\b", key(line)))
@@ -227,13 +231,52 @@ jobs:
               low = key(line)
               return any(w.lower().replace("ё", "е") in low for w in words)
 
+          def looks_like_person_name(line):
+              line = clean(line)
+              if not line or is_noise(line) or is_date_line(line) or is_time_line(line):
+                  return False
+              if contains_word(line, PROGRAM_WORDS):
+                  return False
+              words = [w for w in re.split(r"\s+", line.replace(".", " ")) if w]
+              if not (1 <= len(words) <= 4):
+                  return False
+              return all(re.match(r"^[А-ЯЁA-Z][а-яёa-zА-ЯЁA-Z\-]+$", w) for w in words)
+
+          def role_only_prefix(line):
+              line = clean(line)
+              m = re.match(r"^(.+?)\s*[-–—:]\s*$", line)
+              if not m:
+                  return ""
+              role = clean(m.group(1))
+              return role if contains_word(role, ROLE_WORDS) else ""
+
+          def merge_performer_role_lines(lines):
+              merged = []
+              i = 0
+              while i < len(lines):
+                  line = clean(lines[i])
+                  role = role_only_prefix(line)
+                  if role:
+                      if i + 1 < len(lines) and looks_like_person_name(lines[i + 1]):
+                          merged.append(f"{role} — {clean(lines[i + 1])}")
+                          i += 2
+                          continue
+                      i += 1
+                      continue
+                  merged.append(line)
+                  i += 1
+              return merged
+
           def is_performer_line(line):
+              line = clean(line)
               if is_noise(line):
+                  return False
+              if role_only_prefix(line):
                   return False
               low = key(line)
               if contains_word(line, PROGRAM_WORDS) or any(c.lower().replace("ё", "е") in low for c in COMPOSERS):
                   return False
-              return contains_word(line, PERFORMER_WORDS) or (clean(line).startswith(":") and "," in line)
+              return contains_word(line, PERFORMER_WORDS) or (line.startswith(":") and "," in line)
 
           def is_program_line(line, title):
               if is_noise(line) or is_date_line(line) or is_time_line(line) or key(line) == key(title):
@@ -243,22 +286,28 @@ jobs:
               return contains_word(line, PROGRAM_WORDS) or any(c.lower().replace("ё", "е") in key(line) for c in COMPOSERS) or "«" in line or "»" in line
 
           def split_people(text):
-              text = clean(text).strip(" :;,-")
+              text = clean(text).strip(" :;,-–—")
               return [clean(x) for x in re.split(r"\s*,\s*|\s*;\s*", text) if clean(x)]
 
           def performer_items_from_line(line):
               line = clean(line)
-              if not line:
+              if not line or role_only_prefix(line):
                   return []
               if line.startswith(":"):
                   return split_people(line[1:])
-              for sep in [" — ", ":"]:
-                  if sep in line:
-                      label, rest = [clean(x) for x in line.split(sep, 1)]
-                      people = split_people(rest)
-                      if len(people) > 1 and contains_word(label, PERFORMER_WORDS):
-                          return [f"{label} — {p}" for p in people]
-                      return [line]
+              m = re.match(r"^(.+?)\s*[-–—:]\s*(.+)$", line)
+              if m:
+                  label, rest = clean(m.group(1)), clean(m.group(2))
+                  if contains_word(label, ROLE_WORDS) and not rest:
+                      return []
+                  people = split_people(rest)
+                  if not people:
+                      return []
+                  if len(people) > 1 and contains_word(label, PERFORMER_WORDS):
+                      return [f"{label} — {p}" for p in people]
+                  if contains_word(label, PERFORMER_WORDS):
+                      return [f"{label} — {people[0]}"] if len(people) == 1 else [line]
+                  return [line]
               return split_people(line) if "," in line else [line]
 
           def uniq(items):
@@ -612,12 +661,20 @@ jobs:
               print(f"Telegram messages sent this run: {sent}. Pending left: {len(state.get('pending_messages', []))}")
 
           def run_self_tests():
-              assert STATE_VERSION == 33
+              assert STATE_VERSION == 34
               assert date_line({"date_text": "21 июня 2026", "time_text": "19:30"}) == "🔸 21 июня 2026. 19:30"
               assert "  19:30" not in date_line({"date_text": "21 июня 2026", "time_text": "19:30"})
-              html = """<html><body><h1>Брамс. Скрипичный концерт</h1><p>Концертный зал</p><p>Дирижер — Иван Петров</p><p>Возрастная категория 6+</p><aside>XXXIV Музыкальный фестиваль «Звезды белых ночей»</aside><p>18 июня</p><p>Летучий голландец</p><p>20 июня</p><p>Аида</p><p>21 июня</p><p>Набукко</p></body></html>"""
-              text = "\n".join(html_lines(html, stop_re=MARIINSKY_STOP_RE))
-              assert "Дирижер" in text and "Летучий голландец" not in text and "Аида" not in text and "Набукко" not in text
+              html = """<html><body><h1>Брамс. Скрипичный концерт</h1><p>Концертный зал</p><p>Дирижер –</p><p>Андрей Иванов</p><p>Возрастная категория 6+</p><aside>XXXIV Музыкальный фестиваль «Звезды белых ночей»</aside><p>18 июня</p><p>Летучий голландец</p><p>20 июня</p><p>Аида</p><p>21 июня</p><p>Набукко</p></body></html>"""
+              lines = html_lines(html, stop_re=MARIINSKY_STOP_RE)
+              text = "\n".join(lines)
+              assert "Дирижер — Андрей Иванов" in text
+              assert "Дирижер –" not in text
+              assert "Летучий голландец" not in text and "Аида" not in text and "Набукко" not in text
+              assert performer_items_from_line("Дирижер –") == []
+              assert performer_items_from_line("Дирижер —") == []
+              assert performer_items_from_line("Дирижер:") == []
+              assert performer_items_from_line("Дирижер – Андрей Иванов") == ["Дирижер — Андрей Иванов"]
+              assert performer_items_from_line("Дирижер — Андрей Иванов") == ["Дирижер — Андрей Иванов"]
               old_items = performer_items_from_line(": Екатерина Лукаш, Зинаида Царенко, Ирина Шишкова")
               new_items = performer_items_from_line(": Екатерина Лукаш, Зинаида Царенко, Ирина Шишкова, Дарья Рябоконь")
               added, removed = set_diff(old_items, new_items)
