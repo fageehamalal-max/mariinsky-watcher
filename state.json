@@ -1157,6 +1157,28 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/15/2_1900/",
           "venue": "Мариинский-2"
         },
+        "https://www.mariinsky.ru/playbill/playbill/2026/7/15/3_1900/": {
+          "date_text": "15 июля 2026",
+          "digest": "91760a2e1e4139e991e9e9ba17474f8279d7e4062f635624e03832a70b6a6e0e",
+          "event_date": "2026-07-15",
+          "performers": [
+            "Орган",
+            "ИСПОЛНИТЕЛИ:",
+            "Дирижер — Кристиан Кнапп",
+            "Исполняется на французском языке"
+          ],
+          "program": [
+            "Санкт-Петербург, Концертный зал",
+            "Симфонический оркестр Мариинского театра",
+            "Франсис Пуленк",
+            "Моноопера «Человеческий голос» (концертное исполнение)"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Пуленк. Моноопера «Человеческий голос»",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/15/3_1900/",
+          "venue": "Концертный зал"
+        },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/16/1_1900/": {
           "date_text": "16 июля 2026",
           "digest": "c9573dd3bc59071d0631327ec3fac3537ff780a5e5ab370f34a2c45cd0e02eed",
@@ -2556,5 +2578,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-21T14:33:05Z"
+  "updated_at": "2026-06-21T14:42:39Z"
 }
