@@ -982,6 +982,25 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/12/1_1900/",
           "venue": "Мариинский театр"
         },
+        "https://www.mariinsky.ru/playbill/playbill/2026/7/12/2_1900/": {
+          "date_text": "12 июля 2026",
+          "digest": "497ad60b75da626576c4fcb2096d44221084ef41c7c0813454212d7390217af5",
+          "event_date": "2026-07-12",
+          "performers": [
+            "Орган",
+            "Исполняется на итальянском языке (сопровождается синхронными титрами на русском и английском языках)",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Джузеппе Верди"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Симон Бокканегра",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/12/2_1900/",
+          "venue": "Мариинский-2"
+        },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/12/3_1200/": {
           "date_text": "12 июля 2026",
           "digest": "e213856c2a1c8e3aad0fafe2ef022ec7d0978feb600062c626c79227592a7433",
@@ -1137,6 +1156,24 @@
           "title": "Ярославна. Затмение",
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/15/2_1900/",
           "venue": "Мариинский-2"
+        },
+        "https://www.mariinsky.ru/playbill/playbill/2026/7/16/1_1900/": {
+          "date_text": "16 июля 2026",
+          "digest": "c9573dd3bc59071d0631327ec3fac3537ff780a5e5ab370f34a2c45cd0e02eed",
+          "event_date": "2026-07-16",
+          "performers": [
+            "Орган",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Петра Чайковского"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Мазепа",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/16/1_1900/",
+          "venue": "Мариинский театр"
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/16/2_1900/": {
           "date_text": "16 июля 2026",
@@ -1560,25 +1597,6 @@
           "title": "Идоменей, царь Критский",
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/21/2_1900/",
           "venue": "Мариинский-2"
-        },
-        "https://www.mariinsky.ru/playbill/playbill/2026/7/22/1_1900/": {
-          "date_text": "22 июля 2026",
-          "digest": "1d77a021f4ace053711f96f97221ed8d2a2a32eaab83048960e7f94ddbd20d87",
-          "event_date": "2026-07-22",
-          "performers": [
-            "Орган",
-            "Исполняется на французском языке (сопровождается синхронными титрами на русском и английском языках)",
-            "Исполнители",
-            "Cостав исполнителей будет объявлен позднее"
-          ],
-          "program": [
-            "опера Шарля Гуно"
-          ],
-          "source": "mariinsky",
-          "time_text": "19:00",
-          "title": "Фауст",
-          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/22/1_1900/",
-          "venue": "Мариинский театр"
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/23/1_1900/": {
           "date_text": "23 июля 2026",
@@ -2517,5 +2535,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-21T14:12:36Z"
+  "updated_at": "2026-06-21T14:22:46Z"
 }
