@@ -69,7 +69,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/21/2_1300/": {
           "date_text": "21 июня 2026",
-          "digest": "8682ac75eb0a366a48fc11c09fde7a6c1d98d80519f03f4df9377733acd599d5",
+          "digest": "1c9f809bbf67d952e985330f20654d098f0d3e568bc943304e7a96d52e086393",
           "event_date": "2026-06-21",
           "performers": [
             "Орган",
@@ -80,8 +80,7 @@
           "program": [
             "опера Джузеппе Верди",
             "«Из истории оперы \"Набукко\"",
-            "»",
-            "Абонемент «Выходные с Верди»"
+            "»"
           ],
           "source": "mariinsky",
           "time_text": "13:00",
@@ -2571,5 +2570,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-21T09:03:10Z"
+  "updated_at": "2026-06-21T09:12:31Z"
 }
