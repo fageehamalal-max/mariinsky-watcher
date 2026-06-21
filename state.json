@@ -1598,6 +1598,27 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/21/2_1900/",
           "venue": "Мариинский-2"
         },
+        "https://www.mariinsky.ru/playbill/playbill/2026/7/22/1_1900/": {
+          "date_text": "22 июля 2026",
+          "digest": "dc0ad66fe11ca1d741e2020de477ec35fe5bf4ee4a0b7812f7d927814191982e",
+          "event_date": "2026-07-22",
+          "performers": [
+            "Орган",
+            "Исполняется с диалогами на русском языке",
+            "музыкальные номера исполняются на немецком языке с русскими субтитрами",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Вольфганга Амадея Моцарта",
+            "«\"Похищение из сераля\" – история создания и постановок оперы Моцарта»"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Похищение из сераля",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/22/1_1900/",
+          "venue": "Мариинский театр"
+        },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/23/1_1900/": {
           "date_text": "23 июля 2026",
           "digest": "091198b1b0ab20924e0d149b84bdbc0b4dc7f87b9032d02ebd1f3a069a849cce",
@@ -2535,5 +2556,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-21T14:22:46Z"
+  "updated_at": "2026-06-21T14:33:05Z"
 }
