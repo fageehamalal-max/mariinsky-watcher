@@ -1,9 +1,5 @@
 {
-  "pending_messages": [
-    "𝄞 Концертный зал\n🐣 Новое событие\n\nНазвание: Травиата\n🔸 19 июля 2026. 19:00\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/19/3_1900/",
-    "𝄞 Зал Стравинского\n🐣 Новое событие\n\nНазвание: Петербургские романсы\n🔸 2 июля 2026. 19:00\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/2/10_1900/",
-    "𝄞 Мариинский театр\n🐣 Новое событие\n\nНазвание: Легенда о любви\n🔸 2 июля 2026. 19:00\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/2/1_1900/"
-  ],
+  "pending_messages": [],
   "schema_version": 35,
   "sources": {
     "mariinsky": {
@@ -2582,5 +2578,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-21T16:23:14Z"
+  "updated_at": "2026-06-21T16:33:23Z"
 }
