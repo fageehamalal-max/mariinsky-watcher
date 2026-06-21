@@ -982,24 +982,6 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/12/1_1900/",
           "venue": "Мариинский театр"
         },
-        "https://www.mariinsky.ru/playbill/playbill/2026/7/12/2_1900/": {
-          "date_text": "12 июля 2026",
-          "digest": "6802ccb5af25eea9c93af0d2dfd8616ea95405236dcc7c5d0fde3ef52098cdd5",
-          "event_date": "2026-07-12",
-          "performers": [
-            "Орган",
-            "Исполнители",
-            "Cостав исполнителей будет объявлен позднее"
-          ],
-          "program": [
-            "опера Петра Чайковского"
-          ],
-          "source": "mariinsky",
-          "time_text": "19:00",
-          "title": "Мазепа",
-          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/12/2_1900/",
-          "venue": "Мариинский-2"
-        },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/12/3_1200/": {
           "date_text": "12 июля 2026",
           "digest": "e213856c2a1c8e3aad0fafe2ef022ec7d0978feb600062c626c79227592a7433",
@@ -1155,24 +1137,6 @@
           "title": "Ярославна. Затмение",
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/15/2_1900/",
           "venue": "Мариинский-2"
-        },
-        "https://www.mariinsky.ru/playbill/playbill/2026/7/16/1_1900/": {
-          "date_text": "16 июля 2026",
-          "digest": "23de7704fecb3e44bf5b765284f68d9ce04b5f5e7339f68e92fd149f63927255",
-          "event_date": "2026-07-16",
-          "performers": [
-            "Орган",
-            "Исполнители",
-            "Cостав исполнителей будет объявлен позднее"
-          ],
-          "program": [
-            "опера Николая Римского-Корсакова"
-          ],
-          "source": "mariinsky",
-          "time_text": "19:00",
-          "title": "Золотой петушок",
-          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/16/1_1900/",
-          "venue": "Мариинский театр"
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/16/2_1900/": {
           "date_text": "16 июля 2026",
@@ -2553,5 +2517,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-21T14:03:28Z"
+  "updated_at": "2026-06-21T14:12:36Z"
 }
