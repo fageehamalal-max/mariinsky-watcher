@@ -1,12 +1,12 @@
 {
   "pending_messages": [],
-  "schema_version": 38,
+  "schema_version": 39,
   "sources": {
     "mariinsky": {
       "events": {
         "https://www.mariinsky.ru/playbill/playbill/2026/6/22/1_1901/": {
           "date_text": "22 июня 2026",
-          "digest": "41dd957b8c7073fc3625d1e184b16a5e8daf89dbbd137441b135a8b1718ec473",
+          "digest": "1973de966abf62cee9ce0d498e24221c6d3ce468c1217eae1d7b82214981cfeb",
           "event_date": "2026-06-22",
           "performers": [
             "Орган",
@@ -15,8 +15,7 @@
           ],
           "program": [
             "Барышня и хулиган. Ленинградская симфония",
-            "Ленинградская симфония",
-            "балет"
+            "Ленинградская симфония"
           ],
           "source": "mariinsky",
           "time_text": "19:01",
@@ -26,16 +25,16 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/22/3_1900/": {
           "date_text": "22 июня 2026",
-          "digest": "de5a47490104d1600ca3c270940263167e74d25a54c3404a1172a0be3f953fd1",
+          "digest": "3e62f6e250ad263cbe0b9e16dd255bee316e9b9b8872bd66e4ac590b6e97fe86",
           "event_date": "2026-06-22",
           "performers": [
             "Орган",
+            "опера Кирилла Молчанова (концертное исполнение)",
             "Исполнители",
             "Дирижер — Заурбек Гугкаев"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Кирилла Молчанова (концертное исполнение)"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -64,16 +63,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/23/2_1900/": {
           "date_text": "23 июня 2026",
-          "digest": "bd382dfd3717394ba925e154f5757270f14be5ff401a093e02d7d54d6db62ac6",
+          "digest": "6795c1bbe4b60e93016cb12fd3a17fad97d82fbf39a1a1362cc2d11e2870d863",
           "event_date": "2026-06-23",
           "performers": [
             "Орган",
             "Исполнители",
             "Дирижер — Алексей Богорад"
           ],
-          "program": [
-            "балет Даниэля"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Марко Спада",
@@ -122,7 +119,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/24/1_1900/": {
           "date_text": "24 июня 2026",
-          "digest": "6fffb13a5e9d121d6ecf85192123ba916bc9eae176b8dffaf85b5a8fe722d973",
+          "digest": "72408ab30fba167965c67a2033c33584e349ed2a6fdb025d6baa28bd808d3f8a",
           "event_date": "2026-06-24",
           "performers": [
             "Орган",
@@ -130,7 +127,6 @@
             "Дирижер — Борис Грузин"
           ],
           "program": [
-            "балет",
             "на музыку Роберта Шумана"
           ],
           "source": "mariinsky",
@@ -141,16 +137,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/24/2_1900/": {
           "date_text": "24 июня 2026",
-          "digest": "1e125e0d1f87e400cf35aab972b08c9310826d9fb7fcdc347a0cd5230e58bb86",
+          "digest": "39dec6c1e3e98ca0e42722a4710391db376075373ab386d4e1d3f6d4ae7d82af",
           "event_date": "2026-06-24",
           "performers": [
             "Орган",
             "Исполнители",
             "Дирижер — Алексей Богорад"
           ],
-          "program": [
-            "балет Даниэля"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Марко Спада",
@@ -185,7 +179,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/25/1_1900/": {
           "date_text": "25 июня 2026",
-          "digest": "9107f25e66a1efcac57e139e6e29a0a724add44265cd4c64f2e290eec8822c87",
+          "digest": "0fdc5aa893d2de7d11a115bcc47a955c35788a13e71ab2b23994a9526e77a4c5",
           "event_date": "2026-06-25",
           "performers": [
             "Орган",
@@ -193,7 +187,6 @@
             "Дирижер — Валерий Овсяников"
           ],
           "program": [
-            "балет",
             "При участии воспитанников Академии танца Бориса Эйфмана"
           ],
           "source": "mariinsky",
@@ -204,16 +197,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/25/2_1900/": {
           "date_text": "25 июня 2026",
-          "digest": "d62b0d9aa6d5eb329782e0cde1495f24744a2b7c1e2f0fdf365ce840dc057481",
+          "digest": "33b785f42e3c2f0539711c3d24a00eec0d2ea6abf95251a77d009eee731f3385",
           "event_date": "2026-06-25",
           "performers": [
             "Орган",
             "Исполнители",
             "Дирижер — Алексей Богорад"
           ],
-          "program": [
-            "балет Даниэля"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Марко Спада",
@@ -274,16 +265,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/26/2_1200/": {
           "date_text": "26 июня 2026",
-          "digest": "faa6d9c31bc89335d8cf974f50149b486b9c162eb2f856c3c7271ff36477ce4e",
+          "digest": "2d46cc64a6a255358efc3dc769ea258c8364b525f856d9891d0942e49e7a1a70",
           "event_date": "2026-06-26",
           "performers": [
             "Орган",
             "Исполнители",
             "Дирижер — Алексей Богорад"
           ],
-          "program": [
-            "балет Даниэля"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "12:00",
           "title": "Марко Спада",
@@ -292,16 +281,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/26/2_1900/": {
           "date_text": "26 июня 2026",
-          "digest": "d4656fff73c1ed7865d2bea7210271a0d1e332cb684a1ac1dce492d0c1cd5b6e",
+          "digest": "b0164ec593a5aa7ca6c92338fd763fe254031fbd9642052066592de45cbca9be",
           "event_date": "2026-06-26",
           "performers": [
             "Орган",
             "Исполнители",
             "Дирижер — Алексей Богорад"
           ],
-          "program": [
-            "балет Даниэля"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Марко Спада",
@@ -310,7 +297,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/26/3_1900/": {
           "date_text": "26 июня 2026",
-          "digest": "5b7b7d3098bdb798999f6dd10055984f4629cefd48e3ca9be2449e1aead89215",
+          "digest": "a9461d2c7d3fc24272dbeb52ed7a5f160ac8f9461ae02ff4e3ee38901e3adc82",
           "event_date": "2026-06-26",
           "performers": [
             "Орган",
@@ -319,8 +306,7 @@
             "Дирижер — Дае Линь"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Джакомо Пуччини"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -330,7 +316,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/27/1_1300/": {
           "date_text": "27 июня 2026",
-          "digest": "431f45448e2eb10db146bfb00a8ca1e76017d5ee8254091aa3ebaa45b249db80",
+          "digest": "7063c3f761a6d8ed3db590fec5d83cfd10becaadbfc8c8e98b5ca8ee31496548",
           "event_date": "2026-06-27",
           "performers": [
             "Орган",
@@ -343,7 +329,6 @@
             "Премьера балета в хореографии Мариуса Петипа и Льва Иванова — Мариинский театр"
           ],
           "program": [
-            "балет",
             "«Лебеди черные и белые»"
           ],
           "source": "mariinsky",
@@ -354,7 +339,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/27/1_1900/": {
           "date_text": "27 июня 2026",
-          "digest": "9817c6ea84442cd00bfeb27e1db4af380415dbb0a40b9939a53d177ca6f944fd",
+          "digest": "82cec5d54b4cf1461d0183884b041fb4b4185bcef4a95207ff40e0319a60e3e7",
           "event_date": "2026-06-27",
           "performers": [
             "Орган",
@@ -367,7 +352,6 @@
             "Премьера балета в хореографии Мариуса Петипа и Льва Иванова — Мариинский театр"
           ],
           "program": [
-            "балет",
             "«Лебеди черные и белые»"
           ],
           "source": "mariinsky",
@@ -378,7 +362,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/27/2_1900/": {
           "date_text": "27 июня 2026",
-          "digest": "c855cd23d8a8aef2dbdba08bbdc4ce9e0db07b923e0e02b459964eaaec6111fd",
+          "digest": "f42b310f8946607a4ceab08cbe0e8936ba8ab5aaf9528231f170a9af5e304bfc",
           "event_date": "2026-06-27",
           "performers": [
             "Орган",
@@ -386,9 +370,7 @@
             "Исполнители",
             "Дирижер — Георгий Албегов"
           ],
-          "program": [
-            "опера Джакомо Пуччини"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Мадам Баттерфлай",
@@ -428,18 +410,15 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/28/1_1200/": {
           "date_text": "28 июня 2026",
-          "digest": "1c13e121db29e36aa042ed0ab4c4593eafada2e12df4996a38512a67f8f470de",
+          "digest": "72b7744f0b7ea8b5b9eaf1e463241081d0a128ba3a1658e8d2757242f87c3677",
           "event_date": "2026-06-28",
           "performers": [
             "Орган",
             "Исполнители",
-            "Дирижер — Арсений Шупляков"
-          ],
-          "program": [
-            "балет",
-            "Спектакль Театра балета им. Л. Якобсона",
+            "Дирижер — Арсений Шупляков",
             "Артисты Театра балета им. Л. Якобсона"
           ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "12:00",
           "title": "Дон Кихот",
@@ -448,7 +427,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/28/1_1900/": {
           "date_text": "28 июня 2026",
-          "digest": "a341cd1e9ef048dc90c46ee3c423c2da7dfbc14f003ed02e7287374cf1e1c9df",
+          "digest": "31f09dbeec121dbb9732736d785ac0f2c20514af896ab63d54b5005bade25c77",
           "event_date": "2026-06-28",
           "performers": [
             "Орган",
@@ -461,7 +440,6 @@
             "Премьера балета в хореографии Мариуса Петипа и Льва Иванова — Мариинский театр"
           ],
           "program": [
-            "балет",
             "«Лебеди черные и белые»"
           ],
           "source": "mariinsky",
@@ -472,7 +450,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/28/2_1300/": {
           "date_text": "28 июня 2026",
-          "digest": "19a163665e2cd5e5fd2c601ed7286203d068f4af008e2a8e5f67fd76fc52809f",
+          "digest": "ca03884104d586bdb17368ab78bec616f7afe51c204ac491017a7636c8700d7d",
           "event_date": "2026-06-28",
           "performers": [
             "Волшебная флейта",
@@ -480,7 +458,8 @@
             "Исполняется с диалогами на русском языке",
             "музыкальные номера исполняются на немецком языке с русскими субтитрами",
             "Исполнители",
-            "Дирижер — Юстус Франтц"
+            "Дирижер — Юстус Франтц",
+            "Премьера в Театре оперы и балета им. С. М. Кирова (Мариинском): 4 июня 1966 года (обработка либретто Вальтера Фельзенштейна, перевод на русский язык Джемала Далгата)"
           ],
           "program": [
             "опера Вольфганга Амадея Моцарта"
@@ -493,7 +472,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/28/2_1900/": {
           "date_text": "28 июня 2026",
-          "digest": "cc9402302dd7f52676594d72aa3940f1ae5887b661467a10b3335292d4fc96c5",
+          "digest": "d6866556dad3f80f05b6eaef3bad5749a0ba7b848d9f29b9e89e6aae32f13676",
           "event_date": "2026-06-28",
           "performers": [
             "Волшебная флейта",
@@ -501,7 +480,8 @@
             "Исполняется с диалогами на русском языке",
             "музыкальные номера исполняются на немецком языке с русскими субтитрами",
             "Исполнители",
-            "Дирижер — Юстус Франтц"
+            "Дирижер — Юстус Франтц",
+            "Премьера в Театре оперы и балета им. С. М. Кирова (Мариинском): 4 июня 1966 года (обработка либретто Вальтера Фельзенштейна, перевод на русский язык Джемала Далгата)"
           ],
           "program": [
             "опера Вольфганга Амадея Моцарта"
@@ -632,7 +612,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/30/1_1900/": {
           "date_text": "30 июня 2026",
-          "digest": "bccbe3aed75850c4657d71305db634d87fa19e5ca0482137bb07826f29ae1517",
+          "digest": "893db2f1ee869f99fd3f0d52d7f0ec604155c5dac6f39f0a6496a60dab52b189",
           "event_date": "2026-06-30",
           "performers": [
             "Орган",
@@ -647,7 +627,6 @@
             "Премьера балета в хореографии Александра Горского — Москва"
           ],
           "program": [
-            "балет",
             "Уличная танцовщица –"
           ],
           "source": "mariinsky",
@@ -658,7 +637,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/30/3_1900/": {
           "date_text": "30 июня 2026",
-          "digest": "e67d05ce87cf54a8f4565d82741f7303ac7564ef08bb399139218fc2f4fd0e12",
+          "digest": "fe1f857568c443e578ccc0f0ea65e876c896e7803ece9e1e602b249aeffaafcf",
           "event_date": "2026-06-30",
           "performers": [
             "Орган",
@@ -667,8 +646,7 @@
             "Дирижер — Владислав Карклин"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Бенджамина Бриттена"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -694,15 +672,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/1/1_1900/": {
           "date_text": "1 июля 2026",
-          "digest": "926ccbbec21ad27ec44cdeace180a4ef3de6c8cc6225c03eb3463cf96dbb89f6",
+          "digest": "306de11d9e5c5c8abafe5f5c2c43112baf170882a54fdc08dfb2eae284dc6d3e",
           "event_date": "2026-07-01",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Легенда о любви",
@@ -711,7 +687,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/1/3_1900/": {
           "date_text": "1 июля 2026",
-          "digest": "94839d0d7f9eeaf47724ba9b672a4a252585faf5d5525abe03cd058b006da5b6",
+          "digest": "263124c3a1d098376f4133d45f649ce10ab505008a2c233a014fa4dda94a674c",
           "event_date": "2026-07-01",
           "performers": [
             "Орган",
@@ -719,8 +695,7 @@
             "Дирижер — Валерий Гергиев"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Николая Римского-Корсакова"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -730,16 +705,16 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/10/1_1900/": {
           "date_text": "10 июля 2026",
-          "digest": "9bb3c642d1f8abc7024e2440d78633e688ca66734182f3165bc7be5302c64d45",
+          "digest": "0a4707bad89646da5c43d9a4d4e1a5e6991e1963392e6e9495b255947b9d3cdb",
           "event_date": "2026-07-10",
           "performers": [
             "Орган",
             "ИСПОЛНИТЕЛИ — Виктория Терёшкина",
+            "Солисты и артисты балетной труппы Мариинского театра",
             "Cимфонический оркестр Мариинского театра"
           ],
           "program": [
-            "Гала-концерт балета",
-            "Солисты и артисты балетной труппы Мариинского театра"
+            "Гала-концерт балета"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -768,17 +743,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/11/1_1200/": {
           "date_text": "11 июля 2026",
-          "digest": "514ae10108e7c863497f2a44dc0d9d5a87fe712bf7dc429b3c875908afb67931",
+          "digest": "2527f0d4b135be9255700d11823804f25d5a4938045b15b1c74a3c6d0fa51467",
           "event_date": "2026-07-11",
           "performers": [
             "Орган",
-            "Исполнители"
-          ],
-          "program": [
-            "балет",
-            "Спектакль Театра балета им. Л. Якобсона",
+            "Исполнители",
             "Артисты Театра балета им. Л. Якобсона"
           ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "12:00",
           "title": "Лебединое озеро",
@@ -787,7 +759,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/11/1_1900/": {
           "date_text": "11 июля 2026",
-          "digest": "73224412030402899a21bb67609bb667a4654769644b353d7158109bf92c44fa",
+          "digest": "57e98cd011fd34bbf79c5a36ae4aa54b26228581b5290a7e07c5d7229e3cea2d",
           "event_date": "2026-07-11",
           "performers": [
             "Орган",
@@ -799,7 +771,6 @@
             "Премьера балета в хореографии Мариуса Петипа и Льва Иванова — Мариинский театр"
           ],
           "program": [
-            "балет",
             "«Лебеди черные и белые»"
           ],
           "source": "mariinsky",
@@ -810,7 +781,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/11/2_1700/": {
           "date_text": "11 июля 2026",
-          "digest": "f354e339e1665183bfdb053417b09a748ca35135270d33472ed30b2be610a67e",
+          "digest": "fa71e7f837c5acf5aca11e92e1e9c2136c69a4ad92977e8789bc5c619c08fe35",
           "event_date": "2026-07-11",
           "performers": [
             "Орган",
@@ -819,9 +790,7 @@
             "Дирижер — Валерий Гергиев",
             "Хореб — Алексей Марков"
           ],
-          "program": [
-            "опера Гектора Берлиоза"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "17:00",
           "title": "Троянцы",
@@ -867,7 +836,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/12/1_1300/": {
           "date_text": "12 июля 2026",
-          "digest": "e941f6c13d4c52199659cc46d6964ec7b927279b22279ffe58948a123ad23a1d",
+          "digest": "cec11d23200e804d521851ef34e29a543068a648b99b785e5429e062606da66a",
           "event_date": "2026-07-12",
           "performers": [
             "Орган",
@@ -879,7 +848,6 @@
             "Премьера балета в хореографии Мариуса Петипа и Льва Иванова — Мариинский театр"
           ],
           "program": [
-            "балет",
             "«Лебеди черные и белые»"
           ],
           "source": "mariinsky",
@@ -890,7 +858,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/12/1_1900/": {
           "date_text": "12 июля 2026",
-          "digest": "684da7d95d2bc231ea36499c9ca5aea5a1d674a6cf17acf5be26d8c3f74f191b",
+          "digest": "1cc78d8e886816e157a90f871ceb279d224d2514fd1d043a772d54a240d5a458",
           "event_date": "2026-07-12",
           "performers": [
             "Орган",
@@ -902,7 +870,6 @@
             "Премьера балета в хореографии Мариуса Петипа и Льва Иванова — Мариинский театр"
           ],
           "program": [
-            "балет",
             "«Лебеди черные и белые»"
           ],
           "source": "mariinsky",
@@ -973,16 +940,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/13/1_1900/": {
           "date_text": "13 июля 2026",
-          "digest": "985e7f146835073701335f34d744e8cd6205b75d5e8ca866a837b8797b18fe22",
+          "digest": "b1379b1ba1092e7c640b060307f0b15947eb96d02d718cc93911e850d8fc6b3c",
           "event_date": "2026-07-13",
           "performers": [
             "Орган",
             "Исполняется на итальянском языке (сопровождается синхронными титрами на русском и английском языках)",
             "Исполнители"
           ],
-          "program": [
-            "опера Джакомо Пуччини"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Богема",
@@ -991,7 +956,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/13/2_1900/": {
           "date_text": "13 июля 2026",
-          "digest": "c19aedfbd395b1bdb9e6fdb21ad1a173f3505362e012097d5a20f672654a37aa",
+          "digest": "eb5525f21dba598478f8dbb89a4e68fc5e337d07dfd8d48514a84dfdce46d88c",
           "event_date": "2026-07-13",
           "performers": [
             "Орган",
@@ -999,9 +964,7 @@
             "Исполнители",
             "Дирижер — Валерий Гергиев"
           ],
-          "program": [
-            "опера Пьетро Масканьи"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Сельская честь",
@@ -1046,15 +1009,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/15/1_1900/": {
           "date_text": "15 июля 2026",
-          "digest": "5aa7ee9dd25f6fe959f669fb38d4dd6c00eb2adde49bfeb7f0c4a2ea1b66b722",
+          "digest": "b3100edf2a826eb90fae896dce21073ddfb24d660124b806c90f9fe0047ef7cd",
           "event_date": "2026-07-15",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "опера Петра Чайковского в постановке Юрия Темирканова"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Евгений Онегин",
@@ -1063,7 +1024,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/15/2_1900/": {
           "date_text": "15 июля 2026",
-          "digest": "afbee1b9aaa1562f163917a749a2141426ddba3c99e125c37ed49497846be7a2",
+          "digest": "6e07adbe0f6110db14b75ae47f49461ff12f2b98c7856b8067b8200ceaa5932f",
           "event_date": "2026-07-15",
           "performers": [
             "Орган",
@@ -1074,9 +1035,7 @@
             "Премьера балета в хореографии Владимира Варнавы — 30 июня 2017 года",
             "Премьера балета в хореографии Владимира Варнавы — Мариинский театр"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Ярославна. Затмение",
@@ -1085,18 +1044,18 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/15/3_1900/": {
           "date_text": "15 июля 2026",
-          "digest": "f53332e849ded017df3f8745d10c1a54801b4285f7884bdefa70d0a0d89c0b64",
+          "digest": "1fd8a5b5b67b3bce29c03983a6d6b1672f7265d742541ed882ad0aa230f66e85",
           "event_date": "2026-07-15",
           "performers": [
             "Орган",
             "Симфонический оркестр Мариинского театра",
             "Дирижер — Кристиан Кнапп",
+            "Моноопера «Человеческий голос» (концертное исполнение)",
             "Исполняется на французском языке"
           ],
           "program": [
             "Санкт-Петербург, Концертный зал",
-            "Франсис Пуленк",
-            "Моноопера «Человеческий голос» (концертное исполнение)"
+            "Франсис Пуленк"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -1106,15 +1065,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/16/1_1900/": {
           "date_text": "16 июля 2026",
-          "digest": "7913ec3a003e63ec810db103f6f41769744b9ce8087a0cf4b572b8d3d4d60493",
+          "digest": "4161e9af59a0e38834dd6f2288dab35f2b5b982087af7e66f38cc64e275d8145",
           "event_date": "2026-07-16",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "опера Петра Чайковского"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Мазепа",
@@ -1123,7 +1080,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/16/2_1900/": {
           "date_text": "16 июля 2026",
-          "digest": "3fff60fad927f439b2a90e9b8705987ba91b535c0835c0342b17677369a7f143",
+          "digest": "1475afaa962f969f43613a624eb82b3eee0d2a998a2d9defba21471d4afb045e",
           "event_date": "2026-07-16",
           "performers": [
             "Орган",
@@ -1134,9 +1091,7 @@
             "Премьера балета в хореографии Владимира Варнавы — 30 июня 2017 года",
             "Премьера балета в хореографии Владимира Варнавы — Мариинский театр"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Ярославна. Затмение",
@@ -1165,14 +1120,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/17/1_1900/": {
           "date_text": "17 июля 2026",
-          "digest": "1a25b6fc323315f0699d67d0d02bb4e7e2f48beed5a97d736408d1ef26404342",
+          "digest": "ec11fb76ba31fc4e7ec50c6df2f4fb1116abdaed054c59e71c17bd57e69d9796",
           "event_date": "2026-07-17",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "«Аврора во сне и наяву»"
           ],
           "source": "mariinsky",
@@ -1183,15 +1137,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/17/2_1900/": {
           "date_text": "17 июля 2026",
-          "digest": "38676b309a22e261ccf92a5da884174d3a9e788283238bf619099dff060da38b",
+          "digest": "9e3f447d3a57c21ce54e0bffa0f45429ef11c2ad5d42ce56b8d50a8cd3f5f81d",
           "event_date": "2026-07-17",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "опера Петра Чайковского"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Пиковая дама",
@@ -1200,7 +1152,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/17/3_1900/": {
           "date_text": "17 июля 2026",
-          "digest": "911062be20d95353d427f3512c9bb8b4da546a63717108c0793704654d4ce4d0",
+          "digest": "1ff6a8ca20a358968dacc295c7be36c33f9c2d03c62b0914359ab350c372b8a4",
           "event_date": "2026-07-17",
           "performers": [
             "Орган",
@@ -1209,8 +1161,7 @@
             "Дирижер — Заурбек Гугкаев"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Джакомо Пуччини"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -1220,14 +1171,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/18/1_1200/": {
           "date_text": "18 июля 2026",
-          "digest": "9e56cb360e79d9fef5f4b64dfa57325b02a2ae910fa12901827631bf7d236bf0",
+          "digest": "1f8f495c0313b99dcd4bd9fcc907cc2215ec909505e1994db4be169ed80d8af6",
           "event_date": "2026-07-18",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "на музыку Роберта Шумана"
           ],
           "source": "mariinsky",
@@ -1238,14 +1188,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/18/1_1900/": {
           "date_text": "18 июля 2026",
-          "digest": "9ad31f3499870d9e0fdd2dcf8f5c9bea0f6f2c1e079c0d1f97967ba63ad08cbe",
+          "digest": "27fcb07949adc6c086be70ad0d609d4cd3c6f6a5a2b776d1ebfabba18f3c492f",
           "event_date": "2026-07-18",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "«Аврора во сне и наяву»"
           ],
           "source": "mariinsky",
@@ -1256,16 +1205,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/18/2_1900/": {
           "date_text": "18 июля 2026",
-          "digest": "f877ed8e32bc3094cbad996aa2b8bacb17dc23631b0d3b9cdcc949c41559cfac",
+          "digest": "2a5818b99b340e2095d5011e853516338752c5b44e6fb6e5f8beb33b1cdae3b9",
           "event_date": "2026-07-18",
           "performers": [
             "Орган",
             "Исполняется на французском языке (спектакль сопровождается синхронными титрами на русском и английском языках)",
             "Исполнители"
           ],
-          "program": [
-            "опера Жоржа Бизе"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Кармен",
@@ -1274,7 +1221,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/18/3_1900/": {
           "date_text": "18 июля 2026",
-          "digest": "724b211455513107b1713d30c3ae3ffe5b2ea003f13f97221f7fdc2a55cee119",
+          "digest": "0fa1e88067c279dce28fcd1d4226e098e23405f3b704870d9e1f7093ae2c404e",
           "event_date": "2026-07-18",
           "performers": [
             "Орган",
@@ -1283,8 +1230,7 @@
             "Дирижер — Гурген Петросян"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Джакомо Пуччини"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -1294,15 +1240,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/19/1_1200/": {
           "date_text": "19 июля 2026",
-          "digest": "7837ea417a1299b829749a63ace00cdfd9d8521103ba0594040a30b50032f7de",
+          "digest": "4f1ade085f055c2dfc38ac3c445316efddecf9f3f95c6836115fff6188ff5106",
           "event_date": "2026-07-19",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "12:00",
           "title": "Сильфида",
@@ -1311,14 +1255,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/19/1_1900/": {
           "date_text": "19 июля 2026",
-          "digest": "0f3d98d69b4767a505ec2018d27e3b5cff4adf1fa6a1d8a9d9e81d8a7f7c1027",
+          "digest": "f0e1df7d10952b5297a749c1987edcf75b7024bb2cdcac55dee56772882e9af3",
           "event_date": "2026-07-19",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "«Аврора во сне и наяву»"
           ],
           "source": "mariinsky",
@@ -1421,15 +1364,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/2/1_1900/": {
           "date_text": "2 июля 2026",
-          "digest": "0073455752316147224ddd0e28c59e4354882332679875754acc492400cb834a",
+          "digest": "cb0786dd32a4cc8fee02de44da39a9dbd1e708cd3d9d3210a1a17535da247b30",
           "event_date": "2026-07-02",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Легенда о любви",
@@ -1462,16 +1403,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/20/1_1900/": {
           "date_text": "20 июля 2026",
-          "digest": "b1d9df2922ec86c57fdecab67869a138ab41481228a65ab677a14198a5793702",
+          "digest": "0e9110aaad992ee5d30d7451ca901abe2dae15b95b0ff55160b9c35be21715fc",
           "event_date": "2026-07-20",
           "performers": [
             "Орган",
             "Исполняется на итальянском языке",
             "Исполнители"
           ],
-          "program": [
-            "опера Руджеро Леонкавалло"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Паяцы",
@@ -1498,15 +1437,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/21/1_1900/": {
           "date_text": "21 июля 2026",
-          "digest": "52224190c5b1055f9822849d4857612f04208773a57fa9e240d3f7351803814f",
+          "digest": "e35d4ffa2d6ec68ea1192ab24fbcb1b0d849880a7824ffa97b238bc15ce94436",
           "event_date": "2026-07-21",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Премьера постановки: 7 апреля 2017 года, Кливлендский оркестр и Балет Джоффри"
           ],
-          "program": [
-            "балет Белы Бартока"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Чудесный мандарин Замок герцога Синяя Борода",
@@ -1555,14 +1493,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/23/1_1900/": {
           "date_text": "23 июля 2026",
-          "digest": "328bfad24a1332150a308b64b715f18241f464ff7c3b96e30c439169c863be4e",
+          "digest": "b72d996b631d0ea44bc4fe38e2fc0841d6f00b635af9572dbcdd0767d7985ac6",
           "event_date": "2026-07-23",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "Сергея Прокофьева"
           ],
           "source": "mariinsky",
@@ -1624,14 +1561,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/24/1_1900/": {
           "date_text": "24 июля 2026",
-          "digest": "4a19cab89560f5b516d9a3dfea601b25a995d567787172c4a9b8fceaa10dc6e5",
+          "digest": "ea3c026308568db93875b9c9746dca4f489e80edb74c497c98b8a595e5dde33a",
           "event_date": "2026-07-24",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "Тест на знание балета «Баядерка»"
           ],
           "source": "mariinsky",
@@ -1685,7 +1621,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/25/1_1300/": {
           "date_text": "25 июля 2026",
-          "digest": "284fe946981d43dc89c147f42b1adf73a4e878e4333ce458f2ca07791e921659",
+          "digest": "67670906983478e4b8ad66aff5409cd8c464f055ca4f45ded80e15e39b45db05",
           "event_date": "2026-07-25",
           "performers": [
             "Орган",
@@ -1693,7 +1629,6 @@
             "Мария Хорева"
           ],
           "program": [
-            "балет",
             "Тест на знание балета «Баядерка»"
           ],
           "source": "mariinsky",
@@ -1704,14 +1639,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/25/1_1900/": {
           "date_text": "25 июля 2026",
-          "digest": "9e81e11334487e1ce3e0d78ab421ddc2c5fca42064dfaafcd29118987575fc95",
+          "digest": "a29439ce8d5f7f477c358d0e93d5534cdad43567fbe377d54e927c05c8802c1a",
           "event_date": "2026-07-25",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "Тест на знание балета «Баядерка»"
           ],
           "source": "mariinsky",
@@ -1742,7 +1676,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/26/1_1300/": {
           "date_text": "26 июля 2026",
-          "digest": "9d2a9f7986a14e73d7ff3b19a9abc77781e5e7cb8303a3dce9bee5635fe7a29c",
+          "digest": "f891f31b1cad02c534931c821119ca7ba3dd7824c6382aba37a6c87a96988d05",
           "event_date": "2026-07-26",
           "performers": [
             "Орган",
@@ -1751,7 +1685,6 @@
           "program": [
             "Шопениана. Блестящий дивертисмент (<em>премьера</em>). Юноша и смерть",
             "Шопениана",
-            "балет",
             "на музыку Фредерика Шопена"
           ],
           "source": "mariinsky",
@@ -1762,7 +1695,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/26/1_1900/": {
           "date_text": "26 июля 2026",
-          "digest": "0ca0c88b058105f3f0d8409feb0646e1ffbd4564577212ba111921a796b6389b",
+          "digest": "d42e55bb0ab114a49d5c26ce63d147b76b917b02dac31ba21ab20ed3cb843d66",
           "event_date": "2026-07-26",
           "performers": [
             "Орган",
@@ -1771,7 +1704,6 @@
           "program": [
             "Шопениана. Блестящий дивертисмент (<em>премьера</em>). Юноша и смерть",
             "Шопениана",
-            "балет",
             "на музыку Фредерика Шопена"
           ],
           "source": "mariinsky",
@@ -1802,7 +1734,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/26/3_1900/": {
           "date_text": "26 июля 2026",
-          "digest": "b4fbbc9058b3621f2096a5d6801ca78bdf06d5d3d56154b50cdf46784aa268d0",
+          "digest": "073c4e984a42883c2f102f2d7ae85f44b30b3f7e685192dcc8383e2fb25a7232",
           "event_date": "2026-07-26",
           "performers": [
             "Орган",
@@ -1810,8 +1742,7 @@
             "Дирижер — Заурбек Гугкаев"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Мечислава Вайнберга"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -1821,16 +1752,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/28/2_1900/": {
           "date_text": "28 июля 2026",
-          "digest": "712b72419d166e289a75eef68798600073beac7e3e7acfe94190faa62910187c",
+          "digest": "a9d927429dfcd2a9cdf06f5806933958fe1ef7d50a125bec870bee325ffc5eae",
           "event_date": "2026-07-28",
           "performers": [
             "Орган",
             "Исполняется на итальянском языке (сопровождается синхронными титрами на русском и английском языках)",
             "Исполнители"
           ],
-          "program": [
-            "опера Джакомо Пуччини"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Тоска",
@@ -1839,16 +1768,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/29/2_1900/": {
           "date_text": "29 июля 2026",
-          "digest": "7ee7cee3808828838de668b2e84a0c3be9967b8a75bc9f398e03e4e196ee0383",
+          "digest": "aba9999e33b81fe4e51b795038b843489afa0cda11a3fd703e5250dad372bb4c",
           "event_date": "2026-07-29",
           "performers": [
             "Орган",
             "Исполняется на итальянском языке (сопровождается синхронными титрами на русском и английском языках)",
             "Исполнители"
           ],
-          "program": [
-            "опера Джакомо Пуччини"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Тоска",
@@ -1857,15 +1784,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/3/1_1900/": {
           "date_text": "3 июля 2026",
-          "digest": "da77172f56d2521a6c7b0ea42264c9a7c35f3d70519607356248f2741ad8f6dc",
+          "digest": "77be100d4d42c289692426ccca4f2dafc648f9f17dfb065eac55694b0be2e84b",
           "event_date": "2026-07-03",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Легенда о любви",
@@ -1874,7 +1799,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/3/2_1900/": {
           "date_text": "3 июля 2026",
-          "digest": "06913588100959bec4cd9a37e751a00cb2d621ac38c949ce7b261b45fbe63344",
+          "digest": "991eec281eb55419868f39fac92e453b326f3bcf16397863b80cdee9d8a23c6a",
           "event_date": "2026-07-03",
           "performers": [
             "Орган",
@@ -1911,9 +1836,7 @@
             "Надежда Сердюк",
             "Дарья Терещенко"
           ],
-          "program": [
-            "опера Амилькаре Понкьелли"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Джоконда",
@@ -1949,16 +1872,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/30/2_1900/": {
           "date_text": "30 июля 2026",
-          "digest": "6326f71a0201eef8933acc87afb6ed0afe817a30cf95410c0490ebab11b11cee",
+          "digest": "142af79e97fb7ad38088067aa8a0f2f59fa66b4389e52b01fdbf7e94699e1a87",
           "event_date": "2026-07-30",
           "performers": [
             "Орган",
             "Исполнители",
             "Дирижер — Валерий Гергиев"
           ],
-          "program": [
-            "опера Петра Чайковского"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Чародейка",
@@ -1967,7 +1888,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/31/2_1900/": {
           "date_text": "31 июля 2026",
-          "digest": "3cbeeca267ef1f39d6f7e2d7b8e39890595892b68a77ee85148aaea164e8494d",
+          "digest": "3886aa186150510d516f589c9c48d6b22de3cc9cbec0ed72566ea5a76fefb947",
           "event_date": "2026-07-31",
           "performers": [
             "Орган",
@@ -1975,9 +1896,7 @@
             "Исполнители",
             "Дирижер — Валерий Гергиев"
           ],
-          "program": [
-            "опера Джакомо Пуччини"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Турандот",
@@ -1986,15 +1905,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/4/1_1300/": {
           "date_text": "4 июля 2026",
-          "digest": "7fafada307bc47f7a4596f566ec11372912ded14f9ddea3d86a573e5b9c913a4",
+          "digest": "079f0bdfd76fc9c6d969af75be97a3d10e7d20e311cd304f2619e1d7430f1f8b",
           "event_date": "2026-07-04",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "13:00",
           "title": "Бахчисарайский фонтан",
@@ -2003,15 +1920,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/4/1_1900/": {
           "date_text": "4 июля 2026",
-          "digest": "c0000c6795f092ff0be2e13549abdeffac952c6ea7eba713dede38ad4fa33888",
+          "digest": "382ee4b18721b8b1df474f095f0b6a043b5b17ea1f877deeaf1067d45ef4ae31",
           "event_date": "2026-07-04",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Бахчисарайский фонтан",
@@ -2020,7 +1935,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/4/2_1300/": {
           "date_text": "4 июля 2026",
-          "digest": "4050cc47beb38d9a24f66022c3b456f9bae34380ea63cbbe1777716ce366ce3e",
+          "digest": "6b5123e73f8f2c28b2ef3d75517194715e9b012f894e55c2acd01f68bd400079",
           "event_date": "2026-07-04",
           "performers": [
             "Орган",
@@ -2057,9 +1972,7 @@
             "Надежда Сердюк",
             "Дарья Терещенко"
           ],
-          "program": [
-            "опера Амилькаре Понкьелли"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "13:00",
           "title": "Джоконда",
@@ -2068,7 +1981,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/4/2_1900/": {
           "date_text": "4 июля 2026",
-          "digest": "49bfc12c580365fb6abe4d195cbb236ebb29dc53de190a42ad268bf627ae1f1d",
+          "digest": "f5636f06db70dc39ebaa95fc68eb3953aa262006f61eb90601ae3370421d11f6",
           "event_date": "2026-07-04",
           "performers": [
             "Орган",
@@ -2105,9 +2018,7 @@
             "Надежда Сердюк",
             "Дарья Терещенко"
           ],
-          "program": [
-            "опера Амилькаре Понкьелли"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Джоконда",
@@ -2152,7 +2063,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/5/1_1300/": {
           "date_text": "5 июля 2026",
-          "digest": "e93b5600ce471969ee93dd58384c9314c1d96ef9aab2a86171d6a8d306b04978",
+          "digest": "4a178b56dd337a12122e8ccffb6f35d644ab4d5781e63c16f4b16a08e90cef0e",
           "event_date": "2026-07-05",
           "performers": [
             "Орган",
@@ -2160,7 +2071,6 @@
             "Мария Хорева"
           ],
           "program": [
-            "балет",
             "«Из жизни Жизели»"
           ],
           "source": "mariinsky",
@@ -2171,14 +2081,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/5/1_1900/": {
           "date_text": "5 июля 2026",
-          "digest": "ac6946c837ab31daaf59eafa4f68e219ed7f208161f6d34b7f091fea5ca8c111",
+          "digest": "a059a1bae23d8615b0ceee331b1c4035f7266a12eb22383ddf1969423c90e76a",
           "event_date": "2026-07-05",
           "performers": [
             "Орган",
             "Исполнители"
           ],
           "program": [
-            "балет",
             "«Из жизни Жизели»"
           ],
           "source": "mariinsky",
@@ -2189,7 +2098,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/5/2_1700/": {
           "date_text": "5 июля 2026",
-          "digest": "bc46cea03819df983fbb5d57bf00e38953a25b33d33f9bef15d87fccd26d85d1",
+          "digest": "c96763e4dc6d7e6f7afa6f29e06f9da27f9fcbc834f80dbf6f2efd6b104d0b67",
           "event_date": "2026-07-05",
           "performers": [
             "Орган",
@@ -2197,7 +2106,6 @@
             "Дирижер — Валерий Гергиев"
           ],
           "program": [
-            "опера Николая Римского-Корсакова",
             "«Римский-Корсаков в Мариинском»"
           ],
           "source": "mariinsky",
@@ -2242,17 +2150,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/6/1_1900/": {
           "date_text": "6 июля 2026",
-          "digest": "67935fecb5542ccdee6055311ad763adee57370831c6c1233bb1319612fd558f",
+          "digest": "8055d08b6409353d476a866ea962590b52f5f4c4ab88cb8ef2af866a21c70360",
           "event_date": "2026-07-06",
           "performers": [
             "Орган",
-            "Исполнители"
-          ],
-          "program": [
-            "балет",
-            "Спектакль Театра балета им. Л. Якобсона",
+            "Исполнители",
             "Артисты Театра балета им. Л. Якобсона"
           ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Жизель",
@@ -2279,7 +2184,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/6/3_1900/": {
           "date_text": "6 июля 2026",
-          "digest": "b70af2f94d0fe3ac88ba8836a854dee3090c02a0e5e672e45679ba8ef974d588",
+          "digest": "38b9054f5ef8b8a3e9eff07ecb1a8508aa05693245ab97eb93215e2b2e96ea60",
           "event_date": "2026-07-06",
           "performers": [
             "Орган",
@@ -2288,8 +2193,7 @@
             "Дирижер — Кристиан Кнапп"
           ],
           "program": [
-            "Санкт-Петербург, Концертный зал",
-            "опера Лео Делиба"
+            "Санкт-Петербург, Концертный зал"
           ],
           "source": "mariinsky",
           "time_text": "19:00",
@@ -2299,7 +2203,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/7/1_1900/": {
           "date_text": "7 июля 2026",
-          "digest": "d36ed64f6c345e463091518d220c3a42917b0e99e2571ae7d3e064bfd59655cb",
+          "digest": "a7ad694ce5b56144b8b6a8af2305bc173b509aab51d0ee136950d4fdde36bf5c",
           "event_date": "2026-07-07",
           "performers": [
             "Орган",
@@ -2312,7 +2216,6 @@
             "Премьера балета в хореографии Александра Горского — Москва"
           ],
           "program": [
-            "балет",
             "Уличная танцовщица –"
           ],
           "source": "mariinsky",
@@ -2323,7 +2226,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/7/2_1900/": {
           "date_text": "7 июля 2026",
-          "digest": "43ca31bb2e45765ea18f568b757fcef92c0dc3c8aa7f0d4ff84343628ba65dca",
+          "digest": "3201e037a7ea0746ce53bc083634b0b47d03c2767ad02672ea04be0c160988a1",
           "event_date": "2026-07-07",
           "performers": [
             "Орган",
@@ -2332,9 +2235,7 @@
             "Исполнители",
             "Дирижер — Валерий Гергиев"
           ],
-          "program": [
-            "опера Гектора Берлиоза"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Бенвенуто Челлини",
@@ -2343,16 +2244,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/8/1_1900/": {
           "date_text": "8 июля 2026",
-          "digest": "60b79051b43f022f2c553bc900537238d6da6812c9ccf5ecb4132dc0ad2a7b46",
+          "digest": "1c7f0df754ab811e9b9f9aa198814e3e1f6902c070a4c617feb66072ced602dd",
           "event_date": "2026-07-08",
           "performers": [
             "Орган",
             "Исполняется на русском языке (сопровождается синхронными титрами на русском и английском языках)",
             "Исполнители"
           ],
-          "program": [
-            "опера Дмитрия Шостаковича"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Леди Макбет Мценского уезда",
@@ -2361,7 +2260,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/8/2_1900/": {
           "date_text": "8 июля 2026",
-          "digest": "a2a04166ecdb0453de119adc8c0dfc0c9d55a6b1f5f396dc24cbbaf021a2018d",
+          "digest": "5858c628feaad139ee601b9274590d1e2086a2d75ed19f68cf2064184e94683e",
           "event_date": "2026-07-08",
           "performers": [
             "Орган",
@@ -2370,9 +2269,7 @@
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — Большой театр",
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — Москва"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Анна Каренина",
@@ -2401,7 +2298,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/9/1_1900/": {
           "date_text": "9 июля 2026",
-          "digest": "0bc15c6e82e2f7df875fa6e137be680d4ebde4d4be2bf2bb1c0db38ad52e6053",
+          "digest": "cd63591b091d6114ebaf8253a2e205945a3becadfabb591ae5f1018c09792ae8",
           "event_date": "2026-07-09",
           "performers": [
             "Орган",
@@ -2409,9 +2306,7 @@
             "Исполнители",
             "Дирижер — Андрей Иванов"
           ],
-          "program": [
-            "опера Джоаккино Россини"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Итальянка в Алжире",
@@ -2420,7 +2315,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/9/2_1900/": {
           "date_text": "9 июля 2026",
-          "digest": "443886a9ce14a7d4969ba5cade10261155d0a2eb63cf876f3d3576b5a26181dc",
+          "digest": "f62231235b5bac22b35381a92df9c9e22486e6727ee5da8e2d63df2fea589556",
           "event_date": "2026-07-09",
           "performers": [
             "Орган",
@@ -2429,9 +2324,7 @@
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — Большой театр",
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — Москва"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Анна Каренина",
@@ -2459,7 +2352,7 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/8/2/2_1700/": {
           "date_text": "2 августа 2026",
-          "digest": "56899241b0607538ba28099d5404a66166fb122b84d11c260811f6206b5524a1",
+          "digest": "5fbe2990b131ef424046def104a0ac9017567aeb3ec66784714c509b3c767c08",
           "event_date": "2026-08-02",
           "performers": [
             "Орган",
@@ -2468,9 +2361,7 @@
             "Первое исполнение — силами Музыкально-драматического кружка любителей в Зале Кононова",
             "Первое исполнение — Санкт-Петербург"
           ],
-          "program": [
-            "опера Модеста Мусоргского"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "17:00",
           "title": "Хованщина",
@@ -2479,15 +2370,13 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/9/17/2_1900/": {
           "date_text": "17 сентября 2026",
-          "digest": "e81e4222ca126d945ab633dc1eb1fca5cef5e2d1724887d8edcf7298ade1ca60",
+          "digest": "ae0f9ff1ce5ebb2c36ad51a8d1bb599ff5f84e56b4f0cdc640f952c65b99ee1d",
           "event_date": "2026-09-17",
           "performers": [
             "Орган",
             "Исполнители"
           ],
-          "program": [
-            "балет"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Двенадцать",
@@ -2532,16 +2421,14 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/9/9/1_1900/": {
           "date_text": "9 сентября 2026",
-          "digest": "00c443ba537899290a31aace84691d7ac19717e3384d1970196b447409ff386e",
+          "digest": "e88549fbaed6a7c78a38274e88a1c9241e659efd22195d53eb12d68daaffe21d",
           "event_date": "2026-09-09",
           "performers": [
             "Орган",
             "Исполняется на французском языке (сопровождается синхронными титрами на русском и английском языках)",
             "Исполнители"
           ],
-          "program": [
-            "опера Шарля Гуно"
-          ],
+          "program": [],
           "source": "mariinsky",
           "time_text": "19:00",
           "title": "Фауст",
@@ -2554,5 +2441,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-22T15:12:31Z"
+  "updated_at": "2026-06-22T15:22:55Z"
 }
