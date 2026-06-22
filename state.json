@@ -1,7 +1,5 @@
 {
-  "pending_messages": [
-    "𝄞 Мариинский театр\n🐣 Новое событие\n\nНазвание: Похищение из сераля\n🔸 22 июля 2026. 19:00\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/22/1_1900/"
-  ],
+  "pending_messages": [],
   "schema_version": 39,
   "sources": {
     "mariinsky": {
@@ -2443,5 +2441,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-22T16:52:53Z"
+  "updated_at": "2026-06-22T17:03:17Z"
 }
