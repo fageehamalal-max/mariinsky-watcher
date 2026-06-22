@@ -45,7 +45,7 @@ jobs:
           import requests
           from bs4 import BeautifulSoup
 
-          STATE_VERSION = 38
+          STATE_VERSION = 39
           STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
           SELF_TEST = os.getenv("SELF_TEST", "0") == "1"
           DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
@@ -56,7 +56,7 @@ jobs:
           MARIINSKY_URL = "https://www.mariinsky.ru/playbill/playbill/"
           PHILHARMONIA_URL = "https://www.philharmonia.spb.ru/afisha/grand/"
           TZ = ZoneInfo("Europe/Moscow")
-          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.5", "Accept-Language": "ru,en;q=0.9"}
+          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.6", "Accept-Language": "ru,en;q=0.9"}
 
           EMOJI_NEW = "🐣"
           EMOJI_ADDED = "✅"
@@ -68,33 +68,99 @@ jobs:
           MAX_PENDING_MESSAGES = int(os.getenv("MAX_PENDING_MESSAGES", "100"))
           MESSAGE_SEND_DELAY_SECONDS = float(os.getenv("MESSAGE_SEND_DELAY_SECONDS", "2"))
 
-          MONTHS = {1: "января", 2: "февраля", 3: "марта", 4: "апреля", 5: "мая", 6: "июня", 7: "июля", 8: "августа", 9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"}
+          MONTHS = {
+              1: "января", 2: "февраля", 3: "марта", 4: "апреля",
+              5: "мая", 6: "июня", 7: "июля", 8: "августа",
+              9: "сентября", 10: "октября", 11: "ноября", 12: "декабря",
+          }
           MONTH_NUM = {v: k for k, v in MONTHS.items()}
 
-          VENUE_BY_CODE = {"1": "Мариинский театр", "2": "Мариинский-2", "3": "Концертный зал", "4": "Камерные залы", "5": "Зал Щедрина", "6": "Зал Мусоргского", "10": "Зал Стравинского", "15": "Мариинский театр"}
-          MARIINSKY_VENUES = set(VENUE_BY_CODE.values()) | {"Концертный зал Мариинского театра", "Японский павильон", "Ораниенбаум", "Меншиковский дворец"}
+          VENUE_BY_CODE = {
+              "1": "Мариинский театр",
+              "2": "Мариинский-2",
+              "3": "Концертный зал",
+              "4": "Камерные залы",
+              "5": "Зал Щедрина",
+              "6": "Зал Мусоргского",
+              "10": "Зал Стравинского",
+              "15": "Мариинский театр",
+          }
+          MARIINSKY_VENUES = set(VENUE_BY_CODE.values()) | {
+              "Концертный зал Мариинского театра",
+              "Японский павильон",
+              "Ораниенбаум",
+              "Меншиковский дворец",
+          }
           EXCLUDED_MARIINSKY_TEXT = ["Приморская сцена", "Владивосток", "Владикавказ", "РСО", "Алания"]
           SOURCES = {"mariinsky": "Мариинский театр", "philharmonia_grand": "СПб филармония, Большой зал"}
 
-          BAD_TITLES = {"еда", "среда", "понедельник", "вторник", "четверг", "пятница", "суббота", "воскресенье", "cookie", "cookies", "использование cookies", "согласие на использование cookie", "согласие на использование cookies"}
+          BAD_TITLES = {
+              "еда", "среда", "понедельник", "вторник", "четверг", "пятница", "суббота", "воскресенье",
+              "cookie", "cookies", "использование cookies", "согласие на использование cookie", "согласие на использование cookies",
+          }
 
-          FOOTER_RE = re.compile(r"^(Для обращений|Справочная служба|По вопросам реализации билетов|Скачать мобильное приложение|Любое использование|Закрыть|Вход в личный кабинет|Официальные билеты|Поделиться)$", re.I)
-          MARIINSKY_STOP_RE = re.compile(r"^(Возрастная категория(\s*\d+\+?)?|XXXIV\s+Музыкальный фестиваль.*Зв[её]зды белых ночей|Музыкальный фестиваль.*Зв[её]зды белых ночей|Зв[её]зды белых ночей|Полная программа|Краткое содержание|Содержание)$", re.I)
-          MENU_RE = re.compile(r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|Новости|Для прессы|Афиша|Абонементы|Фестивали|Репертуар|Изменения в афише|Выбрать сцену|Все площадки|Все спектакли|Архив афиши)$", re.I)
-          NOISE_RE = re.compile(r"(@@|купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|касс[аеы]|авторизация|войти|регистрация|личный кабинет|cookie|cookies|согласие на использование|подписаться|поиск|версия для слабовидящих|опрос|для обращений|справочная служба|скачать мобильное приложение|mariinsky\.tv|mariinsky\.fm|правообладател|зв[её]здный состав|блестящий состав|история постановки|описание спектакля)", re.I)
+          FOOTER_RE = re.compile(
+              r"^(Для обращений|Справочная служба|По вопросам реализации билетов|Скачать мобильное приложение|Любое использование|Закрыть|Вход в личный кабинет|Официальные билеты|Поделиться)$",
+              re.I,
+          )
+          MARIINSKY_STOP_RE = re.compile(
+              r"^(Возрастная категория(\s*\d+\+?)?|XXXIV\s+Музыкальный фестиваль.*Зв[её]зды белых ночей|Музыкальный фестиваль.*Зв[её]зды белых ночей|Зв[её]зды белых ночей|Полная программа|Краткое содержание|Содержание)$",
+              re.I,
+          )
+          MENU_RE = re.compile(
+              r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|Новости|Для прессы|Афиша|Абонементы|Фестивали|Репертуар|Изменения в афише|Выбрать сцену|Все площадки|Все спектакли|Архив афиши)$",
+              re.I,
+          )
+          NOISE_RE = re.compile(
+              r"(@@|купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|касс[аеы]|авторизация|войти|регистрация|личный кабинет|cookie|cookies|согласие на использование|подписаться|поиск|версия для слабовидящих|опрос|для обращений|справочная служба|скачать мобильное приложение|mariinsky\.tv|mariinsky\.fm|правообладател|зв[её]здный состав|блестящий состав|история постановки|описание спектакля)",
+              re.I,
+          )
 
-          PHILHARMONIA_FORBIDDEN_QUERY_KEYS = {"tag", "tags", "year", "month", "page", "p", "search", "q", "hall", "type", "genre", "series", "abonement"}
+          PHILHARMONIA_FORBIDDEN_QUERY_KEYS = {
+              "tag", "tags", "year", "month", "page", "p", "search", "q", "hall", "type", "genre", "series", "abonement",
+          }
           PHILHARMONIA_EVENT_QUERY_KEYS = {"ev_z", "ev_y", "event", "event_id", "id"}
 
-          PERFORMER_WORDS = ["дириж", "солист", "солистка", "исполн", "состав", "партию", "партия", "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "ансамбль", "концертмейстер", "режиссер", "режиссёр", "хормейстер"]
-          ROLE_WORDS = ["дирижер", "дирижёр", "солист", "солистка", "солисты", "исполнитель", "исполнительница", "исполнители", "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "ансамбль", "концертмейстер", "режиссер", "режиссёр", "хормейстер"]
+          PERFORMER_WORDS = [
+              "дириж", "солист", "солистка", "исполн", "состав", "партию", "партия", "сопрано", "тенор", "баритон", "бас",
+              "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "ансамбль",
+              "артист", "артисты", "концертмейстер", "режиссер", "режиссёр", "хормейстер",
+          ]
+          ROLE_WORDS = [
+              "дирижер", "дирижёр", "солист", "солистка", "солисты", "исполнитель", "исполнительница", "исполнители",
+              "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта",
+              "хор", "оркестр", "ансамбль", "артист", "артисты", "концертмейстер", "режиссер", "режиссёр", "хормейстер",
+          ]
           ENSEMBLE_WORDS = ["оркестр", "хор", "ансамбль"]
-          PROGRAM_WORDS = ["симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн", "реквием", "оратори", "кантат", "опера", "балет", "рапсод", "адажио", "танц", "прелюди", "фуга", "квартет", "квинтет"]
-          PROGRAM_START_WORDS = ["концерт", "симфония", "сюита", "увертюра", "соната", "ноктюрн", "реквием", "оратория", "кантата", "опера", "балет", "рапсодия", "адажио", "танец", "прелюдия", "фуга", "квартет", "квинтет"]
-          COMPOSERS = ["Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен", "Шуберт", "Шуман", "Рахманинов", "Прокофьев", "Стравинский", "Римский-Корсаков", "Чайковский", "Дебюсси", "Пуленк", "Дворжак", "Гершвин", "Барбер", "Бернстайн", "Копленд", "Пьяццолла", "Респиги"]
 
-          NON_REPERTOIRE_PATTERNS = ["антракт", "без антракта", "с антрактом", "концерт идет", "спектакль идет", "опера идет", "балет идет", "представление идет", "продолжительность", "одно отделение", "два отделения", "в одном отделении", "в двух отделениях", "без перерыва"]
-          CAST_PLACEHOLDER_PATTERNS = ["состав исполнителей будет объявлен позднее", "состав будет объявлен позднее", "исполнители будут объявлены позднее", "исполнители будут объявлены дополнительно", "состав исполнителей будет объявлен дополнительно", "состав исполнителей уточняется", "состав будет уточнен", "состав будет уточнён", "будет объявлен позднее", "будут объявлены позднее", "будет объявлен дополнительно", "будут объявлены дополнительно"]
+          # Важно: "опера" и "балет" убраны из программных маркеров.
+          # Эти слова слишком широкие и часто относятся к типу события или артистической категории,
+          # а не к изменению музыкальной программы.
+          PROGRAM_WORDS = [
+              "симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн", "реквием", "оратори", "кантат",
+              "рапсод", "адажио", "танц", "прелюди", "фуга", "квартет", "квинтет",
+          ]
+          PROGRAM_START_WORDS = [
+              "концерт", "симфония", "сюита", "увертюра", "соната", "ноктюрн", "реквием", "оратория", "кантата",
+              "рапсодия", "адажио", "танец", "прелюдия", "фуга", "квартет", "квинтет",
+          ]
+          COMPOSERS = [
+              "Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен", "Шуберт", "Шуман", "Рахманинов",
+              "Прокофьев", "Стравинский", "Римский-Корсаков", "Чайковский", "Дебюсси", "Пуленк", "Дворжак", "Гершвин",
+              "Барбер", "Бернстайн", "Копленд", "Пьяццолла", "Респиги",
+          ]
+
+          NON_REPERTOIRE_PATTERNS = [
+              "антракт", "без антракта", "с антрактом", "концерт идет", "спектакль идет", "опера идет", "балет идет",
+              "представление идет", "продолжительность", "одно отделение", "два отделения", "в одном отделении", "в двух отделениях",
+              "без перерыва",
+          ]
+          CAST_PLACEHOLDER_PATTERNS = [
+              "состав исполнителей будет объявлен позднее", "состав будет объявлен позднее", "исполнители будут объявлены позднее",
+              "исполнители будут объявлены дополнительно", "состав исполнителей будет объявлен дополнительно", "состав исполнителей уточняется",
+              "состав будет уточнен", "состав будет уточнён", "будет объявлен позднее", "будут объявлены позднее",
+              "будет объявлен дополнительно", "будут объявлены дополнительно",
+          ]
 
 
           def clean(s):
@@ -349,11 +415,20 @@ jobs:
               return "мариинск" in low or "филармони" in low or "театра" in low
 
 
+          def is_ballet_or_opera_staff_line(line):
+              low = key(line)
+              if "балет" not in low and "опера" not in low:
+                  return False
+              if contains_word(line, ["артист", "артисты", "труппа", "солист", "солисты", "исполн"]):
+                  return True
+              return False
+
+
           def is_performer_line(line):
               line = clean(line)
               if is_noise(line) or role_only_prefix(line) or is_cast_placeholder_line(line):
                   return False
-              if is_labeled_performer_line(line) or is_ensemble_performer_line(line):
+              if is_labeled_performer_line(line) or is_ensemble_performer_line(line) or is_ballet_or_opera_staff_line(line):
                   return True
               low = key(line)
               if contains_word(line, PROGRAM_WORDS) or any(c.lower().replace("ё", "е") in low for c in COMPOSERS):
@@ -415,7 +490,14 @@ jobs:
 
 
           def filter_items(items):
-              return uniq([x for x in items if clean(x) and not is_subscription_line(x) and not is_non_repertoire_info(x) and not is_cast_placeholder_line(x) and not is_noise(x)])
+              return uniq([
+                  x for x in items
+                  if clean(x)
+                  and not is_subscription_line(x)
+                  and not is_non_repertoire_info(x)
+                  and not is_cast_placeholder_line(x)
+                  and not is_noise(x)
+              ])
 
 
           def extract_performers(lines):
@@ -433,8 +515,26 @@ jobs:
           def build_record(source, url, title, venue, event_date, date_text, time_text, lines):
               performers = extract_performers(lines)
               program = extract_program(lines, title)
-              core = {"title": clean(title), "venue": clean(venue), "date_text": clean(date_text), "time_text": clean(time_text), "performers": performers, "program": program}
-              return {"source": source, "url": url, "title": core["title"] or "Без названия", "venue": core["venue"], "date_text": core["date_text"], "time_text": core["time_text"], "event_date": event_date.isoformat() if isinstance(event_date, date) else "", "performers": performers, "program": program, "digest": digest(core)}
+              core = {
+                  "title": clean(title),
+                  "venue": clean(venue),
+                  "date_text": clean(date_text),
+                  "time_text": clean(time_text),
+                  "performers": performers,
+                  "program": program,
+              }
+              return {
+                  "source": source,
+                  "url": url,
+                  "title": core["title"] or "Без названия",
+                  "venue": core["venue"],
+                  "date_text": core["date_text"],
+                  "time_text": core["time_text"],
+                  "event_date": event_date.isoformat() if isinstance(event_date, date) else "",
+                  "performers": performers,
+                  "program": program,
+                  "digest": digest(core),
+              }
 
 
           def is_philharmonia_event_url(url):
@@ -626,10 +726,20 @@ jobs:
 
 
           def change_sections(old, new):
-              sections = [x for x in [before_after("Изменение названия:", old.get("title", ""), new.get("title", "")), before_after("Изменение даты / времени:", date_line(old), date_line(new)), before_after("Изменение площадки:", source_line(old), source_line(new))] if x]
+              sections = [
+                  x for x in [
+                      before_after("Изменение названия:", old.get("title", ""), new.get("title", "")),
+                      before_after("Изменение даты / времени:", date_line(old), date_line(new)),
+                      before_after("Изменение площадки:", source_line(old), source_line(new)),
+                  ]
+                  if x
+              ]
               perf_added, perf_removed = set_diff(old.get("performers", []), new.get("performers", []))
               prog_added, prog_removed = set_diff(old.get("program", []), new.get("program", []))
-              for section in [section_added_removed("Изменение в составе:", perf_added, perf_removed), section_added_removed("Изменение в программе:", prog_added, prog_removed)]:
+              for section in [
+                  section_added_removed("Изменение в составе:", perf_added, perf_removed),
+                  section_added_removed("Изменение в программе:", prog_added, prog_removed),
+              ]:
                   if section:
                       sections.append(section)
               return sections
@@ -801,7 +911,7 @@ jobs:
 
 
           def run_self_tests():
-              assert STATE_VERSION == 38
+              assert STATE_VERSION == 39
               assert date_line({"date_text": "21 июня 2026", "time_text": "19:30"}) == "🔸 21 июня 2026. 19:30"
               assert "  19:30" not in date_line({"date_text": "21 июня 2026", "time_text": "19:30"})
 
@@ -816,6 +926,13 @@ jobs:
               assert not is_performer_line("Cостав исполнителей будет объявлен позднее")
               assert set_diff(["Cостав исполнителей будет объявлен позднее"], []) == ([], [])
 
+              assert "балет" not in PROGRAM_WORDS
+              assert "опера" not in PROGRAM_WORDS
+              assert not is_program_line("Балет Мариинского театра", "Щелкунчик")
+              assert not is_program_line("Опера Мариинского театра", "Набукко")
+              assert is_performer_line("Артисты балета Мариинского театра")
+              assert is_performer_line("Солисты оперы Мариинского театра")
+
               html = """
               <html><body>
               <h1>Брамс. Скрипичный концерт</h1>
@@ -825,6 +942,7 @@ jobs:
               <p>Солисты –</p>
               <p>Иван Петров, Мария Сидорова</p>
               <p>Симфонический оркестр Мариинского театра</p>
+              <p>Артисты балета Мариинского театра</p>
               <p>Cостав исполнителей будет объявлен позднее</p>
               <p>Концерт идет без антракта</p>
               <p>Абонемент «Выходные с Верди»</p>
@@ -838,6 +956,7 @@ jobs:
               assert "Дирижер — Андрей Иванов" in text
               assert "Солисты — Иван Петров, Мария Сидорова" in text
               assert "Симфонический оркестр Мариинского театра" in text
+              assert "Артисты балета Мариинского театра" in text
               assert "Cостав исполнителей" not in text
               assert "Концерт идет без антракта" not in text
               assert "Абонемент" not in text
@@ -847,7 +966,13 @@ jobs:
               assert performer_items_from_line("Дирижер – Андрей Иванов") == ["Дирижер — Андрей Иванов"]
               assert performer_items_from_line("Солисты — Иван Петров, Мария Сидорова") == ["Солисты — Иван Петров", "Солисты — Мария Сидорова"]
               assert is_performer_line("Симфонический оркестр Мариинского театра")
-              assert extract_performers(lines) == ["Дирижер — Андрей Иванов", "Солисты — Иван Петров", "Солисты — Мария Сидорова", "Симфонический оркестр Мариинского театра"]
+              assert extract_performers(lines) == [
+                  "Дирижер — Андрей Иванов",
+                  "Солисты — Иван Петров",
+                  "Солисты — Мария Сидорова",
+                  "Симфонический оркестр Мариинского театра",
+                  "Артисты балета Мариинского театра",
+              ]
               assert not is_performer_line("Моцарт. Концерт для флейты с оркестром № 1")
               assert is_program_line("Моцарт. Концерт для флейты с оркестром № 1", "Моцарт")
 
@@ -860,7 +985,10 @@ jobs:
 
               rec = {"source": "mariinsky", "venue": "Зал Стравинского", "title": "Концерты Моцарта", "date_text": "21 июня 2026", "time_text": "19:30", "url": "https://example.test/event/"}
               assert format_new(rec).splitlines()[0] == "𝄞 Зал Стравинского"
-              msg = format_changed({**rec, "performers": old_items, "program": [], "digest": "old"}, {**rec, "performers": new_items, "program": [], "digest": "new"})
+              msg = format_changed(
+                  {**rec, "performers": old_items, "program": [], "digest": "old"},
+                  {**rec, "performers": new_items, "program": [], "digest": "new"},
+              )
               assert "Изменение в афише:" not in msg
               assert "Изменение в составе:" in msg
               assert "✅ Добавлено:\nДарья Рябоконь" in msg
