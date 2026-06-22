@@ -45,7 +45,7 @@ jobs:
           import requests
           from bs4 import BeautifulSoup
 
-          STATE_VERSION = 36
+          STATE_VERSION = 38
           STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
           SELF_TEST = os.getenv("SELF_TEST", "0") == "1"
           DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
@@ -56,7 +56,7 @@ jobs:
           MARIINSKY_URL = "https://www.mariinsky.ru/playbill/playbill/"
           PHILHARMONIA_URL = "https://www.philharmonia.spb.ru/afisha/grand/"
           TZ = ZoneInfo("Europe/Moscow")
-          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.3", "Accept-Language": "ru,en;q=0.9"}
+          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.5", "Accept-Language": "ru,en;q=0.9"}
 
           EMOJI_NEW = "🐣"
           EMOJI_ADDED = "✅"
@@ -68,127 +68,33 @@ jobs:
           MAX_PENDING_MESSAGES = int(os.getenv("MAX_PENDING_MESSAGES", "100"))
           MESSAGE_SEND_DELAY_SECONDS = float(os.getenv("MESSAGE_SEND_DELAY_SECONDS", "2"))
 
-          MONTHS = {
-              1: "января", 2: "февраля", 3: "марта", 4: "апреля",
-              5: "мая", 6: "июня", 7: "июля", 8: "августа",
-              9: "сентября", 10: "октября", 11: "ноября", 12: "декабря",
-          }
+          MONTHS = {1: "января", 2: "февраля", 3: "марта", 4: "апреля", 5: "мая", 6: "июня", 7: "июля", 8: "августа", 9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"}
           MONTH_NUM = {v: k for k, v in MONTHS.items()}
 
-          VENUE_BY_CODE = {
-              "1": "Мариинский театр",
-              "2": "Мариинский-2",
-              "3": "Концертный зал",
-              "4": "Камерные залы",
-              "5": "Зал Щедрина",
-              "6": "Зал Мусоргского",
-              "10": "Зал Стравинского",
-              "15": "Мариинский театр",
-          }
+          VENUE_BY_CODE = {"1": "Мариинский театр", "2": "Мариинский-2", "3": "Концертный зал", "4": "Камерные залы", "5": "Зал Щедрина", "6": "Зал Мусоргского", "10": "Зал Стравинского", "15": "Мариинский театр"}
+          MARIINSKY_VENUES = set(VENUE_BY_CODE.values()) | {"Концертный зал Мариинского театра", "Японский павильон", "Ораниенбаум", "Меншиковский дворец"}
+          EXCLUDED_MARIINSKY_TEXT = ["Приморская сцена", "Владивосток", "Владикавказ", "РСО", "Алания"]
+          SOURCES = {"mariinsky": "Мариинский театр", "philharmonia_grand": "СПб филармония, Большой зал"}
 
-          MARIINSKY_VENUES = set(VENUE_BY_CODE.values()) | {
-              "Концертный зал Мариинского театра",
-              "Японский павильон",
-              "Ораниенбаум",
-              "Меншиковский дворец",
-          }
+          BAD_TITLES = {"еда", "среда", "понедельник", "вторник", "четверг", "пятница", "суббота", "воскресенье", "cookie", "cookies", "использование cookies", "согласие на использование cookie", "согласие на использование cookies"}
 
-          SOURCES = {
-              "mariinsky": "Мариинский театр",
-              "philharmonia_grand": "СПб филармония, Большой зал",
-          }
+          FOOTER_RE = re.compile(r"^(Для обращений|Справочная служба|По вопросам реализации билетов|Скачать мобильное приложение|Любое использование|Закрыть|Вход в личный кабинет|Официальные билеты|Поделиться)$", re.I)
+          MARIINSKY_STOP_RE = re.compile(r"^(Возрастная категория(\s*\d+\+?)?|XXXIV\s+Музыкальный фестиваль.*Зв[её]зды белых ночей|Музыкальный фестиваль.*Зв[её]зды белых ночей|Зв[её]зды белых ночей|Полная программа|Краткое содержание|Содержание)$", re.I)
+          MENU_RE = re.compile(r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|Новости|Для прессы|Афиша|Абонементы|Фестивали|Репертуар|Изменения в афише|Выбрать сцену|Все площадки|Все спектакли|Архив афиши)$", re.I)
+          NOISE_RE = re.compile(r"(@@|купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|касс[аеы]|авторизация|войти|регистрация|личный кабинет|cookie|cookies|согласие на использование|подписаться|поиск|версия для слабовидящих|опрос|для обращений|справочная служба|скачать мобильное приложение|mariinsky\.tv|mariinsky\.fm|правообладател|зв[её]здный состав|блестящий состав|история постановки|описание спектакля)", re.I)
 
-          BAD_TITLES = {
-              "еда", "среда", "понедельник", "вторник", "четверг",
-              "пятница", "суббота", "воскресенье",
-              "согласие на использование cookies",
-              "согласие на использование cookie",
-              "cookie", "cookies", "использование cookies",
-          }
-
-          FOOTER_RE = re.compile(
-              r"^(Для обращений|Справочная служба|По вопросам реализации билетов|"
-              r"Скачать мобильное приложение|Любое использование|Закрыть|"
-              r"Вход в личный кабинет|Официальные билеты|Поделиться)$",
-              re.I,
-          )
-
-          MARIINSKY_STOP_RE = re.compile(
-              r"^(Возрастная категория(\s*\d+\+?)?|"
-              r"XXXIV\s+Музыкальный фестиваль.*Зв[её]зды белых ночей|"
-              r"Музыкальный фестиваль.*Зв[её]зды белых ночей|"
-              r"Зв[её]зды белых ночей|Полная программа|Краткое содержание|Содержание)$",
-              re.I,
-          )
-
-          NOISE_RE = re.compile(
-              r"(@@|купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|"
-              r"касс[аеы]|авторизация|войти|регистрация|личный кабинет|cookie|cookies|"
-              r"согласие на использование|подписаться|поиск|версия для слабовидящих|опрос|"
-              r"для обращений|справочная служба|скачать мобильное приложение|mariinsky\.tv|"
-              r"mariinsky\.fm|правообладател|зв[её]здный состав|блестящий состав|"
-              r"история постановки|описание спектакля)",
-              re.I,
-          )
-
-          MENU_RE = re.compile(
-              r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|"
-              r"Новости|Для прессы|Афиша|Абонементы|Фестивали|Репертуар|"
-              r"Изменения в афише|Выбрать сцену|Все площадки|Все спектакли|Архив афиши)$",
-              re.I,
-          )
-
-          PHILHARMONIA_FORBIDDEN_QUERY_KEYS = {
-              "tag", "tags", "year", "month", "page", "p", "search", "q",
-              "hall", "type", "genre", "series", "abonement",
-          }
+          PHILHARMONIA_FORBIDDEN_QUERY_KEYS = {"tag", "tags", "year", "month", "page", "p", "search", "q", "hall", "type", "genre", "series", "abonement"}
           PHILHARMONIA_EVENT_QUERY_KEYS = {"ev_z", "ev_y", "event", "event_id", "id"}
 
-          PERFORMER_WORDS = [
-              "дириж", "солист", "солистка", "исполн", "состав", "партию", "партия",
-              "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель",
-              "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр",
-              "концертмейстер", "режиссер", "режиссёр", "хормейстер",
-          ]
+          PERFORMER_WORDS = ["дириж", "солист", "солистка", "исполн", "состав", "партию", "партия", "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "ансамбль", "концертмейстер", "режиссер", "режиссёр", "хормейстер"]
+          ROLE_WORDS = ["дирижер", "дирижёр", "солист", "солистка", "солисты", "исполнитель", "исполнительница", "исполнители", "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр", "ансамбль", "концертмейстер", "режиссер", "режиссёр", "хормейстер"]
+          ENSEMBLE_WORDS = ["оркестр", "хор", "ансамбль"]
+          PROGRAM_WORDS = ["симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн", "реквием", "оратори", "кантат", "опера", "балет", "рапсод", "адажио", "танц", "прелюди", "фуга", "квартет", "квинтет"]
+          PROGRAM_START_WORDS = ["концерт", "симфония", "сюита", "увертюра", "соната", "ноктюрн", "реквием", "оратория", "кантата", "опера", "балет", "рапсодия", "адажио", "танец", "прелюдия", "фуга", "квартет", "квинтет"]
+          COMPOSERS = ["Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен", "Шуберт", "Шуман", "Рахманинов", "Прокофьев", "Стравинский", "Римский-Корсаков", "Чайковский", "Дебюсси", "Пуленк", "Дворжак", "Гершвин", "Барбер", "Бернстайн", "Копленд", "Пьяццолла", "Респиги"]
 
-          ROLE_WORDS = [
-              "дирижер", "дирижёр", "солист", "солистка", "исполнитель", "исполнительница",
-              "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель",
-              "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр",
-              "концертмейстер", "режиссер", "режиссёр", "хормейстер",
-          ]
-
-          PROGRAM_WORDS = [
-              "симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн",
-              "реквием", "оратори", "кантат", "опера", "балет", "рапсод",
-              "адажио", "танц", "прелюди", "фуга", "квартет", "квинтет",
-          ]
-
-          COMPOSERS = [
-              "Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен",
-              "Шуберт", "Шуман", "Рахманинов", "Прокофьев", "Стравинский",
-              "Римский-Корсаков", "Чайковский", "Дебюсси", "Пуленк", "Дворжак",
-              "Гершвин", "Барбер", "Бернстайн", "Копленд", "Пьяццолла", "Респиги",
-          ]
-
-          NON_REPERTOIRE_PATTERNS = [
-              "антракт",
-              "без антракта",
-              "с антрактом",
-              "концерт идет",
-              "концерт идет без",
-              "концерт идет с",
-              "спектакль идет",
-              "опера идет",
-              "балет идет",
-              "представление идет",
-              "продолжительность",
-              "одно отделение",
-              "два отделения",
-              "в одном отделении",
-              "в двух отделениях",
-              "без перерыва",
-          ]
+          NON_REPERTOIRE_PATTERNS = ["антракт", "без антракта", "с антрактом", "концерт идет", "спектакль идет", "опера идет", "балет идет", "представление идет", "продолжительность", "одно отделение", "два отделения", "в одном отделении", "в двух отделениях", "без перерыва"]
+          CAST_PLACEHOLDER_PATTERNS = ["состав исполнителей будет объявлен позднее", "состав будет объявлен позднее", "исполнители будут объявлены позднее", "исполнители будут объявлены дополнительно", "состав исполнителей будет объявлен дополнительно", "состав исполнителей уточняется", "состав будет уточнен", "состав будет уточнён", "будет объявлен позднее", "будут объявлены позднее", "будет объявлен дополнительно", "будут объявлены дополнительно"]
 
 
           def clean(s):
@@ -197,6 +103,10 @@ jobs:
 
           def key(s):
               return clean(s).lower().replace("ё", "е")
+
+
+          def canonical_low(s):
+              return key(s).replace("cостав", "состав")
 
 
           def fetch(url):
@@ -223,59 +133,50 @@ jobs:
 
 
           def is_subscription_line(line):
-              low = key(line)
+              low = canonical_low(line)
               return "абонемент" in low or "абонементы" in low
 
 
           def is_non_repertoire_info(line):
-              low = key(line)
+              low = canonical_low(line)
               return any(p in low for p in NON_REPERTOIRE_PATTERNS)
+
+
+          def is_cast_placeholder_line(line):
+              low = canonical_low(line)
+              return any(p in low for p in CAST_PLACEHOLDER_PATTERNS)
 
 
           def is_noise(line):
               line = clean(line)
               if not line:
                   return True
-              if is_subscription_line(line):
-                  return True
-              if is_non_repertoire_info(line):
+              if is_subscription_line(line) or is_non_repertoire_info(line) or is_cast_placeholder_line(line):
                   return True
               return bool(NOISE_RE.search(line)) or bool(MENU_RE.fullmatch(line))
 
 
           def html_lines(html_or_soup, stop_re=None):
               soup = BeautifulSoup(html_or_soup, "html.parser") if isinstance(html_or_soup, str) else html_or_soup
-
               for tag in soup(["script", "style", "noscript", "svg"]):
                   tag.decompose()
-
               out = []
               prev = None
-
               for raw in soup.get_text("\n").splitlines():
                   line = clean(raw)
-
                   if FOOTER_RE.fullmatch(line):
                       break
                   if stop_re and stop_re.fullmatch(line):
                       break
                   if is_noise(line) or line == prev:
                       continue
-
                   out.append(line)
                   prev = line
-
               return merge_performer_role_lines(out)
 
 
           def is_date_line(line):
-              return bool(
-                  re.search(
-                      r"\b\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|"
-                      r"августа|сентября|октября|ноября|декабря)\b",
-                      key(line),
-                  )
-              )
+              return bool(re.search(r"\b\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\b", key(line)))
 
 
           def is_time_line(line):
@@ -284,21 +185,15 @@ jobs:
 
           def is_valid_title(title):
               title = clean(title)
-              low = key(title)
-
+              low = canonical_low(title)
               if not title or len(title) < 3:
                   return False
               if low in BAD_TITLES or "cookie" in low or "согласие на использование" in low:
                   return False
-              if is_subscription_line(title):
+              if is_subscription_line(title) or is_non_repertoire_info(title) or is_cast_placeholder_line(title):
                   return False
-              if is_non_repertoire_info(title):
+              if re.fullmatch(r"[\d\W_]+", title) or re.fullmatch(r"\d{1,2}\s+[а-яё]+", low):
                   return False
-              if re.fullmatch(r"[\d\W_]+", title):
-                  return False
-              if re.fullmatch(r"\d{1,2}\s+[а-яё]+", low):
-                  return False
-
               return True
 
 
@@ -308,26 +203,16 @@ jobs:
                       title = clean(tag.get_text(" ", strip=True))
                       if is_valid_title(title):
                           return title
-
               if is_valid_title(fallback):
                   return clean(fallback)
-
               for line in html_lines(soup):
-                  if (
-                      is_valid_title(line)
-                      and not is_date_line(line)
-                      and not is_time_line(line)
-                      and line not in MARIINSKY_VENUES
-                  ):
+                  if is_valid_title(line) and not is_date_line(line) and not is_time_line(line) and line not in MARIINSKY_VENUES:
                       return line
-
               return "Без названия"
 
 
           def date_text_from_parts(year, month, day):
-              y = int(year)
-              m = int(month)
-              d = int(day)
+              y, m, d = int(year), int(month), int(day)
               return date(y, m, d), f"{d} {MONTHS[m]} {y}"
 
 
@@ -335,28 +220,18 @@ jobs:
               m = re.search(r"/playbill/playbill/(\d{4})/(\d{1,2})/(\d{1,2})/(\d+)_(\d{4})/", url)
               if not m:
                   return None, "", "", "Мариинский театр"
-
               event_date, date_text = date_text_from_parts(m.group(1), m.group(2), m.group(3))
               time_raw = m.group(5)
               venue = VENUE_BY_CODE.get(m.group(4), "Мариинский театр")
-
               return event_date, date_text, f"{time_raw[:2]}:{time_raw[2:]}", venue
 
 
           def parse_ru_date(line):
-              m = re.search(
-                  r"\b(\d{1,2})\s+(января|февраля|марта|апреля|мая|июня|июля|"
-                  r"августа|сентября|октября|ноября|декабря)\s+(\d{4})\b",
-                  key(line),
-              )
+              m = re.search(r"\b(\d{1,2})\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+(\d{4})\b", key(line))
               if not m:
                   return None, ""
-
-              d = int(m.group(1))
-              month_word = m.group(2)
-              y = int(m.group(3))
+              d, month_word, y = int(m.group(1)), m.group(2), int(m.group(3))
               month = MONTH_NUM[month_word]
-
               return date(y, month, d), f"{d} {MONTHS[month]} {y}"
 
 
@@ -370,27 +245,22 @@ jobs:
           def date_line(record):
               date_text = clean(record.get("date_text", ""))
               time_text = clean(record.get("time_text", ""))
-
               if date_text and time_text:
                   return f"{EMOJI_DATE} {date_text}. {time_text}"
               if date_text:
                   return f"{EMOJI_DATE} {date_text}"
               if time_text:
                   return f"{EMOJI_DATE} {time_text}"
-
               return ""
 
 
           def source_line(record):
               source = record.get("source", "")
               venue = clean(record.get("venue", ""))
-
               if source == "mariinsky":
                   return f"{MARIINSKY_MARK} {venue or 'Мариинский театр'}"
-
               if source == "philharmonia_grand":
                   return venue or SOURCES["philharmonia_grand"]
-
               return venue or SOURCES.get(source, "Афиша")
 
 
@@ -399,19 +269,26 @@ jobs:
               return any(w.lower().replace("ё", "е") in low for w in words)
 
 
-          def looks_like_person_name(line):
-              line = clean(line)
-
+          def looks_like_person_name_single(line):
+              line = clean(line).strip("()[]")
               if not line or is_noise(line) or is_date_line(line) or is_time_line(line):
                   return False
               if contains_word(line, PROGRAM_WORDS):
                   return False
-
               words = [w for w in re.split(r"\s+", line.replace(".", " ")) if w]
               if not (1 <= len(words) <= 4):
                   return False
-
               return all(re.match(r"^[А-ЯЁA-Z][а-яёa-zА-ЯЁA-Z\-]+$", w) for w in words)
+
+
+          def looks_like_person_list(line):
+              line = clean(line)
+              if not line or is_noise(line):
+                  return False
+              parts = [p for p in re.split(r"\s*,\s*|\s*;\s*", line) if clean(p)]
+              if not parts:
+                  return False
+              return all(looks_like_person_name_single(p) for p in parts)
 
 
           def role_only_prefix(line):
@@ -419,7 +296,6 @@ jobs:
               m = re.match(r"^(.+?)\s*[-–—:]\s*$", line)
               if not m:
                   return ""
-
               role = clean(m.group(1))
               return role if contains_word(role, ROLE_WORDS) else ""
 
@@ -427,64 +303,73 @@ jobs:
           def merge_performer_role_lines(lines):
               merged = []
               i = 0
-
               while i < len(lines):
                   line = clean(lines[i])
                   role = role_only_prefix(line)
-
                   if role:
-                      if i + 1 < len(lines) and looks_like_person_name(lines[i + 1]):
+                      if i + 1 < len(lines) and looks_like_person_list(lines[i + 1]):
                           merged.append(f"{role} — {clean(lines[i + 1])}")
                           i += 2
                           continue
-
                       i += 1
                       continue
-
                   merged.append(line)
                   i += 1
-
               return merged
+
+
+          def is_labeled_performer_line(line):
+              line = clean(line)
+              m = re.match(r"^(.+?)\s*[-–—:]\s*(.+)$", line)
+              if not m:
+                  return False
+              label = clean(m.group(1))
+              rest = clean(m.group(2))
+              if not rest or is_noise(rest):
+                  return False
+              return contains_word(label, ROLE_WORDS) or contains_word(label, PERFORMER_WORDS)
+
+
+          def starts_like_program_work(line):
+              low = key(line)
+              return any(low.startswith(w) for w in PROGRAM_START_WORDS) or bool(re.match(r"^[А-ЯЁA-Z][а-яёa-zА-ЯЁA-Z\-]+\.\s+", clean(line)))
+
+
+          def is_ensemble_performer_line(line):
+              line = clean(line)
+              low = key(line)
+              if not contains_word(line, ENSEMBLE_WORDS):
+                  return False
+              if starts_like_program_work(line):
+                  return False
+              if re.search(r"\bдля\b.*\b(оркестр|хор|ансамбль)", low):
+                  return False
+              if re.match(r"^(симфонический|камерный|струнный|духовой|детский|женский|мужской|смешанный)?\s*(оркестр|хор|ансамбль)\b", low):
+                  return True
+              return "мариинск" in low or "филармони" in low or "театра" in low
 
 
           def is_performer_line(line):
               line = clean(line)
-
-              if is_noise(line):
+              if is_noise(line) or role_only_prefix(line) or is_cast_placeholder_line(line):
                   return False
-              if role_only_prefix(line):
-                  return False
-
+              if is_labeled_performer_line(line) or is_ensemble_performer_line(line):
+                  return True
               low = key(line)
-
-              if contains_word(line, PROGRAM_WORDS):
+              if contains_word(line, PROGRAM_WORDS) or any(c.lower().replace("ё", "е") in low for c in COMPOSERS):
                   return False
-              if any(c.lower().replace("ё", "е") in low for c in COMPOSERS):
-                  return False
-
               return contains_word(line, PERFORMER_WORDS) or (line.startswith(":") and "," in line)
 
 
           def is_program_line(line, title):
               line = clean(line)
-
-              if is_noise(line):
-                  return False
-              if is_subscription_line(line):
-                  return False
-              if is_non_repertoire_info(line):
+              if is_noise(line) or is_subscription_line(line) or is_non_repertoire_info(line) or is_cast_placeholder_line(line):
                   return False
               if is_date_line(line) or is_time_line(line) or key(line) == key(title):
                   return False
               if is_performer_line(line) or line in MARIINSKY_VENUES:
                   return False
-
-              return (
-                  contains_word(line, PROGRAM_WORDS)
-                  or any(c.lower().replace("ё", "е") in key(line) for c in COMPOSERS)
-                  or "«" in line
-                  or "»" in line
-              )
+              return contains_word(line, PROGRAM_WORDS) or any(c.lower().replace("ё", "е") in key(line) for c in COMPOSERS) or "«" in line or "»" in line
 
 
           def split_people(text):
@@ -494,82 +379,50 @@ jobs:
 
           def performer_items_from_line(line):
               line = clean(line)
-
-              if not line:
+              if not line or role_only_prefix(line) or is_subscription_line(line) or is_non_repertoire_info(line) or is_cast_placeholder_line(line):
                   return []
-              if role_only_prefix(line):
-                  return []
-              if is_subscription_line(line):
-                  return []
-              if is_non_repertoire_info(line):
-                  return []
-
               if line.startswith(":"):
                   return split_people(line[1:])
-
               m = re.match(r"^(.+?)\s*[-–—:]\s*(.+)$", line)
               if m:
                   label = clean(m.group(1))
                   rest = clean(m.group(2))
-
                   if contains_word(label, ROLE_WORDS) and not rest:
                       return []
-
                   people = split_people(rest)
                   if not people:
                       return []
-
                   if len(people) > 1 and contains_word(label, PERFORMER_WORDS):
                       return [f"{label} — {p}" for p in people]
-
                   if contains_word(label, PERFORMER_WORDS):
-                      if len(people) == 1:
-                          return [f"{label} — {people[0]}"]
-                      return [line]
-
+                      return [f"{label} — {people[0]}"] if len(people) == 1 else [line]
                   return [line]
-
               if "," in line:
                   return split_people(line)
-
               return [line]
 
 
           def uniq(items):
               out = []
               seen = set()
-
               for item in items:
                   item = clean(item)
                   k = key(item)
-
                   if item and k not in seen:
                       out.append(item)
                       seen.add(k)
-
               return out
 
 
           def filter_items(items):
-              return uniq(
-                  [
-                      x
-                      for x in items
-                      if clean(x)
-                      and not is_subscription_line(x)
-                      and not is_non_repertoire_info(x)
-                      and not is_noise(x)
-                  ]
-              )
+              return uniq([x for x in items if clean(x) and not is_subscription_line(x) and not is_non_repertoire_info(x) and not is_cast_placeholder_line(x) and not is_noise(x)])
 
 
           def extract_performers(lines):
               items = []
-
               for line in lines:
                   if is_performer_line(line):
                       items.extend(performer_items_from_line(line))
-
               return filter_items(items)
 
 
@@ -580,28 +433,8 @@ jobs:
           def build_record(source, url, title, venue, event_date, date_text, time_text, lines):
               performers = extract_performers(lines)
               program = extract_program(lines, title)
-
-              core = {
-                  "title": clean(title),
-                  "venue": clean(venue),
-                  "date_text": clean(date_text),
-                  "time_text": clean(time_text),
-                  "performers": performers,
-                  "program": program,
-              }
-
-              return {
-                  "source": source,
-                  "url": url,
-                  "title": core["title"] or "Без названия",
-                  "venue": core["venue"],
-                  "date_text": core["date_text"],
-                  "time_text": core["time_text"],
-                  "event_date": event_date.isoformat() if isinstance(event_date, date) else "",
-                  "performers": performers,
-                  "program": program,
-                  "digest": digest(core),
-              }
+              core = {"title": clean(title), "venue": clean(venue), "date_text": clean(date_text), "time_text": clean(time_text), "performers": performers, "program": program}
+              return {"source": source, "url": url, "title": core["title"] or "Без названия", "venue": core["venue"], "date_text": core["date_text"], "time_text": core["time_text"], "event_date": event_date.isoformat() if isinstance(event_date, date) else "", "performers": performers, "program": program, "digest": digest(core)}
 
 
           def is_philharmonia_event_url(url):
@@ -609,59 +442,41 @@ jobs:
               path = parsed.path or ""
               query = parse_qs(parsed.query, keep_blank_values=True)
               keys = set(query.keys())
-
               if not path.startswith("/afisha/grand/"):
                   return False
-
               if keys & PHILHARMONIA_FORBIDDEN_QUERY_KEYS:
                   return False
-
               if parsed.query:
                   return bool(keys & PHILHARMONIA_EVENT_QUERY_KEYS)
-
               if path.rstrip("/") == "/afisha/grand":
                   return False
-
               tail = path[len("/afisha/grand/"):].strip("/")
-              return bool(
-                  tail
-                  and (
-                      re.search(r"(^|/)\d{3,}($|/)", tail)
-                      or (len(tail.split("/")) >= 2 and re.search(r"\d", tail))
-                  )
-              )
+              return bool(tail and (re.search(r"(^|/)\d{3,}($|/)", tail) or (len(tail.split("/")) >= 2 and re.search(r"\d", tail))))
 
 
           def extract_mariinsky_links(html):
               soup = BeautifulSoup(html, "html.parser")
               out = {}
               pat = re.compile(r"/playbill/playbill/\d{4}/\d{1,2}/\d{1,2}/\d+_\d{4}/")
-
               for a in soup.find_all("a", href=True):
                   href = a.get("href") or ""
                   if not pat.search(href):
                       continue
-
                   url = normalize_url(urljoin(MARIINSKY_URL, href))
                   text = clean(a.get_text(" ", strip=True))
                   out.setdefault(url, text if is_valid_title(text) else "")
-
               return out
 
 
           def extract_philharmonia_links(html):
               soup = BeautifulSoup(html, "html.parser")
               out = {}
-
               for a in soup.find_all("a", href=True):
                   url = normalize_url(urljoin(PHILHARMONIA_URL, a.get("href") or ""))
-
                   if not is_philharmonia_event_url(url):
                       continue
-
                   text = clean(a.get_text(" ", strip=True))
                   out.setdefault(url, text if is_valid_title(text) else "")
-
               return out
 
 
@@ -670,65 +485,42 @@ jobs:
               soup = BeautifulSoup(fetch(url), "html.parser")
               lines = html_lines(soup, stop_re=MARIINSKY_STOP_RE)
               full_text = "\n".join(lines)
-
-              if any(
-                  x.lower() in full_text.lower()
-                  for x in ["Приморская сцена", "Владивосток", "Владикавказ", "РСО", "Алания"]
-              ):
+              if any(x.lower() in full_text.lower() for x in EXCLUDED_MARIINSKY_TEXT):
                   return None
-
               for v in MARIINSKY_VENUES:
                   if any(v.lower() == line.lower() for line in lines):
                       venue = v
                       break
-
               title = title_from_soup(soup, fallback)
               if not is_valid_title(title):
                   return None
-
               return build_record("mariinsky", url, title, venue, event_date, date_text, time_text, lines)
 
 
           def build_philharmonia(url, fallback=""):
               if not is_philharmonia_event_url(url):
                   return None
-
               soup = BeautifulSoup(fetch(url), "html.parser")
               lines = html_lines(soup)
               title = title_from_soup(soup, fallback)
-
               if not is_valid_title(title):
                   return None
-
               event_date = None
               date_text = ""
               time_text = ""
-
               for line in lines[:80]:
                   if not date_text:
                       event_date, date_text = parse_ru_date(line)
                   if not time_text:
                       time_text = parse_time(line)
-
               if not date_text or not time_text:
                   return None
-
-              return build_record(
-                  "philharmonia_grand",
-                  url,
-                  title,
-                  SOURCES["philharmonia_grand"],
-                  event_date,
-                  date_text,
-                  time_text,
-                  lines,
-              )
+              return build_record("philharmonia_grand", url, title, SOURCES["philharmonia_grand"], event_date, date_text, time_text, lines)
 
 
           def read_links(links, builder, label):
               events = {}
               failed = set()
-
               for url, fallback in sorted(links.items()):
                   try:
                       rec = builder(url, fallback)
@@ -738,7 +530,6 @@ jobs:
                   except Exception as exc:
                       print(f"Failed to read {label} {url}: {type(exc).__name__}: {exc}")
                       failed.add(url)
-
               return events, failed
 
 
@@ -754,12 +545,7 @@ jobs:
               result = {}
               failed = {}
               errors = set()
-
-              scanners = {
-                  "mariinsky": scan_mariinsky,
-                  "philharmonia_grand": scan_philharmonia,
-              }
-
+              scanners = {"mariinsky": scan_mariinsky, "philharmonia_grand": scan_philharmonia}
               for source, scanner in scanners.items():
                   try:
                       events, failed_urls = scanner()
@@ -771,7 +557,6 @@ jobs:
                       result[source] = None
                       failed[source] = set()
                       errors.add(source)
-
               return result, failed, errors
 
 
@@ -792,145 +577,81 @@ jobs:
           def set_diff(old_items, new_items):
               old_items = filter_items(old_items)
               new_items = filter_items(new_items)
-
               old_map = {key(x): clean(x) for x in old_items if clean(x)}
               new_map = {key(x): clean(x) for x in new_items if clean(x)}
-
               added = [new_map[k] for k in new_map if k not in old_map]
               removed = [old_map[k] for k in old_map if k not in new_map]
-
               return added, removed
 
 
           def section_added_removed(title, added, removed):
               added = filter_items(added)
               removed = filter_items(removed)
-
               if not added and not removed:
                   return ""
-
               parts = [title, ""]
-
               if added:
                   parts += [f"{EMOJI_ADDED} Добавлено:"] + added + [""]
-
               if removed:
                   parts += [f"{EMOJI_REMOVED} Удалено:"] + removed + [""]
-
               while parts and parts[-1] == "":
                   parts.pop()
-
               return "\n".join(parts)
 
 
           def before_after(title, old, new):
               old = clean(old)
               new = clean(new)
-
               if old == new:
                   return ""
-
-              return "\n".join(
-                  [
-                      title,
-                      "",
-                      f"{EMOJI_REMOVED} Было:",
-                      old or "—",
-                      "",
-                      f"{EMOJI_ADDED} Стало:",
-                      new or "—",
-                  ]
-              )
+              return "\n".join([title, "", f"{EMOJI_REMOVED} Было:", old or "—", "", f"{EMOJI_ADDED} Стало:", new or "—"])
 
 
           def format_new(record):
-              parts = [
-                  source_line(record),
-                  f"{EMOJI_NEW} Новое событие",
-                  "",
-                  f"Название: {record.get('title', 'Без названия')}",
-              ]
-
+              parts = [source_line(record), f"{EMOJI_NEW} Новое событие", "", f"Название: {record.get('title', 'Без названия')}"]
               dt = date_line(record)
               if dt:
                   parts.append(dt)
-
               parts += ["", f"Ссылка: {record.get('url', '')}"]
               return "\n".join(parts).strip()
 
 
           def format_removed(record):
-              parts = [
-                  source_line(record),
-                  f"{EMOJI_REMOVED} Событие исчезло",
-                  "",
-                  f"Название: {record.get('title', 'Без названия')}",
-              ]
-
+              parts = [source_line(record), f"{EMOJI_REMOVED} Событие исчезло", "", f"Название: {record.get('title', 'Без названия')}"]
               dt = date_line(record)
               if dt:
                   parts.append(dt)
-
               parts += ["", f"Ссылка: {record.get('url', '')}"]
               return "\n".join(parts).strip()
 
 
           def change_sections(old, new):
-              sections = [
-                  x
-                  for x in [
-                      before_after("Изменение названия:", old.get("title", ""), new.get("title", "")),
-                      before_after("Изменение даты / времени:", date_line(old), date_line(new)),
-                      before_after("Изменение площадки:", source_line(old), source_line(new)),
-                  ]
-                  if x
-              ]
-
+              sections = [x for x in [before_after("Изменение названия:", old.get("title", ""), new.get("title", "")), before_after("Изменение даты / времени:", date_line(old), date_line(new)), before_after("Изменение площадки:", source_line(old), source_line(new))] if x]
               perf_added, perf_removed = set_diff(old.get("performers", []), new.get("performers", []))
               prog_added, prog_removed = set_diff(old.get("program", []), new.get("program", []))
-
-              for section in [
-                  section_added_removed("Изменение в составе:", perf_added, perf_removed),
-                  section_added_removed("Изменение в программе:", prog_added, prog_removed),
-              ]:
+              for section in [section_added_removed("Изменение в составе:", perf_added, perf_removed), section_added_removed("Изменение в программе:", prog_added, prog_removed)]:
                   if section:
                       sections.append(section)
-
               return sections
 
 
           def format_changed(old, new):
               sections = change_sections(old, new)
-
               if not sections:
                   return ""
-
-              parts = [
-                  source_line(new),
-                  "",
-                  f"Название: {new.get('title', 'Без названия')}",
-              ]
-
+              parts = [source_line(new), "", f"Название: {new.get('title', 'Без названия')}"]
               dt = date_line(new)
               if dt:
                   parts.append(dt)
-
               parts.append(sections[0])
-
               for section in sections[1:]:
                   parts += ["", section]
-
               parts += ["", f"Ссылка: {new.get('url', '')}"]
               return "\n".join(parts).strip()
 
 
           def default_state():
-              return {
-                  "schema_version": STATE_VERSION,
-                  "updated_at": now_utc(),
-                  "sources": {s: {"events": {}} for s in SOURCES},
-                  "pending_messages": [],
-              }
+              return {"schema_version": STATE_VERSION, "updated_at": now_utc(), "sources": {s: {"events": {}} for s in SOURCES}, "pending_messages": []}
 
 
           def load_state():
@@ -938,75 +659,55 @@ jobs:
                   state = default_state()
                   state["schema_version"] = 0
                   return state
-
               try:
                   state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
               except Exception:
                   state = default_state()
                   state["schema_version"] = 0
                   return state
-
               if not isinstance(state, dict):
                   state = default_state()
                   state["schema_version"] = 0
                   return state
-
               state.setdefault("schema_version", 0)
               state.setdefault("pending_messages", [])
               state.setdefault("sources", {})
-
               for source in SOURCES:
                   state["sources"].setdefault(source, {}).setdefault("events", {})
-
               return state
 
 
           def save_state(state):
               state["updated_at"] = now_utc()
-              STATE_FILE.write_text(
-                  json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True),
-                  encoding="utf-8",
-              )
+              STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
 
 
           def fresh_state(events_by_source):
               state = default_state()
-
               for source, events in events_by_source.items():
                   state["sources"][source]["events"] = events
-
               return state
 
 
           def build_messages(old_events, new_events, failed_urls):
               messages = []
-
               for url, new in sorted(new_events.items()):
                   old = old_events.get(url)
-
                   if old is None:
                       messages.append(format_new(new))
                   elif old.get("digest") != new.get("digest"):
                       msg = format_changed(old, new)
                       if msg:
                           messages.append(msg)
-
               for url, old in sorted(old_events.items()):
-                  if url in new_events:
+                  if url in new_events or url in failed_urls or not is_future_removed(old):
                       continue
-                  if url in failed_urls:
-                      continue
-                  if not is_future_removed(old):
-                      continue
-
                   messages.append(format_removed(old))
-
               return messages
 
 
           def add_pending(state, messages):
               state.setdefault("pending_messages", []).extend(messages)
-
               if len(state["pending_messages"]) > MAX_PENDING_MESSAGES:
                   state["pending_messages"] = state["pending_messages"][-MAX_PENDING_MESSAGES:]
 
@@ -1014,23 +715,18 @@ jobs:
           def chunks(text, limit=3900):
               if len(text) <= limit:
                   return [text]
-
               out = []
               cur = ""
-
               for block in text.split("\n\n"):
                   nxt = block if not cur else cur + "\n\n" + block
-
                   if len(nxt) <= limit:
                       cur = nxt
                   else:
                       if cur:
                           out.append(cur)
                       cur = block
-
               if cur:
                   out.append(cur)
-
               return out
 
 
@@ -1039,109 +735,73 @@ jobs:
                   print("DRY_RUN Telegram message:")
                   print(text)
                   return
-
               if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
                   print("Telegram secrets are missing; message was not sent.")
                   return
-
               url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-
               for chunk in chunks(text):
-                  response = requests.post(
-                      url,
-                      json={
-                          "chat_id": TELEGRAM_CHAT_ID,
-                          "text": chunk,
-                          "disable_web_page_preview": True,
-                      },
-                      timeout=30,
-                  )
-
+                  response = requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": chunk, "disable_web_page_preview": True}, timeout=30)
                   if response.status_code == 429:
                       try:
                           retry_after = response.json().get("parameters", {}).get("retry_after")
                       except Exception:
                           retry_after = None
-
                       raise RuntimeError(f"Telegram rate limit; retry_after={retry_after}")
-
                   response.raise_for_status()
 
 
           def flush_pending(state):
               pending = state.setdefault("pending_messages", [])
               sent = 0
-
               while pending and sent < MAX_TELEGRAM_MESSAGES_PER_RUN:
                   try:
                       send_message(pending[0])
                   except RuntimeError as exc:
                       print(str(exc))
                       break
-
                   pending.pop(0)
                   sent += 1
-
                   if pending and MESSAGE_SEND_DELAY_SECONDS > 0:
                       time.sleep(MESSAGE_SEND_DELAY_SECONDS)
-
               return sent
 
 
           def main():
               state = load_state()
               old_version = int(state.get("schema_version", 0) or 0)
-
               scanned, failed, source_errors = scan_all()
-
               complete = {}
-
               for source in SOURCES:
-                  complete[source] = (
-                      state.get("sources", {}).get(source, {}).get("events", {})
-                      if scanned.get(source) is None
-                      else scanned[source]
-                  )
-
+                  complete[source] = state.get("sources", {}).get(source, {}).get("events", {}) if scanned.get(source) is None else scanned[source]
               if not any(complete.values()):
                   raise RuntimeError("No events scanned from any source; refusing to save empty state.")
-
               if old_version < STATE_VERSION:
                   new_state = fresh_state(complete)
                   new_state["pending_messages"] = []
                   save_state(new_state)
                   print(f"State migrated from version {old_version} to {STATE_VERSION}. Telegram messages were not sent.")
                   return
-
               messages = []
-
               for source in SOURCES:
                   if source in source_errors:
                       continue
-
                   old_events = state.get("sources", {}).get(source, {}).get("events", {})
                   messages.extend(build_messages(old_events, complete[source], failed.get(source, set())))
-
               for source, events in complete.items():
                   state.setdefault("sources", {}).setdefault(source, {})["events"] = events
-
               state["schema_version"] = STATE_VERSION
-
               if messages:
                   add_pending(state, messages)
                   print(f"Queued messages: {len(messages)}. Pending total: {len(state.get('pending_messages', []))}")
               else:
                   print("No repertoire-significant changes.")
-
               sent = flush_pending(state)
               save_state(state)
-
               print(f"Telegram messages sent this run: {sent}. Pending left: {len(state.get('pending_messages', []))}")
 
 
           def run_self_tests():
-              assert STATE_VERSION == 36
-
+              assert STATE_VERSION == 38
               assert date_line({"date_text": "21 июня 2026", "time_text": "19:30"}) == "🔸 21 июня 2026. 19:30"
               assert "  19:30" not in date_line({"date_text": "21 июня 2026", "time_text": "19:30"})
 
@@ -1150,37 +810,46 @@ jobs:
               assert not is_program_line("Концерт идет без антракта", "Моцарт. Концерт")
               assert set_diff([], ["Концерт идет без антракта"]) == ([], [])
 
+              assert is_cast_placeholder_line("Состав исполнителей будет объявлен позднее")
+              assert is_cast_placeholder_line("Cостав исполнителей будет объявлен позднее")
+              assert is_noise("Cостав исполнителей будет объявлен позднее")
+              assert not is_performer_line("Cостав исполнителей будет объявлен позднее")
+              assert set_diff(["Cостав исполнителей будет объявлен позднее"], []) == ([], [])
+
               html = """
               <html><body>
               <h1>Брамс. Скрипичный концерт</h1>
               <p>Концертный зал</p>
               <p>Дирижер –</p>
               <p>Андрей Иванов</p>
+              <p>Солисты –</p>
+              <p>Иван Петров, Мария Сидорова</p>
+              <p>Симфонический оркестр Мариинского театра</p>
+              <p>Cостав исполнителей будет объявлен позднее</p>
               <p>Концерт идет без антракта</p>
               <p>Абонемент «Выходные с Верди»</p>
               <p>Возрастная категория 6+</p>
               <aside>XXXIV Музыкальный фестиваль «Звезды белых ночей»</aside>
-              <p>18 июня</p>
-              <p>Летучий голландец</p>
-              <p>20 июня</p>
-              <p>Аида</p>
-              <p>21 июня</p>
-              <p>Набукко</p>
+              <p>18 июня</p><p>Летучий голландец</p><p>20 июня</p><p>Аида</p><p>21 июня</p><p>Набукко</p>
               </body></html>
               """
-
               lines = html_lines(html, stop_re=MARIINSKY_STOP_RE)
               text = "\n".join(lines)
-
               assert "Дирижер — Андрей Иванов" in text
+              assert "Солисты — Иван Петров, Мария Сидорова" in text
+              assert "Симфонический оркестр Мариинского театра" in text
+              assert "Cостав исполнителей" not in text
               assert "Концерт идет без антракта" not in text
               assert "Абонемент" not in text
-              assert "Летучий голландец" not in text
-              assert "Аида" not in text
-              assert "Набукко" not in text
+              assert "Летучий голландец" not in text and "Аида" not in text and "Набукко" not in text
 
               assert performer_items_from_line("Дирижер –") == []
               assert performer_items_from_line("Дирижер – Андрей Иванов") == ["Дирижер — Андрей Иванов"]
+              assert performer_items_from_line("Солисты — Иван Петров, Мария Сидорова") == ["Солисты — Иван Петров", "Солисты — Мария Сидорова"]
+              assert is_performer_line("Симфонический оркестр Мариинского театра")
+              assert extract_performers(lines) == ["Дирижер — Андрей Иванов", "Солисты — Иван Петров", "Солисты — Мария Сидорова", "Симфонический оркестр Мариинского театра"]
+              assert not is_performer_line("Моцарт. Концерт для флейты с оркестром № 1")
+              assert is_program_line("Моцарт. Концерт для флейты с оркестром № 1", "Моцарт")
 
               old_items = performer_items_from_line(": Екатерина Лукаш, Зинаида Царенко, Ирина Шишкова")
               new_items = performer_items_from_line(": Екатерина Лукаш, Зинаида Царенко, Ирина Шишкова, Дарья Рябоконь")
@@ -1189,22 +858,9 @@ jobs:
               assert is_subscription_line("Абонемент «Выходные с Верди»")
               assert set_diff(["Абонемент «Выходные с Верди»"], []) == ([], [])
 
-              rec = {
-                  "source": "mariinsky",
-                  "venue": "Зал Стравинского",
-                  "title": "Концерты Моцарта",
-                  "date_text": "21 июня 2026",
-                  "time_text": "19:30",
-                  "url": "https://example.test/event/",
-              }
-
+              rec = {"source": "mariinsky", "venue": "Зал Стравинского", "title": "Концерты Моцарта", "date_text": "21 июня 2026", "time_text": "19:30", "url": "https://example.test/event/"}
               assert format_new(rec).splitlines()[0] == "𝄞 Зал Стравинского"
-
-              msg = format_changed(
-                  {**rec, "performers": old_items, "program": [], "digest": "old"},
-                  {**rec, "performers": new_items, "program": [], "digest": "new"},
-              )
-
+              msg = format_changed({**rec, "performers": old_items, "program": [], "digest": "old"}, {**rec, "performers": new_items, "program": [], "digest": "new"})
               assert "Изменение в афише:" not in msg
               assert "Изменение в составе:" in msg
               assert "✅ Добавлено:\nДарья Рябоконь" in msg
@@ -1212,7 +868,6 @@ jobs:
               assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?tag=test")
               assert is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?ev_z=12345")
               assert not is_valid_title("Согласие на использование cookies")
-
               print("SELF_TEST_OK")
 
 
