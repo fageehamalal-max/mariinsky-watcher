@@ -4,44 +4,6 @@
   "sources": {
     "mariinsky": {
       "events": {
-        "https://www.mariinsky.ru/playbill/playbill/2026/6/22/1_1901/": {
-          "date_text": "22 июня 2026",
-          "digest": "1973de966abf62cee9ce0d498e24221c6d3ce468c1217eae1d7b82214981cfeb",
-          "event_date": "2026-06-22",
-          "performers": [
-            "Орган",
-            "Исполнители",
-            "Дирижер — Борис Грузин"
-          ],
-          "program": [
-            "Барышня и хулиган. Ленинградская симфония",
-            "Ленинградская симфония"
-          ],
-          "source": "mariinsky",
-          "time_text": "19:01",
-          "title": "Барышня и хулиган Ленинградская симфония",
-          "url": "https://www.mariinsky.ru/playbill/playbill/2026/6/22/1_1901/",
-          "venue": "Мариинский театр"
-        },
-        "https://www.mariinsky.ru/playbill/playbill/2026/6/22/3_1900/": {
-          "date_text": "22 июня 2026",
-          "digest": "3e62f6e250ad263cbe0b9e16dd255bee316e9b9b8872bd66e4ac590b6e97fe86",
-          "event_date": "2026-06-22",
-          "performers": [
-            "Орган",
-            "опера Кирилла Молчанова (концертное исполнение)",
-            "Исполнители",
-            "Дирижер — Заурбек Гугкаев"
-          ],
-          "program": [
-            "Санкт-Петербург, Концертный зал"
-          ],
-          "source": "mariinsky",
-          "time_text": "19:00",
-          "title": "Зори здесь тихие",
-          "url": "https://www.mariinsky.ru/playbill/playbill/2026/6/22/3_1900/",
-          "venue": "Концертный зал"
-        },
         "https://www.mariinsky.ru/playbill/playbill/2026/6/23/1_1900/": {
           "date_text": "23 июня 2026",
           "digest": "bf02dc67ec797c9c7786031cc46434b19278e79e854dadf0e5bbb5260ea6944b",
@@ -2401,6 +2363,21 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/29/2_1900/",
           "venue": "Мариинский-2"
         },
+        "https://www.mariinsky.ru/playbill/playbill/2026/9/30/2_1900/": {
+          "date_text": "30 сентября 2026",
+          "digest": "c4c9ea7678cd120dd64582370acd2b8eb498661ec34a4a7c5194dd286d951152",
+          "event_date": "2026-09-30",
+          "performers": [
+            "Орган",
+            "Исполнители"
+          ],
+          "program": [],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Нос",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/30/2_1900/",
+          "venue": "Мариинский-2"
+        },
         "https://www.mariinsky.ru/playbill/playbill/2026/9/5/2_1700/": {
           "date_text": "5 сентября 2026",
           "digest": "5de8ecb83b33c9364f1ab93f3b9dd39fc81b492b0c69319643f987028f391a9e",
@@ -2441,5 +2418,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-22T21:03:40Z"
+  "updated_at": "2026-06-22T21:12:26Z"
 }
