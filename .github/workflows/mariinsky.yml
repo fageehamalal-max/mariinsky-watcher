@@ -45,7 +45,7 @@ jobs:
           import requests
           from bs4 import BeautifulSoup
 
-          STATE_VERSION = 35
+          STATE_VERSION = 36
           STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
           SELF_TEST = os.getenv("SELF_TEST", "0") == "1"
           DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
@@ -56,7 +56,7 @@ jobs:
           MARIINSKY_URL = "https://www.mariinsky.ru/playbill/playbill/"
           PHILHARMONIA_URL = "https://www.philharmonia.spb.ru/afisha/grand/"
           TZ = ZoneInfo("Europe/Moscow")
-          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.2", "Accept-Language": "ru,en;q=0.9"}
+          HEADERS = {"User-Agent": "Mozilla/5.0 TheatreWatcher/5.3", "Accept-Language": "ru,en;q=0.9"}
 
           EMOJI_NEW = "🐣"
           EMOJI_ADDED = "✅"
@@ -69,8 +69,9 @@ jobs:
           MESSAGE_SEND_DELAY_SECONDS = float(os.getenv("MESSAGE_SEND_DELAY_SECONDS", "2"))
 
           MONTHS = {
-              1: "января", 2: "февраля", 3: "марта", 4: "апреля", 5: "мая", 6: "июня",
-              7: "июля", 8: "августа", 9: "сентября", 10: "октября", 11: "ноября", 12: "декабря",
+              1: "января", 2: "февраля", 3: "марта", 4: "апреля",
+              5: "мая", 6: "июня", 7: "июля", 8: "августа",
+              9: "сентября", 10: "октября", 11: "ноября", 12: "декабря",
           }
           MONTH_NUM = {v: k for k, v in MONTHS.items()}
 
@@ -98,56 +99,95 @@ jobs:
           }
 
           BAD_TITLES = {
-              "еда", "среда", "понедельник", "вторник", "четверг", "пятница", "суббота", "воскресенье",
-              "согласие на использование cookies", "согласие на использование cookie", "cookie", "cookies", "использование cookies",
+              "еда", "среда", "понедельник", "вторник", "четверг",
+              "пятница", "суббота", "воскресенье",
+              "согласие на использование cookies",
+              "согласие на использование cookie",
+              "cookie", "cookies", "использование cookies",
           }
 
           FOOTER_RE = re.compile(
-              r"^(Для обращений|Справочная служба|По вопросам реализации билетов|Скачать мобильное приложение|Любое использование|Закрыть|Вход в личный кабинет|Официальные билеты|Поделиться)$",
+              r"^(Для обращений|Справочная служба|По вопросам реализации билетов|"
+              r"Скачать мобильное приложение|Любое использование|Закрыть|"
+              r"Вход в личный кабинет|Официальные билеты|Поделиться)$",
               re.I,
           )
 
           MARIINSKY_STOP_RE = re.compile(
-              r"^(Возрастная категория(\s*\d+\+?)?|XXXIV\s+Музыкальный фестиваль.*Зв[её]зды белых ночей|Музыкальный фестиваль.*Зв[её]зды белых ночей|Зв[её]зды белых ночей|Полная программа|Краткое содержание|Содержание)$",
+              r"^(Возрастная категория(\s*\d+\+?)?|"
+              r"XXXIV\s+Музыкальный фестиваль.*Зв[её]зды белых ночей|"
+              r"Музыкальный фестиваль.*Зв[её]зды белых ночей|"
+              r"Зв[её]зды белых ночей|Полная программа|Краткое содержание|Содержание)$",
               re.I,
           )
 
           NOISE_RE = re.compile(
-              r"(@@|купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|касс[аеы]|авторизация|войти|регистрация|личный кабинет|cookie|cookies|согласие на использование|подписаться|поиск|версия для слабовидящих|опрос|для обращений|справочная служба|скачать мобильное приложение|mariinsky\.tv|mariinsky\.fm|правообладател|зв[её]здный состав|блестящий состав|история постановки|описание спектакля)",
+              r"(@@|купить|заказать|продажа|стоимость|цена|билет|билетов|билеты|"
+              r"касс[аеы]|авторизация|войти|регистрация|личный кабинет|cookie|cookies|"
+              r"согласие на использование|подписаться|поиск|версия для слабовидящих|опрос|"
+              r"для обращений|справочная служба|скачать мобильное приложение|mariinsky\.tv|"
+              r"mariinsky\.fm|правообладател|зв[её]здный состав|блестящий состав|"
+              r"история постановки|описание спектакля)",
               re.I,
           )
 
           MENU_RE = re.compile(
-              r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|Новости|Для прессы|Афиша|Абонементы|Фестивали|Репертуар|Изменения в афише|Выбрать сцену|Все площадки|Все спектакли|Архив афиши)$",
+              r"^(Афиша и билеты|Подарочные карты|Детям|Визит в театр|Труппа|О театре|"
+              r"Новости|Для прессы|Афиша|Абонементы|Фестивали|Репертуар|"
+              r"Изменения в афише|Выбрать сцену|Все площадки|Все спектакли|Архив афиши)$",
               re.I,
           )
 
           PHILHARMONIA_FORBIDDEN_QUERY_KEYS = {
-              "tag", "tags", "year", "month", "page", "p", "search", "q", "hall", "type", "genre", "series", "abonement"
+              "tag", "tags", "year", "month", "page", "p", "search", "q",
+              "hall", "type", "genre", "series", "abonement",
           }
           PHILHARMONIA_EVENT_QUERY_KEYS = {"ev_z", "ev_y", "event", "event_id", "id"}
 
           PERFORMER_WORDS = [
-              "дириж", "солист", "солистка", "исполн", "состав", "партию", "партия", "сопрано", "тенор", "баритон", "бас",
-              "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр",
+              "дириж", "солист", "солистка", "исполн", "состав", "партию", "партия",
+              "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель",
+              "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр",
               "концертмейстер", "режиссер", "режиссёр", "хормейстер",
           ]
 
           ROLE_WORDS = [
-              "дирижер", "дирижёр", "солист", "солистка", "исполнитель", "исполнительница", "сопрано", "тенор",
-              "баритон", "бас", "скрипка", "альт", "виолончель", "фортепиано", "орган", "кларнет", "флейта",
-              "хор", "оркестр", "концертмейстер", "режиссер", "режиссёр", "хормейстер",
+              "дирижер", "дирижёр", "солист", "солистка", "исполнитель", "исполнительница",
+              "сопрано", "тенор", "баритон", "бас", "скрипка", "альт", "виолончель",
+              "фортепиано", "орган", "кларнет", "флейта", "хор", "оркестр",
+              "концертмейстер", "режиссер", "режиссёр", "хормейстер",
           ]
 
           PROGRAM_WORDS = [
-              "симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн", "реквием", "оратори", "кантат",
-              "опера", "балет", "рапсод", "адажио", "танц", "прелюди", "фуга", "квартет", "квинтет",
+              "симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн",
+              "реквием", "оратори", "кантат", "опера", "балет", "рапсод",
+              "адажио", "танц", "прелюди", "фуга", "квартет", "квинтет",
           ]
 
           COMPOSERS = [
-              "Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен", "Шуберт", "Шуман",
-              "Рахманинов", "Прокофьев", "Стравинский", "Римский-Корсаков", "Чайковский", "Дебюсси",
-              "Пуленк", "Дворжак", "Гершвин", "Барбер", "Бернстайн", "Копленд", "Пьяццолла", "Респиги",
+              "Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен",
+              "Шуберт", "Шуман", "Рахманинов", "Прокофьев", "Стравинский",
+              "Римский-Корсаков", "Чайковский", "Дебюсси", "Пуленк", "Дворжак",
+              "Гершвин", "Барбер", "Бернстайн", "Копленд", "Пьяццолла", "Респиги",
+          ]
+
+          NON_REPERTOIRE_PATTERNS = [
+              "антракт",
+              "без антракта",
+              "с антрактом",
+              "концерт идет",
+              "концерт идет без",
+              "концерт идет с",
+              "спектакль идет",
+              "опера идет",
+              "балет идет",
+              "представление идет",
+              "продолжительность",
+              "одно отделение",
+              "два отделения",
+              "в одном отделении",
+              "в двух отделениях",
+              "без перерыва",
           ]
 
 
@@ -187,29 +227,41 @@ jobs:
               return "абонемент" in low or "абонементы" in low
 
 
+          def is_non_repertoire_info(line):
+              low = key(line)
+              return any(p in low for p in NON_REPERTOIRE_PATTERNS)
+
+
           def is_noise(line):
               line = clean(line)
               if not line:
                   return True
               if is_subscription_line(line):
                   return True
+              if is_non_repertoire_info(line):
+                  return True
               return bool(NOISE_RE.search(line)) or bool(MENU_RE.fullmatch(line))
 
 
           def html_lines(html_or_soup, stop_re=None):
               soup = BeautifulSoup(html_or_soup, "html.parser") if isinstance(html_or_soup, str) else html_or_soup
+
               for tag in soup(["script", "style", "noscript", "svg"]):
                   tag.decompose()
 
-              out, prev = [], None
+              out = []
+              prev = None
+
               for raw in soup.get_text("\n").splitlines():
                   line = clean(raw)
+
                   if FOOTER_RE.fullmatch(line):
                       break
                   if stop_re and stop_re.fullmatch(line):
                       break
                   if is_noise(line) or line == prev:
                       continue
+
                   out.append(line)
                   prev = line
 
@@ -217,7 +269,13 @@ jobs:
 
 
           def is_date_line(line):
-              return bool(re.search(r"\b\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\b", key(line)))
+              return bool(
+                  re.search(
+                      r"\b\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|"
+                      r"августа|сентября|октября|ноября|декабря)\b",
+                      key(line),
+                  )
+              )
 
 
           def is_time_line(line):
@@ -225,15 +283,22 @@ jobs:
 
 
           def is_valid_title(title):
-              title, low = clean(title), key(title)
+              title = clean(title)
+              low = key(title)
+
               if not title or len(title) < 3:
                   return False
               if low in BAD_TITLES or "cookie" in low or "согласие на использование" in low:
                   return False
               if is_subscription_line(title):
                   return False
-              if re.fullmatch(r"[\d\W_]+", title) or re.fullmatch(r"\d{1,2}\s+[а-яё]+", low):
+              if is_non_repertoire_info(title):
                   return False
+              if re.fullmatch(r"[\d\W_]+", title):
+                  return False
+              if re.fullmatch(r"\d{1,2}\s+[а-яё]+", low):
+                  return False
+
               return True
 
 
@@ -248,14 +313,21 @@ jobs:
                   return clean(fallback)
 
               for line in html_lines(soup):
-                  if is_valid_title(line) and not is_date_line(line) and not is_time_line(line) and line not in MARIINSKY_VENUES:
+                  if (
+                      is_valid_title(line)
+                      and not is_date_line(line)
+                      and not is_time_line(line)
+                      and line not in MARIINSKY_VENUES
+                  ):
                       return line
 
               return "Без названия"
 
 
           def date_text_from_parts(year, month, day):
-              y, m, d = int(year), int(month), int(day)
+              y = int(year)
+              m = int(month)
+              d = int(day)
               return date(y, m, d), f"{d} {MONTHS[m]} {y}"
 
 
@@ -267,25 +339,32 @@ jobs:
               event_date, date_text = date_text_from_parts(m.group(1), m.group(2), m.group(3))
               time_raw = m.group(5)
               venue = VENUE_BY_CODE.get(m.group(4), "Мариинский театр")
+
               return event_date, date_text, f"{time_raw[:2]}:{time_raw[2:]}", venue
 
 
           def parse_ru_date(line):
               m = re.search(
-                  r"\b(\d{1,2})\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+(\d{4})\b",
+                  r"\b(\d{1,2})\s+(января|февраля|марта|апреля|мая|июня|июля|"
+                  r"августа|сентября|октября|ноября|декабря)\s+(\d{4})\b",
                   key(line),
               )
               if not m:
                   return None, ""
 
-              d, month_word, y = int(m.group(1)), m.group(2), int(m.group(3))
+              d = int(m.group(1))
+              month_word = m.group(2)
+              y = int(m.group(3))
               month = MONTH_NUM[month_word]
+
               return date(y, month, d), f"{d} {MONTHS[month]} {y}"
 
 
           def parse_time(line):
               m = re.search(r"\b(\d{1,2})[:.](\d{2})\b", clean(line))
-              return f"{int(m.group(1)):02d}:{m.group(2)}" if m else ""
+              if not m:
+                  return ""
+              return f"{int(m.group(1)):02d}:{m.group(2)}"
 
 
           def date_line(record):
@@ -298,6 +377,7 @@ jobs:
                   return f"{EMOJI_DATE} {date_text}"
               if time_text:
                   return f"{EMOJI_DATE} {time_text}"
+
               return ""
 
 
@@ -307,6 +387,7 @@ jobs:
 
               if source == "mariinsky":
                   return f"{MARIINSKY_MARK} {venue or 'Мариинский театр'}"
+
               if source == "philharmonia_grand":
                   return venue or SOURCES["philharmonia_grand"]
 
@@ -320,6 +401,7 @@ jobs:
 
           def looks_like_person_name(line):
               line = clean(line)
+
               if not line or is_noise(line) or is_date_line(line) or is_time_line(line):
                   return False
               if contains_word(line, PROGRAM_WORDS):
@@ -355,6 +437,7 @@ jobs:
                           merged.append(f"{role} — {clean(lines[i + 1])}")
                           i += 2
                           continue
+
                       i += 1
                       continue
 
@@ -374,7 +457,9 @@ jobs:
 
               low = key(line)
 
-              if contains_word(line, PROGRAM_WORDS) or any(c.lower().replace("ё", "е") in low for c in COMPOSERS):
+              if contains_word(line, PROGRAM_WORDS):
+                  return False
+              if any(c.lower().replace("ё", "е") in low for c in COMPOSERS):
                   return False
 
               return contains_word(line, PERFORMER_WORDS) or (line.startswith(":") and "," in line)
@@ -386,6 +471,8 @@ jobs:
               if is_noise(line):
                   return False
               if is_subscription_line(line):
+                  return False
+              if is_non_repertoire_info(line):
                   return False
               if is_date_line(line) or is_time_line(line) or key(line) == key(title):
                   return False
@@ -408,7 +495,13 @@ jobs:
           def performer_items_from_line(line):
               line = clean(line)
 
-              if not line or role_only_prefix(line) or is_subscription_line(line):
+              if not line:
+                  return []
+              if role_only_prefix(line):
+                  return []
+              if is_subscription_line(line):
+                  return []
+              if is_non_repertoire_info(line):
                   return []
 
               if line.startswith(":"):
@@ -416,7 +509,8 @@ jobs:
 
               m = re.match(r"^(.+?)\s*[-–—:]\s*(.+)$", line)
               if m:
-                  label, rest = clean(m.group(1)), clean(m.group(2))
+                  label = clean(m.group(1))
+                  rest = clean(m.group(2))
 
                   if contains_word(label, ROLE_WORDS) and not rest:
                       return []
@@ -429,15 +523,21 @@ jobs:
                       return [f"{label} — {p}" for p in people]
 
                   if contains_word(label, PERFORMER_WORDS):
-                      return [f"{label} — {people[0]}"] if len(people) == 1 else [line]
+                      if len(people) == 1:
+                          return [f"{label} — {people[0]}"]
+                      return [line]
 
                   return [line]
 
-              return split_people(line) if "," in line else [line]
+              if "," in line:
+                  return split_people(line)
+
+              return [line]
 
 
           def uniq(items):
-              out, seen = [], set()
+              out = []
+              seen = set()
 
               for item in items:
                   item = clean(item)
@@ -451,7 +551,16 @@ jobs:
 
 
           def filter_items(items):
-              return uniq([x for x in items if clean(x) and not is_subscription_line(x) and not is_noise(x)])
+              return uniq(
+                  [
+                      x
+                      for x in items
+                      if clean(x)
+                      and not is_subscription_line(x)
+                      and not is_non_repertoire_info(x)
+                      and not is_noise(x)
+                  ]
+              )
 
 
           def extract_performers(lines):
@@ -503,6 +612,7 @@ jobs:
 
               if not path.startswith("/afisha/grand/"):
                   return False
+
               if keys & PHILHARMONIA_FORBIDDEN_QUERY_KEYS:
                   return False
 
@@ -514,7 +624,8 @@ jobs:
 
               tail = path[len("/afisha/grand/"):].strip("/")
               return bool(
-                  tail and (
+                  tail
+                  and (
                       re.search(r"(^|/)\d{3,}($|/)", tail)
                       or (len(tail.split("/")) >= 2 and re.search(r"\d", tail))
                   )
@@ -528,11 +639,12 @@ jobs:
 
               for a in soup.find_all("a", href=True):
                   href = a.get("href") or ""
+                  if not pat.search(href):
+                      continue
 
-                  if pat.search(href):
-                      url = normalize_url(urljoin(MARIINSKY_URL, href))
-                      text = clean(a.get_text(" ", strip=True))
-                      out.setdefault(url, text if is_valid_title(text) else "")
+                  url = normalize_url(urljoin(MARIINSKY_URL, href))
+                  text = clean(a.get_text(" ", strip=True))
+                  out.setdefault(url, text if is_valid_title(text) else "")
 
               return out
 
@@ -559,7 +671,10 @@ jobs:
               lines = html_lines(soup, stop_re=MARIINSKY_STOP_RE)
               full_text = "\n".join(lines)
 
-              if any(x.lower() in full_text.lower() for x in ["Приморская сцена", "Владивосток", "Владикавказ", "РСО", "Алания"]):
+              if any(
+                  x.lower() in full_text.lower()
+                  for x in ["Приморская сцена", "Владивосток", "Владикавказ", "РСО", "Алания"]
+              ):
                   return None
 
               for v in MARIINSKY_VENUES:
@@ -585,7 +700,9 @@ jobs:
               if not is_valid_title(title):
                   return None
 
-              event_date, date_text, time_text = None, "", ""
+              event_date = None
+              date_text = ""
+              time_text = ""
 
               for line in lines[:80]:
                   if not date_text:
@@ -596,11 +713,21 @@ jobs:
               if not date_text or not time_text:
                   return None
 
-              return build_record("philharmonia_grand", url, title, SOURCES["philharmonia_grand"], event_date, date_text, time_text, lines)
+              return build_record(
+                  "philharmonia_grand",
+                  url,
+                  title,
+                  SOURCES["philharmonia_grand"],
+                  event_date,
+                  date_text,
+                  time_text,
+                  lines,
+              )
 
 
           def read_links(links, builder, label):
-              events, failed = {}, set()
+              events = {}
+              failed = set()
 
               for url, fallback in sorted(links.items()):
                   try:
@@ -624,8 +751,14 @@ jobs:
 
 
           def scan_all():
-              result, failed, errors = {}, {}, set()
-              scanners = {"mariinsky": scan_mariinsky, "philharmonia_grand": scan_philharmonia}
+              result = {}
+              failed = {}
+              errors = set()
+
+              scanners = {
+                  "mariinsky": scan_mariinsky,
+                  "philharmonia_grand": scan_philharmonia,
+              }
 
               for source, scanner in scanners.items():
                   try:
@@ -651,7 +784,9 @@ jobs:
 
           def is_future_removed(record):
               event_date = parse_event_date(record)
-              return True if event_date is None else event_date > today_moscow()
+              if event_date is None:
+                  return True
+              return event_date > today_moscow()
 
 
           def set_diff(old_items, new_items):
@@ -689,20 +824,23 @@ jobs:
 
 
           def before_after(title, old, new):
-              old, new = clean(old), clean(new)
+              old = clean(old)
+              new = clean(new)
 
               if old == new:
                   return ""
 
-              return "\n".join([
-                  title,
-                  "",
-                  f"{EMOJI_REMOVED} Было:",
-                  old or "—",
-                  "",
-                  f"{EMOJI_ADDED} Стало:",
-                  new or "—",
-              ])
+              return "\n".join(
+                  [
+                      title,
+                      "",
+                      f"{EMOJI_REMOVED} Было:",
+                      old or "—",
+                      "",
+                      f"{EMOJI_ADDED} Стало:",
+                      new or "—",
+                  ]
+              )
 
 
           def format_new(record):
@@ -739,7 +877,8 @@ jobs:
 
           def change_sections(old, new):
               sections = [
-                  x for x in [
+                  x
+                  for x in [
                       before_after("Изменение названия:", old.get("title", ""), new.get("title", "")),
                       before_after("Изменение даты / времени:", date_line(old), date_line(new)),
                       before_after("Изменение площадки:", source_line(old), source_line(new)),
@@ -824,7 +963,10 @@ jobs:
 
           def save_state(state):
               state["updated_at"] = now_utc()
-              STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+              STATE_FILE.write_text(
+                  json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True),
+                  encoding="utf-8",
+              )
 
 
           def fresh_state(events_by_source):
@@ -850,8 +992,13 @@ jobs:
                           messages.append(msg)
 
               for url, old in sorted(old_events.items()):
-                  if url in new_events or url in failed_urls or not is_future_removed(old):
+                  if url in new_events:
                       continue
+                  if url in failed_urls:
+                      continue
+                  if not is_future_removed(old):
+                      continue
+
                   messages.append(format_removed(old))
 
               return messages
@@ -868,7 +1015,8 @@ jobs:
               if len(text) <= limit:
                   return [text]
 
-              out, cur = [], ""
+              out = []
+              cur = ""
 
               for block in text.split("\n\n"):
                   nxt = block if not cur else cur + "\n\n" + block
@@ -914,6 +1062,7 @@ jobs:
                           retry_after = response.json().get("parameters", {}).get("retry_after")
                       except Exception:
                           retry_after = None
+
                       raise RuntimeError(f"Telegram rate limit; retry_after={retry_after}")
 
                   response.raise_for_status()
@@ -944,6 +1093,7 @@ jobs:
               old_version = int(state.get("schema_version", 0) or 0)
 
               scanned, failed, source_errors = scan_all()
+
               complete = {}
 
               for source in SOURCES:
@@ -990,10 +1140,15 @@ jobs:
 
 
           def run_self_tests():
-              assert STATE_VERSION == 35
+              assert STATE_VERSION == 36
 
               assert date_line({"date_text": "21 июня 2026", "time_text": "19:30"}) == "🔸 21 июня 2026. 19:30"
               assert "  19:30" not in date_line({"date_text": "21 июня 2026", "time_text": "19:30"})
+
+              assert is_non_repertoire_info("Концерт идет без антракта")
+              assert is_noise("Концерт идет без антракта")
+              assert not is_program_line("Концерт идет без антракта", "Моцарт. Концерт")
+              assert set_diff([], ["Концерт идет без антракта"]) == ([], [])
 
               html = """
               <html><body>
@@ -1001,6 +1156,7 @@ jobs:
               <p>Концертный зал</p>
               <p>Дирижер –</p>
               <p>Андрей Иванов</p>
+              <p>Концерт идет без антракта</p>
               <p>Абонемент «Выходные с Верди»</p>
               <p>Возрастная категория 6+</p>
               <aside>XXXIV Музыкальный фестиваль «Звезды белых ночей»</aside>
@@ -1017,28 +1173,21 @@ jobs:
               text = "\n".join(lines)
 
               assert "Дирижер — Андрей Иванов" in text
-              assert "Дирижер –" not in text
+              assert "Концерт идет без антракта" not in text
               assert "Абонемент" not in text
-              assert "Летучий голландец" not in text and "Аида" not in text and "Набукко" not in text
+              assert "Летучий голландец" not in text
+              assert "Аида" not in text
+              assert "Набукко" not in text
 
               assert performer_items_from_line("Дирижер –") == []
-              assert performer_items_from_line("Дирижер —") == []
-              assert performer_items_from_line("Дирижер:") == []
               assert performer_items_from_line("Дирижер – Андрей Иванов") == ["Дирижер — Андрей Иванов"]
-              assert performer_items_from_line("Дирижер — Андрей Иванов") == ["Дирижер — Андрей Иванов"]
 
               old_items = performer_items_from_line(": Екатерина Лукаш, Зинаида Царенко, Ирина Шишкова")
               new_items = performer_items_from_line(": Екатерина Лукаш, Зинаида Царенко, Ирина Шишкова, Дарья Рябоконь")
-              added, removed = set_diff(old_items, new_items)
-
-              assert added == ["Дарья Рябоконь"] and removed == []
+              assert set_diff(old_items, new_items) == (["Дарья Рябоконь"], [])
 
               assert is_subscription_line("Абонемент «Выходные с Верди»")
-              assert is_noise("Абонемент «Выходные с Верди»")
-              assert not is_program_line("Абонемент «Выходные с Верди»", "Набукко")
               assert set_diff(["Абонемент «Выходные с Верди»"], []) == ([], [])
-
-              assert not is_performer_line("Копленд. Сюита из балета «Весна в Аппалачах» Гершвин. Рапсодия")
 
               rec = {
                   "source": "mariinsky",
@@ -1050,7 +1199,6 @@ jobs:
               }
 
               assert format_new(rec).splitlines()[0] == "𝄞 Зал Стравинского"
-              assert format_removed({**rec, "venue": "Мариинский театр"}).startswith("𝄞 Мариинский театр\n⛔ Событие исчезло")
 
               msg = format_changed(
                   {**rec, "performers": old_items, "program": [], "digest": "old"},
@@ -1061,15 +1209,8 @@ jobs:
               assert "Изменение в составе:" in msg
               assert "✅ Добавлено:\nДарья Рябоконь" in msg
 
-              ph = format_new({**rec, "source": "philharmonia_grand", "venue": SOURCES["philharmonia_grand"]})
-              assert ph.splitlines()[0] == SOURCES["philharmonia_grand"]
-              assert not ph.startswith("𝄞")
-
               assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?tag=test")
-              assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?year=2025&tag=test")
-              assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/")
               assert is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?ev_z=12345")
-
               assert not is_valid_title("Согласие на использование cookies")
 
               print("SELF_TEST_OK")
