@@ -2494,23 +2494,6 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/17/2_1900/",
           "venue": "Мариинский-2"
         },
-        "https://www.mariinsky.ru/playbill/playbill/2026/9/28/2_1900/": {
-          "date_text": "28 сентября 2026",
-          "digest": "8856f9ba0b6a7881f8a51f18af923b9878f2f3f2bf9210455f581b5f4840542a",
-          "event_date": "2026-09-28",
-          "performers": [
-            "Орган",
-            "Исполнители"
-          ],
-          "program": [
-            "опера Дмитрия Шостаковича"
-          ],
-          "source": "mariinsky",
-          "time_text": "19:00",
-          "title": "Нос",
-          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/28/2_1900/",
-          "venue": "Мариинский-2"
-        },
         "https://www.mariinsky.ru/playbill/playbill/2026/9/29/2_1900/": {
           "date_text": "29 сентября 2026",
           "digest": "be043984d309bfef9bcb36dd58b72df3b7f3d44118f4daf910cd157cea7547a3",
@@ -2571,5 +2554,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-22T15:03:36Z"
+  "updated_at": "2026-06-22T15:12:31Z"
 }
