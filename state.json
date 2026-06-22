@@ -1170,12 +1170,11 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/18/1_1200/": {
           "date_text": "18 июля 2026",
-          "digest": "18f76c444f29c3dd4ceeed852aa2af19813d32749f60cb7fa17215fea95b6ead",
+          "digest": "9e56cb360e79d9fef5f4b64dfa57325b02a2ae910fa12901827631bf7d236bf0",
           "event_date": "2026-07-18",
           "performers": [
             "Орган",
-            "Исполнители",
-            "Cостав исполнителей будет объявлен позднее"
+            "Исполнители"
           ],
           "program": [
             "балет",
@@ -2454,5 +2453,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-22T13:42:31Z"
+  "updated_at": "2026-06-22T13:53:40Z"
 }
