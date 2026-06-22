@@ -2446,6 +2446,99 @@
           "title": "Хованщина",
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/8/2/2_1700/",
           "venue": "Мариинский-2"
+        },
+        "https://www.mariinsky.ru/playbill/playbill/2026/9/17/2_1900/": {
+          "date_text": "17 сентября 2026",
+          "digest": "9430b10b6acac3c79480f0c6aa18c2e9dc36f7efed5ee20874fa85cab3d2db60",
+          "event_date": "2026-09-17",
+          "performers": [
+            "Орган",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "балет"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Двенадцать",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/17/2_1900/",
+          "venue": "Мариинский-2"
+        },
+        "https://www.mariinsky.ru/playbill/playbill/2026/9/28/2_1900/": {
+          "date_text": "28 сентября 2026",
+          "digest": "884ca384a60cbe7f6ee8550c4fb23b6a44773bc9814403edc0ce0ec965513f96",
+          "event_date": "2026-09-28",
+          "performers": [
+            "Орган",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Дмитрия Шостаковича"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Нос",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/28/2_1900/",
+          "venue": "Мариинский-2"
+        },
+        "https://www.mariinsky.ru/playbill/playbill/2026/9/29/2_1900/": {
+          "date_text": "29 сентября 2026",
+          "digest": "2ae5c7b77f3ea14d6d25d1e93767584166e764deed85ead2ce31aaf5e6f5286b",
+          "event_date": "2026-09-29",
+          "performers": [
+            "Орган",
+            "Исполняется на итальянском языке (сопровождается синхронными титрами на русском и английском языках)",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Джузеппе Верди"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Аттила",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/29/2_1900/",
+          "venue": "Мариинский-2"
+        },
+        "https://www.mariinsky.ru/playbill/playbill/2026/9/5/2_1700/": {
+          "date_text": "5 сентября 2026",
+          "digest": "30656f24351e8edaa693084948a79941790983bd2fdc599c0b00c335e8a982ef",
+          "event_date": "2026-09-05",
+          "performers": [
+            "Орган",
+            "Исполняется на немецком языке (сопровождается синхронными титрами на русском и английском языках)",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Рихарда Вагнера"
+          ],
+          "source": "mariinsky",
+          "time_text": "17:00",
+          "title": "Парсифаль",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/5/2_1700/",
+          "venue": "Мариинский-2"
+        },
+        "https://www.mariinsky.ru/playbill/playbill/2026/9/9/1_1900/": {
+          "date_text": "9 сентября 2026",
+          "digest": "e602c76368e7aff632a8b49e61804fda244541fd8439c7e76e983f7c170b81d4",
+          "event_date": "2026-09-09",
+          "performers": [
+            "Орган",
+            "Исполняется на французском языке (сопровождается синхронными титрами на русском и английском языках)",
+            "Исполнители",
+            "Cостав исполнителей будет объявлен позднее"
+          ],
+          "program": [
+            "опера Шарля Гуно"
+          ],
+          "source": "mariinsky",
+          "time_text": "19:00",
+          "title": "Фауст",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/9/9/1_1900/",
+          "venue": "Мариинский театр"
         }
       }
     },
@@ -2453,5 +2546,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-22T14:12:47Z"
+  "updated_at": "2026-06-22T14:24:05Z"
 }
