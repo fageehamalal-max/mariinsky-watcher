@@ -1,5 +1,15 @@
 {
-  "pending_messages": [],
+  "pending_messages": [
+    "𝄞 Мариинский театр\n\nНазвание: Баядерка\n🔸 25 июля 2026. 13:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Валерий Овсяников\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/25/1_1300/",
+    "𝄞 Мариинский театр\n\nНазвание: Баядерка\n🔸 25 июля 2026. 19:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Арсений Шупляков\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/25/1_1900/",
+    "𝄞 Мариинский театр\n\nНазвание: Легенда о любви\n🔸 3 июля 2026. 19:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Арсений Шупляков\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/3/1_1900/",
+    "𝄞 Мариинский театр\n\nНазвание: Бахчисарайский фонтан\n🔸 4 июля 2026. 13:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Борис Грузин\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/4/1_1300/",
+    "𝄞 Мариинский театр\n\nНазвание: Бахчисарайский фонтан\n🔸 4 июля 2026. 19:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Валерий Овсяников\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/4/1_1900/",
+    "𝄞 Мариинский театр\n\nНазвание: Жизель\n🔸 5 июля 2026. 13:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Валерий Овсяников\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/5/1_1300/",
+    "𝄞 Мариинский театр\n\nНазвание: Жизель\n🔸 5 июля 2026. 19:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Владислав Карклин\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/5/1_1900/",
+    "𝄞 Мариинский театр\n\nНазвание: Дон Кихот\n🔸 7 июля 2026. 19:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Арсений Шупляков\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/7/1_1900/",
+    "𝄞 Мариинский-2\n\nНазвание: Анна Каренина\n🔸 9 июля 2026. 19:00\nИзменение в составе:\n\n✅ Добавлено:\nДирижер — Владислав Карклин\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/7/9/2_1900/"
+  ],
   "schema_version": 39,
   "sources": {
     "mariinsky": {
@@ -634,11 +644,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/1/1_1900/": {
           "date_text": "1 июля 2026",
-          "digest": "306de11d9e5c5c8abafe5f5c2c43112baf170882a54fdc08dfb2eae284dc6d3e",
+          "digest": "e9cd453ae05e8f5dc755458868091be05ad874b843b688c98a6fb5afc9ecc261",
           "event_date": "2026-07-01",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Арсений Шупляков"
           ],
           "program": [],
           "source": "mariinsky",
@@ -1082,11 +1093,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/17/1_1900/": {
           "date_text": "17 июля 2026",
-          "digest": "ec11fb76ba31fc4e7ec50c6df2f4fb1116abdaed054c59e71c17bd57e69d9796",
+          "digest": "b21c543a22a916ddc7326bd8712f0595f8ca768743923ae64b87e83018911df9",
           "event_date": "2026-07-17",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Арсений Шупляков"
           ],
           "program": [
             "«Аврора во сне и наяву»"
@@ -1133,11 +1145,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/18/1_1200/": {
           "date_text": "18 июля 2026",
-          "digest": "1f8f495c0313b99dcd4bd9fcc907cc2215ec909505e1994db4be169ed80d8af6",
+          "digest": "9002717a8366e9bac5d28b638e78526abb256ea2421cbf25286d52ce312c697c",
           "event_date": "2026-07-18",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Борис Грузин"
           ],
           "program": [
             "на музыку Роберта Шумана"
@@ -1202,11 +1215,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/19/1_1200/": {
           "date_text": "19 июля 2026",
-          "digest": "4f1ade085f055c2dfc38ac3c445316efddecf9f3f95c6836115fff6188ff5106",
+          "digest": "1226a775acc7fe59fd3ec8221d63d4004977515e714698b80a622571abe79a8b",
           "event_date": "2026-07-19",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Борис Грузин"
           ],
           "program": [],
           "source": "mariinsky",
@@ -1327,11 +1341,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/2/1_1900/": {
           "date_text": "2 июля 2026",
-          "digest": "cb0786dd32a4cc8fee02de44da39a9dbd1e708cd3d9d3210a1a17535da247b30",
+          "digest": "7ffcccbc8bd9223b8db67e41c063855b5ccb6dd9e637afed71691f5d7490cc3f",
           "event_date": "2026-07-02",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Арсений Шупляков"
           ],
           "program": [],
           "source": "mariinsky",
@@ -1585,11 +1600,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/25/1_1300/": {
           "date_text": "25 июля 2026",
-          "digest": "67670906983478e4b8ad66aff5409cd8c464f055ca4f45ded80e15e39b45db05",
+          "digest": "200eb916bcdf3515903a40e364132a5cf6088b611c8d408381202f6de63be0c8",
           "event_date": "2026-07-25",
           "performers": [
             "Орган",
             "Исполнители",
+            "Дирижер — Валерий Овсяников",
             "Мария Хорева"
           ],
           "program": [
@@ -1603,11 +1619,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/25/1_1900/": {
           "date_text": "25 июля 2026",
-          "digest": "a29439ce8d5f7f477c358d0e93d5534cdad43567fbe377d54e927c05c8802c1a",
+          "digest": "70359fe78585e371f32988684e7bc86077966a8e58d3d24ce489994faa492e6f",
           "event_date": "2026-07-25",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Арсений Шупляков"
           ],
           "program": [
             "Тест на знание балета «Баядерка»"
@@ -1772,11 +1789,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/3/1_1900/": {
           "date_text": "3 июля 2026",
-          "digest": "77be100d4d42c289692426ccca4f2dafc648f9f17dfb065eac55694b0be2e84b",
+          "digest": "aefadff52547c3dc9bda7ae6bdd587338b9e3edf0130c0a6326478ab8ac9aaf5",
           "event_date": "2026-07-03",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Арсений Шупляков"
           ],
           "program": [],
           "source": "mariinsky",
@@ -1893,11 +1911,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/4/1_1300/": {
           "date_text": "4 июля 2026",
-          "digest": "079f0bdfd76fc9c6d969af75be97a3d10e7d20e311cd304f2619e1d7430f1f8b",
+          "digest": "898bdca7799d929d4a57ae017e19909551b6c45a415035a56646f881056fd1d0",
           "event_date": "2026-07-04",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Борис Грузин"
           ],
           "program": [],
           "source": "mariinsky",
@@ -1908,11 +1927,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/4/1_1900/": {
           "date_text": "4 июля 2026",
-          "digest": "382ee4b18721b8b1df474f095f0b6a043b5b17ea1f877deeaf1067d45ef4ae31",
+          "digest": "bcc5c38ed39d748bddadaf14b255c8a3b436b369e0df274563c2685b47760e83",
           "event_date": "2026-07-04",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Валерий Овсяников"
           ],
           "program": [],
           "source": "mariinsky",
@@ -2051,11 +2071,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/5/1_1300/": {
           "date_text": "5 июля 2026",
-          "digest": "4a178b56dd337a12122e8ccffb6f35d644ab4d5781e63c16f4b16a08e90cef0e",
+          "digest": "f83aa61014f5236e1b76e9308fa1707af97807e329db59a295405555197eb697",
           "event_date": "2026-07-05",
           "performers": [
             "Орган",
             "Исполнители",
+            "Дирижер — Валерий Овсяников",
             "Мария Хорева"
           ],
           "program": [
@@ -2069,11 +2090,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/5/1_1900/": {
           "date_text": "5 июля 2026",
-          "digest": "a059a1bae23d8615b0ceee331b1c4035f7266a12eb22383ddf1969423c90e76a",
+          "digest": "4b2c7d2dddf81ea1d67c71bda2d60885242d788904271376760a54d93662ec90",
           "event_date": "2026-07-05",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Владислав Карклин"
           ],
           "program": [
             "«Из жизни Жизели»"
@@ -2191,11 +2213,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/7/1_1900/": {
           "date_text": "7 июля 2026",
-          "digest": "a7ad694ce5b56144b8b6a8af2305bc173b509aab51d0ee136950d4fdde36bf5c",
+          "digest": "c4d8b29e8b463c5c374d5218bf24a4c1c0de45f1e90c5ad51db5ab5be925c9bb",
           "event_date": "2026-07-07",
           "performers": [
             "Орган",
             "Исполнители",
+            "Дирижер — Арсений Шупляков",
             "Премьера балета в хореографии Мариуса Петипа — 14 декабря 1869 года",
             "Премьера балета в хореографии Мариуса Петипа — Большой театр",
             "Премьера балета в хореографии Мариуса Петипа — Москва",
@@ -2303,11 +2326,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/9/2_1900/": {
           "date_text": "9 июля 2026",
-          "digest": "f62231235b5bac22b35381a92df9c9e22486e6727ee5da8e2d63df2fea589556",
+          "digest": "e9c7a22f4c976d3386bec42ba2c1d6cc3269bc694e80c265eb14217dac567ab5",
           "event_date": "2026-07-09",
           "performers": [
             "Орган",
             "Исполнители",
+            "Дирижер — Владислав Карклин",
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — 10 июня 1972 года",
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — Большой театр",
             "Премьера балета Родиона Щедрина в хореографии Майи Плисецкой — Москва"
@@ -2444,5 +2468,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-23T13:12:55Z"
+  "updated_at": "2026-06-23T13:22:55Z"
 }
