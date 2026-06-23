@@ -1217,11 +1217,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/19/1_1900/": {
           "date_text": "19 июля 2026",
-          "digest": "f0e1df7d10952b5297a749c1987edcf75b7024bb2cdcac55dee56772882e9af3",
+          "digest": "23c522ad39e097cd3b8135a7c1e7ca653ef02c5d554a6b8c7d16bbe563c23654",
           "event_date": "2026-07-19",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Валерий Овсяников"
           ],
           "program": [
             "«Аврора во сне и наяву»"
@@ -1455,11 +1456,12 @@
         },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/23/1_1900/": {
           "date_text": "23 июля 2026",
-          "digest": "b72d996b631d0ea44bc4fe38e2fc0841d6f00b635af9572dbcdd0767d7985ac6",
+          "digest": "18be0fc373f377543c40cf9edfa7c74e56a66ed130d77738533155ee485fb9dc",
           "event_date": "2026-07-23",
           "performers": [
             "Орган",
-            "Исполнители"
+            "Исполнители",
+            "Дирижер — Борис Грузин"
           ],
           "program": [
             "Сергея Прокофьева"
@@ -2442,5 +2444,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-23T13:03:49Z"
+  "updated_at": "2026-06-23T13:12:55Z"
 }
