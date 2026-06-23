@@ -1744,6 +1744,27 @@
           "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/29/2_1900/",
           "venue": "Мариинский-2"
         },
+        "https://www.mariinsky.ru/playbill/playbill/2026/7/3/10_1600/": {
+          "date_text": "3 июля 2026",
+          "digest": "4424892123ee889d920dff4f1a254bce75a729bf39105ba65aa72bf594432e43",
+          "event_date": "2026-07-03",
+          "performers": [
+            "Абисал Гергиев",
+            "Янь Фан и Шон Ю (фортепиано)",
+            "Орган",
+            "ИСПОЛНИТЕЛИ — Абисал Гергиев",
+            "(фортепиано)",
+            "Шон Ю (фортепиано)"
+          ],
+          "program": [
+            "Программа концерта будет опубликована позднее"
+          ],
+          "source": "mariinsky",
+          "time_text": "16:00",
+          "title": "Абисал Гергиев, Янь Фан и Шон Ю (фортепиано)",
+          "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/3/10_1600/",
+          "venue": "Зал Стравинского"
+        },
         "https://www.mariinsky.ru/playbill/playbill/2026/7/3/1_1900/": {
           "date_text": "3 июля 2026",
           "digest": "77be100d4d42c289692426ccca4f2dafc648f9f17dfb065eac55694b0be2e84b",
@@ -2418,5 +2439,5 @@
       "events": {}
     }
   },
-  "updated_at": "2026-06-23T09:22:25Z"
+  "updated_at": "2026-06-23T09:33:02Z"
 }
