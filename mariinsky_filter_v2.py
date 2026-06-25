@@ -723,7 +723,7 @@ def parse_mariinsky_event(url, fallback=""):
             venue = v
             break
     full_text = "\n".join([title] + lines)
-    if any(marker.lower() in full_text.lower() for marker in EXTERNAL_STAGE_MARKERS):
+    if is_external_stage_event(title, venue, lines):
         return None, audit_item(url, "mariinsky", "skipped", "external_stage", title=title, venue=venue, date_text=date_text, time_text=time_text)
     event_type, class_reason = classify_event(title, lines)
     if event_type == "ballet":
