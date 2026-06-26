@@ -7,7 +7,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import date, datetime, timezone
 from pathlib import Path
-from urllib.parse import parse_qs, urljoin, urldefrag, urlparse
+from urllib.parse import parse_qs, urlencode, urljoin, urldefrag, urlparse
 from zoneinfo import ZoneInfo
 
 import requests
@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 
 APP_NAME = "Mariinsky Filter V2"
 SCHEMA_VERSION = 2
-FILTER_VERSION = "V2.0"
+FILTER_VERSION = "V2.1-philharmonia"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -35,9 +35,10 @@ MONTHS_AHEAD = int(os.getenv("MONTHS_AHEAD", "8"))
 
 MARIINSKY_ROOT = "https://www.mariinsky.ru/playbill/playbill/"
 PHILHARMONIA_ROOT = "https://www.philharmonia.spb.ru/afisha/grand/"
+PHILHARMONIA_ALT_ROOT = "https://philharmonia.spb.ru/afisha/grand/"
 TZ = ZoneInfo("Europe/Moscow")
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 MariinskyWatcherV2/2.0 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+    "User-Agent": "Mozilla/5.0 MariinskyWatcherV2/2.1 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
     "Accept-Language": "ru,en;q=0.9",
 }
 
@@ -107,10 +108,13 @@ NOISE_RE = re.compile(
     re.I,
 )
 
-PHILHARMONIA_FORBIDDEN_QUERY_KEYS = {
-    "tag", "tags", "year", "month", "page", "p", "search", "q", "hall", "type", "genre", "series", "abonement",
+PHILHARMONIA_HOSTS = {"www.philharmonia.spb.ru", "philharmonia.spb.ru"}
+PHILHARMONIA_EVENT_QUERY_KEYS = {
+    "id", "event", "event_id", "ev_id", "ev_y", "ev_z", "concert", "concert_id", "ELEMENT_ID", "ID",
 }
-PHILHARMONIA_EVENT_QUERY_KEYS = {"ev_z", "ev_y", "event", "event_id", "id"}
+PHILHARMONIA_LIST_ONLY_QUERY_KEYS = {
+    "page", "p", "tag", "tags", "search", "q", "type", "genre", "series", "abonement",
+}
 
 PERFORMER_WORDS = [
     "дириж", "солист", "солистка", "исполн", "состав", "партию", "партия", "сопрано", "тенор", "баритон", "бас",
@@ -248,7 +252,7 @@ def canonical_low(s):
 
 def title_key(s):
     s = canonical_low(s)
-    s = re.sub(r"[«»\"'()\[\]{}.,:;!?]+", " ", s)
+    s = re.sub(r"[«»\"'()\[\]{},.:;!?]+", " ", s)
     return re.sub(r"\s+", " ", s).strip()
 
 
@@ -264,6 +268,14 @@ def normalize_url(url):
     return urldefrag(url)[0]
 
 
+def canonical_url(url):
+    url = normalize_url(url)
+    parsed = urlparse(url)
+    if parsed.netloc == "philharmonia.spb.ru":
+        return parsed._replace(netloc="www.philharmonia.spb.ru").geturl()
+    return url
+
+
 def digest_obj(obj):
     data = json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(data.encode("utf-8")).hexdigest()
@@ -271,15 +283,25 @@ def digest_obj(obj):
 
 def fetch(url):
     last_exc = None
-    for attempt in range(1, 4):
-        try:
-            r = SESSION.get(url, timeout=30)
-            r.raise_for_status()
-            return r.text
-        except requests.RequestException as exc:
-            last_exc = exc
-            if attempt < 3:
-                time.sleep(1.5 * attempt)
+    candidates = [url]
+    parsed = urlparse(url)
+    if parsed.netloc == "www.philharmonia.spb.ru":
+        candidates.append(parsed._replace(netloc="philharmonia.spb.ru").geturl())
+    elif parsed.netloc == "philharmonia.spb.ru":
+        candidates.append(parsed._replace(netloc="www.philharmonia.spb.ru").geturl())
+
+    for candidate in dict.fromkeys(candidates):
+        for attempt in range(1, 4):
+            try:
+                r = SESSION.get(candidate, timeout=30)
+                r.raise_for_status()
+                if not r.encoding or r.encoding.lower() in {"iso-8859-1", "ascii"}:
+                    r.encoding = r.apparent_encoding or "utf-8"
+                return r.text
+            except requests.RequestException as exc:
+                last_exc = exc
+                if attempt < 3:
+                    time.sleep(1.5 * attempt)
     raise last_exc
 
 
@@ -291,6 +313,26 @@ def month_urls(root, months_ahead):
         yy = y + (m - 1 + offset) // 12
         mm = (m - 1 + offset) % 12 + 1
         urls.append(urljoin(root, f"{yy}/{mm}/"))
+    return list(dict.fromkeys(urls))
+
+
+def philharmonia_list_urls(months_ahead):
+    today = today_moscow()
+    roots = [PHILHARMONIA_ROOT, PHILHARMONIA_ALT_ROOT]
+    urls = []
+    for root in roots:
+        urls.append(root)
+        y, m = today.year, today.month
+        for offset in range(months_ahead + 1):
+            yy = y + (m - 1 + offset) // 12
+            mm = (m - 1 + offset) % 12 + 1
+            urls.extend([
+                urljoin(root, f"{yy}/{mm}/"),
+                urljoin(root, f"{yy}/{mm:02d}/"),
+                root + "?" + urlencode({"year": yy, "month": mm}),
+                root + "?" + urlencode({"month": mm, "year": yy}),
+                root + "?" + urlencode({"date": f"{yy}-{mm:02d}"}),
+            ])
     return list(dict.fromkeys(urls))
 
 
@@ -386,7 +428,7 @@ def is_valid_title(title):
 
 
 def title_from_soup(soup, fallback=""):
-    for selector in ["h1", "h2", ".title", ".event-title"]:
+    for selector in ["h1", "h2", ".title", ".event-title", ".concert-title"]:
         for tag in soup.select(selector):
             title = clean(tag.get_text(" ", strip=True))
             if is_valid_title(title):
@@ -412,6 +454,13 @@ def parse_mariinsky_date(url):
     time_raw = m.group(5)
     venue = VENUE_BY_CODE.get(m.group(4), "Мариинский театр")
     return event_date, date_text, f"{time_raw[:2]}:{time_raw[2:]}", venue
+
+
+def parse_philharmonia_date_from_url(url):
+    m = re.search(r"/(20\d{2})/(\d{1,2})/(\d{1,2})(?:/|$)", urlparse(url).path)
+    if not m:
+        return None, ""
+    return date_text_from_parts(m.group(1), m.group(2), m.group(3))
 
 
 def date_line(record):
@@ -679,7 +728,7 @@ def build_event_record(source, url, title, venue, event_date, date_text, time_te
     }
     return ParsedEvent(
         source=source,
-        url=url,
+        url=canonical_url(url),
         title=core["title"] or "Без названия",
         venue=core["venue"],
         date_text=core["date_text"],
@@ -695,7 +744,7 @@ def build_event_record(source, url, title, venue, event_date, date_text, time_te
 
 def audit_item(url, source, status, reason, title="", venue="", date_text="", time_text="", event_type="", performers_count=0, program_count=0, error=""):
     return {
-        "url": url,
+        "url": canonical_url(url),
         "source": source,
         "status": status,
         "reason": reason,
@@ -758,50 +807,52 @@ def parse_mariinsky_event(url, fallback=""):
 
 
 def is_philharmonia_event_url(url):
-    parsed = urlparse(url)
+    parsed = urlparse(canonical_url(url))
     path = parsed.path or ""
     query = parse_qs(parsed.query, keep_blank_values=True)
     keys = set(query.keys())
+
+    if parsed.netloc not in PHILHARMONIA_HOSTS:
+        return False
+    if not path.startswith("/afisha/"):
+        return False
+    if keys & PHILHARMONIA_LIST_ONLY_QUERY_KEYS:
+        return False
+
+    has_event_key = bool(keys & PHILHARMONIA_EVENT_QUERY_KEYS)
+    if parsed.query:
+        return has_event_key
+
+    if path.rstrip("/") in {"/afisha", "/afisha/grand"}:
+        return False
     if not path.startswith("/afisha/grand/"):
         return False
-    if keys & PHILHARMONIA_FORBIDDEN_QUERY_KEYS:
-        return False
-    if parsed.query:
-        return bool(keys & PHILHARMONIA_EVENT_QUERY_KEYS)
-    if path.rstrip("/") == "/afisha/grand":
-        return False
+
     tail = path[len("/afisha/grand/"):].strip("/")
-    return bool(tail and (re.search(r"(^|/)\d{3,}($|/)", tail) or (len(tail.split("/")) >= 2 and re.search(r"\d", tail))))
+    if not tail:
+        return False
+    if re.search(r"(^|/)\d{3,}($|/)", tail):
+        return True
+    if re.search(r"/(20\d{2})/(\d{1,2})/(\d{1,2})(/|$)", path):
+        return True
+    parts = [p for p in tail.split("/") if p]
+    return len(parts) >= 2 and any(re.search(r"\d", p) for p in parts)
 
 
-def parse_philharmonia_event(url, fallback=""):
-    if not is_philharmonia_event_url(url):
-        return None, audit_item(url, "philharmonia_grand", "skipped", "not_event_url")
-    soup = BeautifulSoup(fetch(url), "lxml")
-    lines = html_lines(soup)
-    title = title_from_soup(soup, fallback)
-    if not is_valid_title(title):
-        return None, audit_item(url, "philharmonia_grand", "skipped", "bad_title", title=title)
-    event_date = None
-    date_text = ""
-    time_text = ""
-    for line in lines[:80]:
-        if not date_text:
-            event_date, date_text = parse_ru_date(line)
-        if not time_text:
-            time_text = parse_time(line)
-    if not date_text or not time_text:
-        return None, audit_item(url, "philharmonia_grand", "skipped", "missing_date_or_time", title=title, date_text=date_text, time_text=time_text)
-    event_type, class_reason = classify_event(title, lines)
-    if event_type == "ballet":
-        event_type = "concert"
-        class_reason = "philharmonia_treat_ballet_reference_as_concert"
-    rec = build_event_record("philharmonia_grand", url, title, SOURCES["philharmonia_grand"], event_date, date_text, time_text, lines, event_type)
-    return rec, audit_item(
-        url, "philharmonia_grand", "included", class_reason,
-        title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text,
-        event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program)
-    )
+def philharmonia_candidate_urls_from_raw_html(html, base_url):
+    out = set()
+    patterns = [
+        r"(?:https?:)?//(?:www\.)?philharmonia\.spb\.ru/afisha/[^\"'<>\s)]+",
+        r"/afisha/grand/[^\"'<>\s)]+",
+        r"/afisha/\?[^\"'<>\s)]+",
+    ]
+    for pat in patterns:
+        for m in re.finditer(pat, html):
+            raw = m.group(0).replace("&amp;", "&")
+            if raw.startswith("//"):
+                raw = "https:" + raw
+            out.add(canonical_url(urljoin(base_url, raw)))
+    return out
 
 
 def extract_mariinsky_links_from_html(html, base_url):
@@ -821,11 +872,22 @@ def extract_mariinsky_links_from_html(html, base_url):
 def extract_philharmonia_links_from_html(html, base_url):
     soup = BeautifulSoup(html, "html.parser")
     out = {}
+    candidates = set()
+    link_text = {}
+
     for a in soup.find_all("a", href=True):
-        url = normalize_url(urljoin(base_url, a.get("href") or ""))
+        url = canonical_url(urljoin(base_url, a.get("href") or ""))
+        candidates.add(url)
+        text = clean(a.get_text(" ", strip=True))
+        if text:
+            link_text.setdefault(url, text)
+
+    candidates.update(philharmonia_candidate_urls_from_raw_html(html, base_url))
+
+    for url in sorted(candidates):
         if not is_philharmonia_event_url(url):
             continue
-        text = clean(a.get_text(" ", strip=True))
+        text = clean(link_text.get(url, ""))
         out.setdefault(url, text if is_valid_title(text) else "")
     return out
 
@@ -841,11 +903,56 @@ def collect_mariinsky_links(audit):
 
 
 def collect_philharmonia_links(audit):
-    try:
-        return extract_philharmonia_links_from_html(fetch(PHILHARMONIA_ROOT), PHILHARMONIA_ROOT)
-    except Exception as exc:
-        audit["source_errors"].append({"source": "philharmonia_grand", "url": PHILHARMONIA_ROOT, "error": f"{type(exc).__name__}: {exc}"})
-        return {}
+    links = {}
+    for url in philharmonia_list_urls(MONTHS_AHEAD):
+        try:
+            links.update(extract_philharmonia_links_from_html(fetch(url), url))
+        except Exception as exc:
+            audit["source_errors"].append({"source": "philharmonia_grand", "url": url, "error": f"{type(exc).__name__}: {exc}"})
+    return links
+
+
+def parse_philharmonia_event(url, fallback=""):
+    url = canonical_url(url)
+    if not is_philharmonia_event_url(url):
+        return None, audit_item(url, "philharmonia_grand", "skipped", "not_event_url")
+
+    soup = BeautifulSoup(fetch(url), "lxml")
+    lines = html_lines(soup)
+    title = title_from_soup(soup, fallback)
+    if not is_valid_title(title):
+        return None, audit_item(url, "philharmonia_grand", "skipped", "bad_title", title=title)
+
+    event_date = None
+    date_text = ""
+    time_text = ""
+
+    url_date, url_date_text = parse_philharmonia_date_from_url(url)
+    if url_date:
+        event_date, date_text = url_date, url_date_text
+
+    for line in lines[:120]:
+        if not date_text:
+            event_date, date_text = parse_ru_date(line)
+        if not time_text:
+            time_text = parse_time(line)
+        if date_text and time_text:
+            break
+
+    if not date_text or not time_text:
+        return None, audit_item(url, "philharmonia_grand", "skipped", "missing_date_or_time", title=title, date_text=date_text, time_text=time_text)
+
+    event_type, class_reason = classify_event(title, lines)
+    if event_type == "ballet":
+        event_type = "concert"
+        class_reason = "philharmonia_treat_ballet_reference_as_concert"
+
+    rec = build_event_record("philharmonia_grand", url, title, SOURCES["philharmonia_grand"], event_date, date_text, time_text, lines, event_type)
+    return rec, audit_item(
+        url, "philharmonia_grand", "included", class_reason,
+        title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text,
+        event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program)
+    )
 
 
 def read_source(source, links, parser, audit):
@@ -857,7 +964,7 @@ def read_source(source, links, parser, audit):
             rec, item = parser(url, fallback)
             audit["items"].append(item)
             if rec:
-                events[url] = rec.to_state_record()
+                events[rec.url] = rec.to_state_record()
             time.sleep(0.2)
         except Exception as exc:
             failed_urls.add(url)
@@ -1134,7 +1241,7 @@ def debug_single_url(url):
     if "mariinsky.ru" in url:
         rec, item = parse_mariinsky_event(normalize_url(url), "")
     elif "philharmonia.spb.ru" in url:
-        rec, item = parse_philharmonia_event(normalize_url(url), "")
+        rec, item = parse_philharmonia_event(canonical_url(url), "")
     else:
         raise ValueError("Unsupported DEBUG_URL")
     payload = {"audit": item, "record": rec.to_state_record() if rec else None}
@@ -1195,7 +1302,7 @@ def main():
 
 def run_self_tests():
     assert SCHEMA_VERSION == 2
-    assert FILTER_VERSION == "V2.0"
+    assert FILTER_VERSION.startswith("V2.")
     assert "опера" not in PROGRAM_WORDS
     assert "балет" not in PROGRAM_WORDS
     assert date_line({"date_text": "22 июля 2026", "time_text": "20:00"}) == "🔸 22 июля 2026. 20:00"
@@ -1212,6 +1319,18 @@ def run_self_tests():
     assert is_program_line("Бетховен. Торжественная месса", "Бетховен. Торжественная месса") is False
     assert is_program_line("Бетховен. Месса до мажор", "Концерт")
     assert is_program_line("Копленд. Сюита из балета «Весна в Аппалачах»", "Симфонический вечер")
+
+    assert is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/2026/7/22/12345/")
+    assert is_philharmonia_event_url("https://philharmonia.spb.ru/afisha/grand/?ev_y=2026&ev_z=12345")
+    assert is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/?hall=1&id=12345")
+    assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?year=2026&month=7")
+
+    links = extract_philharmonia_links_from_html('''
+    <a href="/afisha/grand/2026/7/22/12345/">Бах. Концерт</a>
+    <script>var u="/afisha/grand/?ev_y=2026&ev_z=98765";</script>
+    ''', "https://www.philharmonia.spb.ru/afisha/grand/")
+    assert "https://www.philharmonia.spb.ru/afisha/grand/2026/7/22/12345/" in links
+    assert "https://www.philharmonia.spb.ru/afisha/grand/?ev_y=2026&ev_z=98765" in links
 
     lines = html_lines("""
     <html><body>
@@ -1239,6 +1358,7 @@ def run_self_tests():
     new = {"u": {"url": "u", "source": "mariinsky", "title": "Новый концерт", "venue": "Мариинский-2", "date_text": "22 июля 2026", "time_text": "20:00", "event_date": "2026-07-22", "performers": [], "program": [], "digest": "1"}}
     msgs = build_messages(old, new, set(new), set())
     assert len(msgs) == 1 and "Новое событие" in msgs[0]
+
     state = default_state()
     add_pending(state, ["x"] * (PENDING_WARNING_THRESHOLD + 1))
     assert len(state["pending_messages"]) == PENDING_WARNING_THRESHOLD + 1
