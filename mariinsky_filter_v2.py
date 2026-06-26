@@ -82,8 +82,7 @@ EXTERNAL_STAGE_MARKERS = [
     "Приморская сцена",
     "Владивосток",
     "Владикавказ",
-    "РСО",
-    "Алания",
+    "РСО-Алания",
 ]
 
 BAD_TITLES = {
@@ -156,7 +155,7 @@ BALLET_TITLES = {
     "адажио хаммерклавир", "анна каренина", "арлекинада", "бахчисарайский фонтан", "баядерка", "видение розы",
     "вечер балетов", "времена года", "дон кихот", "жар птица", "жар-птица", "жизель", "золушка", "кармен-сюита",
     "карнавал шехеразада", "конек горбунок", "конёк горбунок", "корсар", "лебединое озеро", "легенда о любви",
-    "манон", "медный всадник", "пахита", "петрушка", "пламя парижа", "раймонда", "ромео и джульетта",
+    "манон", "марко спада", "медный всадник", "пахита", "петрушка", "пламя парижа", "раймонда", "ромео и джульетта",
     "сильфида", "спартак", "спящая красавица", "тысяча и одна ночь", "шехеразада", "шопениана", "щелкунчик",
 }
 BALLET_GENRE_LINES = {
@@ -716,20 +715,46 @@ def parse_mariinsky_event(url, fallback=""):
     soup = BeautifulSoup(fetch(url), "lxml")
     lines = html_lines(soup, stop_re=MARIINSKY_STOP_RE)
     title = title_from_soup(soup, fallback)
+
     if not is_valid_title(title):
-        return None, audit_item(url, "mariinsky", "skipped", "bad_title", title=title, venue=venue, date_text=date_text, time_text=time_text)
+        return None, audit_item(
+            url, "mariinsky", "skipped", "bad_title",
+            title=title, venue=venue, date_text=date_text, time_text=time_text
+        )
+
     for v in MARIINSKY_VENUES:
         if any(v.lower() == line.lower() for line in lines):
             venue = v
             break
-    full_text = "\n".join([title] + lines)
-    if is_external_stage_event(title, venue, lines):
-        return None, audit_item(url, "mariinsky", "skipped", "external_stage", title=title, venue=venue, date_text=date_text, time_text=time_text)
+
+    external_stage_check_lines = [venue, title] + list(lines[:20])
+    if any(
+        key(marker) not in {"рсо", "алания"}
+        and key(marker)
+        and key(marker) in key(line)
+        for marker in EXTERNAL_STAGE_MARKERS
+        for line in external_stage_check_lines
+    ):
+        return None, audit_item(
+            url, "mariinsky", "skipped", "external_stage",
+            title=title, venue=venue, date_text=date_text, time_text=time_text
+        )
+
     event_type, class_reason = classify_event(title, lines)
+
     if event_type == "ballet":
-        return None, audit_item(url, "mariinsky", "skipped", class_reason, title=title, venue=venue, date_text=date_text, time_text=time_text, event_type=event_type)
+        return None, audit_item(
+            url, "mariinsky", "skipped", class_reason,
+            title=title, venue=venue, date_text=date_text, time_text=time_text, event_type=event_type
+        )
+
     rec = build_event_record("mariinsky", url, title, venue, event_date, date_text, time_text, lines, event_type)
-    return rec, audit_item(url, "mariinsky", "included", class_reason, title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text, event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program))
+
+    return rec, audit_item(
+        url, "mariinsky", "included", class_reason,
+        title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text,
+        event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program)
+    )
 
 
 def is_philharmonia_event_url(url):
@@ -772,7 +797,11 @@ def parse_philharmonia_event(url, fallback=""):
         event_type = "concert"
         class_reason = "philharmonia_treat_ballet_reference_as_concert"
     rec = build_event_record("philharmonia_grand", url, title, SOURCES["philharmonia_grand"], event_date, date_text, time_text, lines, event_type)
-    return rec, audit_item(url, "philharmonia_grand", "included", class_reason, title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text, event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program))
+    return rec, audit_item(
+        url, "philharmonia_grand", "included", class_reason,
+        title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text,
+        event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program)
+    )
 
 
 def extract_mariinsky_links_from_html(html, base_url):
@@ -1176,6 +1205,7 @@ def run_self_tests():
     assert not is_ballet_event("Бетховен. Торжественная месса", ["Сюита из балета «Весна в Аппалачах»"])[0]
     assert is_ballet_event("Лебединое озеро", ["Дирижер — Андрей Иванов"])[0]
     assert is_ballet_event("Спящая красавица", ["Балет", "Дирижер — Валерий Овсяников"])[0]
+    assert is_ballet_event("Марко Спада", ["Дирижер — Иванов"])[0]
     assert classify_event("Аида", ["Опера", "Дирижер — Валерий Гергиев"])[0] == "opera"
     assert is_performer_line("Солисты оперы Мариинского театра")
     assert not is_program_line("Опера в четырех действиях", "Аида")
