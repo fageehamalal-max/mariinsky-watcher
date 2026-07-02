@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 APP_NAME = "Mariinsky Filter V2"
 SCHEMA_VERSION = 2
-FILTER_VERSION = "V2.7.1-meaningful-diff-only"
+FILTER_VERSION = "V2.7.2-philharmonia-url-dedup"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -37,7 +37,7 @@ TZ = ZoneInfo("Europe/Moscow")
 
 SESSION = requests.Session()
 SESSION.headers.update({
-    "User-Agent": "Mozilla/5.0 MariinskyWatcherV2/2.7.1 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+    "User-Agent": "Mozilla/5.0 MariinskyWatcherV2/2.7.2 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
     "Accept-Language": "ru,en;q=0.9",
 })
 
@@ -229,17 +229,63 @@ def normalize_url(url):
     return urldefrag(url)[0]
 
 
+def has_nonempty_query_value(query, names):
+    for name in names:
+        for value in query.get(name, []):
+            if clean(value):
+                return True
+    return False
+
+
+def first_nonempty_query_value(query, names):
+    for name in names:
+        for value in query.get(name, []):
+            value = clean(value)
+            if value:
+                return name, value
+    return "", ""
+
+
+def canonical_philharmonia_url(url):
+    url = normalize_url(url).replace("&amp;", "&")
+    parsed = urlparse(url)
+    if parsed.netloc not in PHILHARMONIA_HOSTS:
+        return url
+
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    _, event_id = first_nonempty_query_value(query, PHILHARMONIA_EVENT_KEYS)
+
+    if event_id:
+        return "https://www.philharmonia.spb.ru/afisha/grand/?" + urlencode({"ev_z": event_id})
+
+    clean_path = parsed.path or "/afisha/grand/"
+    clean_path = re.sub(r"/+$", "/", clean_path)
+    return parsed._replace(scheme="https", netloc="www.philharmonia.spb.ru", path=clean_path, query="", fragment="").geturl()
+
+
 def canonical_url(url):
     url = normalize_url(url)
     parsed = urlparse(url)
-    if parsed.netloc == "philharmonia.spb.ru":
-        return parsed._replace(netloc="www.philharmonia.spb.ru").geturl()
+    if parsed.netloc in PHILHARMONIA_HOSTS:
+        return canonical_philharmonia_url(url)
     return url
 
 
 def digest_obj(obj):
     data = json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(data.encode("utf-8")).hexdigest()
+
+
+def event_semantic_key(record):
+    if not isinstance(record, dict):
+        return ""
+    return "|".join([
+        canonical_low(record.get("source", "")),
+        title_key(record.get("venue", "")),
+        title_key(record.get("title", "")),
+        canonical_low(record.get("date_text", "")),
+        canonical_low(record.get("time_text", "")),
+    ])
 
 
 def fetch(url):
@@ -752,6 +798,17 @@ def performer_items_from_line(line):
     return [line]
 
 
+def strip_section_prefix(s):
+    s = clean(s).replace("–", "—").replace("-", "—")
+    s = re.sub(r"^(исполнители|исполнитель|солисты|состав исполнителей|в программе|программа|полная программа)\s*[—:]\s*", "", s, flags=re.I)
+    return clean(s)
+
+
+def normalize_compare_key(s):
+    s = title_key(strip_section_prefix(s))
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def uniq(items):
     out = []
     seen = set()
@@ -786,17 +843,6 @@ def extract_performers(lines):
 
 def extract_program(lines, title):
     return filter_items([line for line in lines if is_program_line(line, title)])
-
-
-def strip_section_prefix(s):
-    s = clean(s).replace("–", "—").replace("-", "—")
-    s = re.sub(r"^(исполнители|исполнитель|солисты|состав исполнителей|в программе|программа|полная программа)\s*[—:]\s*", "", s, flags=re.I)
-    return clean(s)
-
-
-def normalize_compare_key(s):
-    s = title_key(strip_section_prefix(s))
-    return re.sub(r"\s+", " ", s).strip()
 
 
 def split_performer_for_compare(item):
@@ -907,16 +953,9 @@ def parse_mariinsky_event(url, fallback=""):
     return rec, audit_item(url, "mariinsky", "included", class_reason, title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text, event_type=rec.event_type, performers_count=len(rec.performers), program_count=len(rec.program))
 
 
-def has_nonempty_query_value(query, names):
-    for name in names:
-        for value in query.get(name, []):
-            if clean(value):
-                return True
-    return False
-
-
 def is_philharmonia_event_url(url):
-    parsed = urlparse(canonical_url(url))
+    raw_url = normalize_url(url).replace("&amp;", "&")
+    parsed = urlparse(raw_url)
     path = parsed.path or ""
     query = parse_qs(parsed.query, keep_blank_values=True)
     keys = set(query.keys())
@@ -924,11 +963,13 @@ def is_philharmonia_event_url(url):
         return False
     if any(key(part) in PHILHARMONIA_BAD_PATH_PARTS for part in path.strip("/").split("/")):
         return False
-    if keys & PHILHARMONIA_LIST_KEYS and not has_nonempty_query_value(query, PHILHARMONIA_EVENT_KEYS):
-        return False
     if keys & PHILHARMONIA_EVENT_KEYS:
         return has_nonempty_query_value(query, PHILHARMONIA_EVENT_KEYS)
-    if parsed.query or not path.startswith("/afisha/grand/"):
+    if keys & PHILHARMONIA_LIST_KEYS:
+        return False
+    if parsed.query:
+        return False
+    if not path.startswith("/afisha/grand/"):
         return False
     tail = path[len("/afisha/grand/"):].strip("/")
     if not tail:
@@ -999,7 +1040,7 @@ def philharmonia_candidate_urls_from_raw_html(html, base_url):
     ]
     for pat in patterns:
         for m in re.finditer(pat, html):
-            raw = m.group(0).replace("&amp;", "&").rstrip(".,;]")
+            raw = m.group(0).replace("&amp;", "&").replace("&amp;amp;", "&").rstrip(".,;]")
             if raw.startswith("//"):
                 raw = "https:" + raw
             out.add(canonical_url(urljoin(base_url, raw)))
@@ -1011,7 +1052,8 @@ def extract_philharmonia_links_from_html(html, base_url):
     candidates = set()
     link_text = {}
     for a in soup.find_all("a", href=True):
-        url = canonical_url(urljoin(base_url, a.get("href") or ""))
+        raw = (a.get("href") or "").replace("&amp;", "&")
+        url = canonical_url(urljoin(base_url, raw))
         candidates.add(url)
         text = clean(a.get_text(" ", strip=True))
         if text:
@@ -1050,15 +1092,22 @@ def read_source(source, links, parser, audit):
     events = {}
     seen_urls = set(links.keys())
     failed_urls = set()
+    seen_semantic = set()
     for url, fallback in sorted(links.items()):
         try:
             rec, item = parser(url, fallback)
             audit["items"].append(item)
             if rec:
-                events[rec.url] = rec.to_state_record()
+                rec_dict = rec.to_state_record()
+                sem_key = event_semantic_key(rec_dict)
+                if source == "philharmonia_grand" and sem_key in seen_semantic:
+                    audit["items"].append(audit_item(url, source, "skipped", "semantic_duplicate", title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text, event_type=rec.event_type))
+                else:
+                    events[rec.url] = rec_dict
+                    seen_semantic.add(sem_key)
             time.sleep(0.2)
         except Exception as exc:
-            failed_urls.add(url)
+            failed_urls.add(canonical_url(url))
             audit["items"].append(audit_item(url, source, "failed", "fetch_or_parse_failed", error=f"{type(exc).__name__}: {exc}"))
     return events, seen_urls, failed_urls
 
@@ -1126,15 +1175,24 @@ def is_mariinsky_ballet_record(record):
 def sanitize_events(source, events):
     events = dict(events or {})
     out = {}
+    seen_semantic = set()
     for url, rec in events.items():
+        if not isinstance(rec, dict):
+            continue
+        rec = dict(rec)
+        rec["url"] = canonical_url(rec.get("url") or url)
         if source == "philharmonia_grand" and is_bogus_philharmonia_record(rec):
             continue
         if source == "mariinsky" and is_mariinsky_ballet_record(rec):
             continue
-        rec = dict(rec)
         rec["performers"] = extract_performers(rec.get("performers", []) or [])
         rec["program"] = extract_program(rec.get("program", []) or [], rec.get("title", ""))
-        out[url] = rec
+        if source == "philharmonia_grand":
+            sem_key = event_semantic_key(rec)
+            if sem_key in seen_semantic:
+                continue
+            seen_semantic.add(sem_key)
+        out[rec["url"]] = rec
     return out
 
 
@@ -1247,6 +1305,7 @@ def default_state():
 
 def sanitize_pending_messages(messages):
     out = []
+    seen = set()
     for msg in messages or []:
         text = str(msg or "")
         low = canonical_low(text)
@@ -1256,7 +1315,12 @@ def sanitize_pending_messages(messages):
             continue
         if "/afisha/grand/" in text and "/pc/" in text:
             continue
-        out.append(text)
+        normalized = re.sub(r"https://(?:www\.)?philharmonia\.spb\.ru/afisha/grand/\?[^\s]+", lambda m: canonical_url(m.group(0)), text)
+        dedup_key = title_key(normalized)
+        if dedup_key in seen:
+            continue
+        seen.add(dedup_key)
+        out.append(normalized)
     return out
 
 
@@ -1293,6 +1357,8 @@ def save_state(state):
     state["schema_version"] = SCHEMA_VERSION
     state["filter_version"] = FILTER_VERSION
     state["updated_at"] = now_utc()
+    for source in SOURCES:
+        state.setdefault("sources", {}).setdefault(source, {})["events"] = sanitize_events(source, state.get("sources", {}).get(source, {}).get("events", {}))
     state["pending_messages"] = sanitize_pending_messages(state.get("pending_messages", []))
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
 
@@ -1305,21 +1371,38 @@ def build_messages_for_source(source, old_events, new_events, seen_urls, failed_
     old_events = sanitize_events(source, old_events)
     new_events = sanitize_events(source, new_events)
     messages = []
+
     if not old_events and new_events:
         return messages, "initial_source_baseline_no_messages"
+
+    old_by_semantic = {}
+    if source == "philharmonia_grand":
+        old_by_semantic = {event_semantic_key(rec): rec for rec in old_events.values()}
+
     for url, new in sorted(new_events.items()):
         old = old_events.get(url)
+        if old is None and source == "philharmonia_grand":
+            old = old_by_semantic.get(event_semantic_key(new))
+
         if old is None:
             messages.append(format_new(new))
         elif old.get("digest") != new.get("digest"):
             msg = format_changed(old, new)
             if msg:
                 messages.append(msg)
+
+    new_semantics = set()
+    if source == "philharmonia_grand":
+        new_semantics = {event_semantic_key(rec) for rec in new_events.values()}
+
     for url, old in sorted(old_events.items()):
         if url in new_events or url in failed_urls or url in seen_urls:
             continue
+        if source == "philharmonia_grand" and event_semantic_key(old) in new_semantics:
+            continue
         if is_future_removed(old):
             messages.append(format_removed(old))
+
     return messages, ""
 
 
@@ -1459,9 +1542,11 @@ def main():
 
 def run_self_tests():
     assert SCHEMA_VERSION == 2
-    assert FILTER_VERSION == "V2.7.1-meaningful-diff-only"
+    assert FILTER_VERSION == "V2.7.2-philharmonia-url-dedup"
     assert parse_time("20:00") == "20:00"
     assert parse_time("25:99") == ""
+    assert canonical_url("https://www.philharmonia.spb.ru/afisha/grand/?ev_z=346&%3Byear=2026&%3B%3Bamp%3Bmonth=9&%3Btag=&tag=abc") == "https://www.philharmonia.spb.ru/afisha/grand/?ev_z=346"
+    assert canonical_url("https://philharmonia.spb.ru/afisha/grand/?ev_z=347&tag=abc") == "https://www.philharmonia.spb.ru/afisha/grand/?ev_z=347"
     assert not contains_word("Хореография Ильи Живого", ["хор"])
     assert contains_word("Хор и Симфонический оркестр Мариинского театра", ["хор"])
     assert infer_mariinsky_list_type("Виктория Терёшкина. 25 лет на сцене гала-концерт балета") == "ballet"
@@ -1477,6 +1562,7 @@ def run_self_tests():
     assert not is_program_line("К 120—летию со дня рождения Дмитрия Шостаковича", "Шостакович. Четвертая симфония")
     assert not is_program_line("Дмитрий Шостакович", "Шостакович. Четвертая симфония")
     assert is_program_line("Бетховен. Месса до мажор", "Бетховен. Торжественная месса")
+
     old = {
         "source": "mariinsky",
         "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/22/2_2001/",
@@ -1489,6 +1575,7 @@ def run_self_tests():
     new["time_text"] = "20:00"
     assert is_parser_time_correction(old, new)
     assert change_sections(old, new) == []
+
     old_cast = {
         "source": "mariinsky",
         "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/22/2_2001/",
@@ -1503,24 +1590,35 @@ def run_self_tests():
     new_cast["performers"] = ["ИСПОЛНИТЕЛИ — Солисты оперы", "ИСПОЛНИТЕЛИ — Хор и Симфонический оркестр Мариинского театра", "Хор и Симфонический оркестр Мариинского театра"]
     assert change_sections(old_cast, new_cast) == []
     assert format_changed(old_cast, new_cast) == ""
+
     old_conductor = dict(old_cast)
     new_conductor = dict(old_cast)
     old_conductor["performers"] = ["Дирижер — Иван Петров"]
     new_conductor["performers"] = ["Дирижер — Валерий Гергиев"]
     msg = format_changed(old_conductor, new_conductor)
     assert "Изменение в составе" in msg and "Валерий Гергиев" in msg and "Иван Петров" in msg
+
     old_role = dict(old_cast)
     new_role = dict(old_cast)
     old_role["performers"] = ["Флория Тоска — Мария Иванова"]
     new_role["performers"] = ["Флория Тоска — Хибла Герзмава"]
     msg = format_changed(old_role, new_role)
     assert "Хибла Герзмава" in msg and "Мария Иванова" in msg
+
     noisy_old = dict(old_cast)
     noisy_new = dict(old_cast)
     noisy_old["performers"] = []
     noisy_new["performers"] = ["Санкт — Петербург", "Зал Стравинского", "опера Николая Римского — Корсакова"]
     noisy_new["program"] = ["опера Дмитрия Шостаковича", "К 120—летию со дня рождения Дмитрия Шостаковича", "Дмитрий Шостакович"]
     assert format_changed(noisy_old, noisy_new) == ""
+
+    r1 = {"source": "philharmonia_grand", "venue": "СПб филармония, Большой зал", "title": "Органный вечер", "date_text": "2 июля 2026", "time_text": "20:00", "url": "https://www.philharmonia.spb.ru/afisha/grand/?ev_z=347&tag=x"}
+    r2 = dict(r1)
+    r2["url"] = "https://www.philharmonia.spb.ru/afisha/grand/?ev_z=346&%3Byear=2026&tag=x"
+    assert event_semantic_key(r1) == event_semantic_key(r2)
+    sanitized = sanitize_events("philharmonia_grand", {r1["url"]: r1, r2["url"]: r2})
+    assert len(sanitized) == 1
+
     assert is_mariinsky_ballet_record({"source": "mariinsky", "title": "Виктория Терёшкина. 25 лет на сцене", "event_type": "unknown", "performers": ["Хореография Ильи Живого"], "program": ["«Шехеразада»"]})
     assert is_mariinsky_list_ballet_meta({"title": "Виктория Терёшкина. 25 лет на сцене", "list_type": "ballet", "list_text": "гала-концерт балета"})
     assert is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/12345/")
@@ -1528,8 +1626,10 @@ def run_self_tests():
     assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/2027/2/pc/")
     assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/?year=2026&month=7")
     assert not is_philharmonia_event_url("https://www.philharmonia.spb.ru/afisha/grand/2026/06/?ev_y=2025&ev_m=6&ev_d=12&ev_z=")
+
     pending = sanitize_pending_messages(["СПб филармония\nНазвание: Афиша\nhttps://www.philharmonia.spb.ru/afisha/grand/2026/06/?ev_z=", "normal"])
     assert pending == ["normal"]
+
     print("SELF_TEST_OK")
 
 
