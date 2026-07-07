@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 APP_NAME = "Mariinsky Filter V2"
 SCHEMA_VERSION = 2
-FILTER_VERSION = "V2.9.1-section-based-safe-parser-url-venue"
+FILTER_VERSION = "V2.9.2-fail-open-opera-safe-replacement"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -34,7 +34,7 @@ TZ = ZoneInfo("Europe/Moscow")
 
 SESSION = requests.Session()
 SESSION.headers.update({
-    "User-Agent": "Mozilla/5.0 MariinskyWatcherV2/2.9.1 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
+    "User-Agent": "Mozilla/5.0 MariinskyWatcherV2/2.9.2 (+https://github.com/fageehamalal-max/mariinsky-watcher)",
     "Accept-Language": "ru,en;q=0.9",
 })
 
@@ -45,9 +45,18 @@ EMOJI_DATE = "🔸"
 MARIINSKY_MARK = "𝄞"
 
 MONTHS = {
-    1: "января", 2: "февраля", 3: "марта", 4: "апреля",
-    5: "мая", 6: "июня", 7: "июля", 8: "августа",
-    9: "сентября", 10: "октября", 11: "ноября", 12: "декабря",
+    1: "января",
+    2: "февраля",
+    3: "марта",
+    4: "апреля",
+    5: "мая",
+    6: "июня",
+    7: "июля",
+    8: "августа",
+    9: "сентября",
+    10: "октября",
+    11: "ноября",
+    12: "декабря",
 }
 MONTH_WORD_RE = r"(?:января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)"
 
@@ -71,9 +80,20 @@ MARIINSKY_VENUES = set(VENUE_BY_CODE.values()) | {
 PERFORMERS_HEADERS = {"исполнители", "исполнитель", "состав исполнителей", "солисты"}
 PROGRAM_HEADERS = {"в программе", "программа", "полная программа"}
 STOP_DETAIL_SECTIONS = {
-    "краткое содержание", "содержание", "либретто", "история", "история создания",
-    "первое исполнение", "о спектакле", "об опере", "о произведении", "аннотация",
-    "возрастная категория", "фотогалерея", "медиа", "рецензии",
+    "краткое содержание",
+    "содержание",
+    "либретто",
+    "история",
+    "история создания",
+    "первое исполнение",
+    "о спектакле",
+    "об опере",
+    "о произведении",
+    "аннотация",
+    "возрастная категория",
+    "фотогалерея",
+    "медиа",
+    "рецензии",
 }
 EXTERNAL_STAGE_MARKERS = ["Приморская сцена", "Владивосток", "Владикавказ", "РСО-Алания"]
 
@@ -91,66 +111,280 @@ NOISE_RE = re.compile(
 )
 
 BAD_TITLES = {
-    "афиша", "афиша и билеты", "главная", "репертуар", "cookie", "cookies",
-    "понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье",
+    "афиша",
+    "афиша и билеты",
+    "главная",
+    "репертуар",
+    "cookie",
+    "cookies",
+    "понедельник",
+    "вторник",
+    "среда",
+    "четверг",
+    "пятница",
+    "суббота",
+    "воскресенье",
 }
+
 BALLET_TITLES = {
-    "адажио хаммерклавир", "анна каренина", "арлекинада", "бахчисарайский фонтан",
-    "баядерка", "видение розы", "вечер балетов", "времена года", "дон кихот",
-    "жар птица", "жар-птица", "жизель", "золушка", "кармен-сюита",
-    "карнавал шехеразада", "конек горбунок", "конёк горбунок", "корсар",
-    "лебединое озеро", "легенда о любви", "манон", "марко спада",
-    "медный всадник", "пахита", "петрушка", "пламя парижа", "раймонда",
-    "ромео и джульетта", "сильфида", "спартак", "спящая красавица",
-    "тысяча и одна ночь", "шехеразада", "шопениана", "щелкунчик",
-    "виктория терешкина 25 лет на сцене", "виктория терёшкина 25 лет на сцене",
+    "адажио хаммерклавир",
+    "анна каренина",
+    "арлекинада",
+    "бахчисарайский фонтан",
+    "баядерка",
+    "видение розы",
+    "вечер балетов",
+    "времена года",
+    "дон кихот",
+    "жар птица",
+    "жар-птица",
+    "жизель",
+    "золушка",
+    "кармен-сюита",
+    "карнавал шехеразада",
+    "конек горбунок",
+    "конёк горбунок",
+    "корсар",
+    "лебединое озеро",
+    "легенда о любви",
+    "манон",
+    "марко спада",
+    "медный всадник",
+    "пахита",
+    "петрушка",
+    "пламя парижа",
+    "раймонда",
+    "ромео и джульетта",
+    "сильфида",
+    "спартак",
+    "спящая красавица",
+    "тысяча и одна ночь",
+    "шехеразада",
+    "шопениана",
+    "щелкунчик",
+    "виктория терешкина 25 лет на сцене",
+    "виктория терёшкина 25 лет на сцене",
 }
+
+OPERA_TITLES = {
+    "аида",
+    "бал маскарад",
+    "бал-маскарад",
+    "богема",
+    "борис годунов",
+    "война и мир",
+    "волшебная флейта",
+    "дон карлос",
+    "дон жуан",
+    "джоконда",
+    "евгений онегин",
+    "женитьба фигаро",
+    "золотой петушок",
+    "иоланта",
+    "кармен",
+    "князь игорь",
+    "кощей бессмертный",
+    "леди макбет мценского уезда",
+    "летучая мышь",
+    "лючия ди ламмермур",
+    "мазепа",
+    "макбет",
+    "медный всадник опера",
+    "мефистофель",
+    "млада",
+    "моцарт и сальери",
+    "набукко",
+    "обручение в монастыре",
+    "отелло",
+    "паяцы",
+    "парсифаль",
+    "пиковая дама",
+    "псковитянка",
+    "риголетто",
+    "русалка",
+    "садко",
+    "самсон и далила",
+    "севильский цирюльник",
+    "сестра анжелика джанни скикки",
+    "симон бокканегра",
+    "сказание о невидимом граде китеже и деве февронии",
+    "сказка о царе салтане",
+    "скупой рыцарь",
+    "снегурочка",
+    "сельская честь",
+    "тоска",
+    "травиата",
+    "трубадур",
+    "турок в италии",
+    "фауст",
+    "фальстаф",
+    "хованщина",
+    "царская невеста",
+    "человеческий голос",
+}
+
 LIST_BALLET_MARKERS = [
-    "балет", "балета", "балеты", "гала-концерт балета", "артисты балета",
-    "театр балета", "хореография", "хореограф", "па-де-де", "вариация",
+    "балет",
+    "балета",
+    "балеты",
+    "гала-концерт балета",
+    "артисты балета",
+    "театр балета",
+    "хореография",
+    "хореограф",
+    "па-де-де",
+    "вариация",
     "исполняется под фонограмму",
 ]
 LIST_OPERA_MARKERS = ["опера", "опера-буффа", "драма в музыке", "музыкальная драма", "моноопера"]
 LIST_CONCERT_MARKERS = [
-    "концерт", "концерты", "кантата", "оратория", "реквием", "месса",
-    "симфонический оркестр", "вокальные циклы",
+    "концерт",
+    "концерты",
+    "кантата",
+    "оратория",
+    "реквием",
+    "месса",
+    "симфонический оркестр",
+    "вокальные циклы",
 ]
 PROGRAM_WORDS = [
-    "симфони", "концерт", "сюита", "увертюр", "сонат", "ноктюрн", "реквием",
-    "оратори", "кантат", "рапсод", "адажио", "танц", "прелюди", "фуга",
-    "квартет", "квинтет", "месса", "вариаци",
+    "симфони",
+    "концерт",
+    "сюита",
+    "увертюр",
+    "сонат",
+    "ноктюрн",
+    "реквием",
+    "оратори",
+    "кантат",
+    "рапсод",
+    "адажио",
+    "танц",
+    "прелюди",
+    "фуга",
+    "квартет",
+    "квинтет",
+    "месса",
+    "вариаци",
 ]
 COMPOSERS = [
-    "Бах", "Бетховен", "Брамс", "Верди", "Вагнер", "Моцарт", "Шопен", "Шуберт",
-    "Шуман", "Рахманинов", "Прокофьев", "Стравинский", "Римский-Корсаков",
-    "Чайковский", "Дебюсси", "Пуленк", "Дворжак", "Гершвин", "Барбер",
-    "Бернстайн", "Копленд", "Пьяццолла", "Респиги", "Глинка", "Мусоргский",
-    "Бородин", "Масканьи", "Пуччини", "Россини", "Доницетти", "Беллини",
-    "Бизе", "Гуно", "Массне", "Равель", "Малер", "Брукнер", "Шостакович",
-    "Понкьелли", "Берлиоз", "Делиб", "Римский", "Корсаков",
+    "Бах",
+    "Бетховен",
+    "Брамс",
+    "Верди",
+    "Вагнер",
+    "Моцарт",
+    "Шопен",
+    "Шуберт",
+    "Шуман",
+    "Рахманинов",
+    "Прокофьев",
+    "Стравинский",
+    "Римский-Корсаков",
+    "Чайковский",
+    "Дебюсси",
+    "Пуленк",
+    "Дворжак",
+    "Гершвин",
+    "Барбер",
+    "Бернстайн",
+    "Копленд",
+    "Пьяццолла",
+    "Респиги",
+    "Глинка",
+    "Мусоргский",
+    "Бородин",
+    "Масканьи",
+    "Пуччини",
+    "Россини",
+    "Доницетти",
+    "Беллини",
+    "Бизе",
+    "Гуно",
+    "Массне",
+    "Равель",
+    "Малер",
+    "Брукнер",
+    "Шостакович",
+    "Понкьелли",
+    "Берлиоз",
+    "Делиб",
+    "Римский",
+    "Корсаков",
 ]
 ROLE_WORDS = [
-    "дирижер", "дирижёр", "солист", "солистка", "солисты", "исполнитель",
-    "исполнительница", "исполнители", "сопрано", "тенор", "баритон", "бас",
-    "скрипка", "альт", "виолончель", "фортепиано", "кларнет", "флейта",
-    "хор", "оркестр", "ансамбль", "концертмейстер", "хормейстер",
+    "дирижер",
+    "дирижёр",
+    "солист",
+    "солистка",
+    "солисты",
+    "исполнитель",
+    "исполнительница",
+    "исполнители",
+    "сопрано",
+    "тенор",
+    "баритон",
+    "бас",
+    "скрипка",
+    "альт",
+    "виолончель",
+    "фортепиано",
+    "кларнет",
+    "флейта",
+    "хор",
+    "оркестр",
+    "ансамбль",
+    "концертмейстер",
+    "хормейстер",
 ]
 PRODUCTION_CREDIT_PREFIXES = [
-    "хореография", "хореограф", "исполняется под фонограмму", "постановка", "сценография",
-    "костюмы", "свет", "видео", "либретто", "автор", "режиссер-постановщик",
-    "режиссёр-постановщик", "режиссер", "режиссёр",
+    "хореография",
+    "хореограф",
+    "исполняется под фонограмму",
+    "постановка",
+    "сценография",
+    "костюмы",
+    "свет",
+    "видео",
+    "либретто",
+    "автор",
+    "режиссер-постановщик",
+    "режиссёр-постановщик",
+    "режиссер",
+    "режиссёр",
 ]
-MEANINGLESS_PERFORMER_LINES = {"орган", "исполнители", "исполнитель", "солисты", "солист", "солистка", "в главных партиях"}
+MEANINGLESS_PERFORMER_LINES = {
+    "орган",
+    "исполнители",
+    "исполнитель",
+    "солисты",
+    "солист",
+    "солистка",
+    "в главных партиях",
+}
 LOCATION_LINES = {
-    "санкт петербург", "санкт-петербург", "санкт — петербург", "санкт – петербург",
-    "мариинский театр", "мариинский 2", "мариинский-2", "концертный зал",
-    "зал стравинского", "камерные залы", "зал щедрина", "зал мусоргского",
+    "санкт петербург",
+    "санкт-петербург",
+    "санкт — петербург",
+    "санкт – петербург",
+    "мариинский театр",
+    "мариинский 2",
+    "мариинский-2",
+    "концертный зал",
+    "зал стравинского",
+    "камерные залы",
+    "зал щедрина",
+    "зал мусоргского",
     "концертный зал мариинского театра",
 }
 CAST_PLACEHOLDER_PATTERNS = [
-    "состав исполнителей будет объявлен позднее", "состав будет объявлен позднее",
-    "исполнители будут объявлены позднее", "исполнители будут объявлены дополнительно",
-    "состав исполнителей уточняется", "будет объявлен позднее", "будут объявлены позднее",
+    "состав исполнителей будет объявлен позднее",
+    "состав будет объявлен позднее",
+    "исполнители будут объявлены позднее",
+    "исполнители будут объявлены дополнительно",
+    "состав исполнителей уточняется",
+    "будет объявлен позднее",
+    "будут объявлены позднее",
 ]
 
 
@@ -334,9 +568,20 @@ def is_genre_description(line):
 def is_explanatory_line(line):
     low = canonical_low(line)
     bad_starts = [
-        "к ", "ко ", "посвящается", "к юбилею", "в рамках", "при поддержке",
-        "фестиваль", "звезды белых ночей", "звёзды белых ночей", "виртуальная выставка",
-        "первое исполнение", "мировая премьера", "премьера состоялась", "впервые исполнено",
+        "к ",
+        "ко ",
+        "посвящается",
+        "к юбилею",
+        "в рамках",
+        "при поддержке",
+        "фестиваль",
+        "звезды белых ночей",
+        "звёзды белых ночей",
+        "виртуальная выставка",
+        "первое исполнение",
+        "мировая премьера",
+        "премьера состоялась",
+        "впервые исполнено",
     ]
     return any(low.startswith(x) for x in bad_starts)
 
@@ -444,15 +689,26 @@ def source_line(record):
     return f"{MARIINSKY_MARK} {venue or 'Мариинский театр'}"
 
 
+def display_title(record):
+    return clean(record.get("title", "")) or "Без названия"
+
+
 def infer_mariinsky_list_type(text):
     low = canonical_low(text)
-    if any(x in low for x in LIST_BALLET_MARKERS):
-        return "ballet"
     if any(x in low for x in LIST_OPERA_MARKERS):
         return "opera"
     if any(x in low for x in LIST_CONCERT_MARKERS):
         return "concert"
+    if any(x in low for x in LIST_BALLET_MARKERS):
+        return "ballet"
     return ""
+
+
+def is_opera_title(title):
+    t = title_key(title)
+    if t in OPERA_TITLES:
+        return True
+    return any(t == x or t.startswith(x + " ") for x in OPERA_TITLES)
 
 
 def is_ballet_genre_line(line):
@@ -462,32 +718,64 @@ def is_ballet_genre_line(line):
     return bool(re.fullmatch(r"балет(ы)?(\s+в\s+.+\s+действиях?)?", low))
 
 
-def is_ballet_event(title, lines, list_type=""):
+def is_ballet_event(title, lines, list_type="", allow_content_markers=False):
+    if list_type in {"opera", "concert"}:
+        return False, "explicit_non_ballet"
+    if is_opera_title(title):
+        return False, "opera_title"
     if list_type == "ballet":
         return True, "list_ballet"
+
     t = title_key(title)
     if t in BALLET_TITLES:
         return True, "ballet_title"
+
     if any(is_ballet_genre_line(x) for x in lines[:30]):
         return True, "ballet_genre"
-    text = canonical_low(" ".join([title] + list(lines[:60])))
-    hard = ["гала-концерт балета", "артисты балета", "театр балета", "хореография", "хореограф", "па-де-де", "вариация", "исполняется под фонограмму"]
-    if any(x in text for x in hard):
-        return True, "ballet_content_marker"
+
+    if allow_content_markers:
+        text = canonical_low(" ".join([title] + list(lines[:60])))
+        hard = [
+            "гала-концерт балета",
+            "артисты балета",
+            "театр балета",
+            "па-де-де",
+            "исполняется под фонограмму",
+        ]
+        if any(x in text for x in hard):
+            return True, "ballet_content_marker"
+
     return False, ""
 
 
+def has_opera_marker(lines):
+    for line in lines[:80]:
+        low = title_key(line)
+        if low == "опера" or low.startswith("опера "):
+            return True
+        if marker_in_text(line, "опера") or marker_in_text(line, "моноопера") or marker_in_text(line, "опера-буффа"):
+            return True
+    return False
+
+
 def classify_event(title, lines, list_type=""):
-    is_ballet, reason = is_ballet_event(title, lines, list_type=list_type)
+    if list_type == "opera":
+        return "opera", "list_opera"
+    if list_type == "concert":
+        return "concert", "list_concert"
+    if is_opera_title(title):
+        return "opera", "opera_title"
+    if has_opera_marker(lines):
+        return "opera", "opera_marker"
+
+    is_ballet, reason = is_ballet_event(title, lines, list_type=list_type, allow_content_markers=False)
     if is_ballet:
         return "ballet", reason
-    if list_type in {"opera", "concert"}:
-        return list_type, f"list_{list_type}"
-    if any(marker_in_text(line, "опера") or marker_in_text(line, "моноопера") for line in lines[:60]):
-        return "opera", "opera_marker"
+
     if has_composer(title) or contains_word(title, PROGRAM_WORDS) or any(has_composer(x) for x in lines[:30]):
         return "concert", "music_marker"
-    return "unknown", "no_strong_marker"
+
+    return "concert", "ambiguous_included"
 
 
 def mariinsky_card_text_for_link(a):
@@ -597,7 +885,11 @@ def is_ensemble_performer_line(line):
     low = canonical_low(line)
     if re.search(r"\bдля\b.*\b(оркестр|хор|ансамбль)", low):
         return False
-    return looks_like_ensemble_phrase(line) and ("мариинск" in low or "театра" in low or low.startswith(("симфонический", "камерный", "хор", "оркестр", "ансамбль")))
+    return looks_like_ensemble_phrase(line) and (
+        "мариинск" in low
+        or "театра" in low
+        or low.startswith(("симфонический", "камерный", "хор", "оркестр", "ансамбль"))
+    )
 
 
 def is_valid_performer_piece(item):
@@ -755,7 +1047,20 @@ def sanitize_parsed_program(items, title):
     return uniq_text([x for x in (items or []) if is_program_line(x, title)], key_func=lambda x: title_key(x))
 
 
-def build_event_record(source, url, title, venue, event_date, date_text, time_text, event_type, detail_performers, list_performers, list_main_roles, program):
+def build_event_record(
+    source,
+    url,
+    title,
+    venue,
+    event_date,
+    date_text,
+    time_text,
+    event_type,
+    detail_performers,
+    list_performers,
+    list_main_roles,
+    program,
+):
     detail_performers = sanitize_parsed_performers(detail_performers)
     list_performers = sanitize_parsed_performers(list_performers)
     list_main_roles = sanitize_main_roles(list_main_roles)
@@ -800,7 +1105,23 @@ def build_event_record(source, url, title, venue, event_date, date_text, time_te
     return rec
 
 
-def audit_item(url, source, status, reason, title="", venue="", date_text="", time_text="", event_type="", performers=None, performers_source="none", main_roles=None, program=None, program_source="none", error=""):
+def audit_item(
+    url,
+    source,
+    status,
+    reason,
+    title="",
+    venue="",
+    date_text="",
+    time_text="",
+    event_type="",
+    performers=None,
+    performers_source="none",
+    main_roles=None,
+    program=None,
+    program_source="none",
+    error="",
+):
     performers = performers or []
     main_roles = main_roles or []
     program = program or []
@@ -844,14 +1165,53 @@ def parse_mariinsky_event(url, fallback=""):
     list_type = fallback.get("list_type", "") if isinstance(fallback, dict) else ""
     list_lines = html_lines(list_text)
 
-    if is_ballet_event(fallback_title, list_lines, list_type=list_type)[0]:
-        return None, audit_item(url, "mariinsky", "skipped", "list_ballet", title=fallback_title, venue=venue, date_text=date_text, time_text=time_text, event_type="ballet")
+    if list_type == "ballet":
+        return None, audit_item(
+            url,
+            "mariinsky",
+            "skipped",
+            "list_ballet",
+            title=fallback_title,
+            venue=venue,
+            date_text=date_text,
+            time_text=time_text,
+            event_type="ballet",
+        )
+
+    if list_type not in {"opera", "concert"}:
+        is_ballet, ballet_reason = is_ballet_event(
+            fallback_title,
+            list_lines,
+            list_type=list_type,
+            allow_content_markers=True,
+        )
+        if is_ballet:
+            return None, audit_item(
+                url,
+                "mariinsky",
+                "skipped",
+                ballet_reason,
+                title=fallback_title,
+                venue=venue,
+                date_text=date_text,
+                time_text=time_text,
+                event_type="ballet",
+            )
 
     soup = BeautifulSoup(fetch(url), "lxml")
     lines = html_lines(soup)
     title = title_from_soup(soup, fallback_title)
     if not is_valid_title(title):
-        return None, audit_item(url, "mariinsky", "skipped", "bad_title", title=title, venue=venue, date_text=date_text, time_text=time_text)
+        return None, audit_item(
+            url,
+            "mariinsky",
+            "skipped",
+            "bad_title",
+            title=title,
+            venue=venue,
+            date_text=date_text,
+            time_text=time_text,
+        )
 
     page_time = first_safe_time(lines)
     if page_time:
@@ -862,25 +1222,68 @@ def parse_mariinsky_event(url, fallback=""):
         venue = url_venue
 
     if any(canonical_low(marker) in canonical_low(line) for marker in EXTERNAL_STAGE_MARKERS for line in [venue, title] + lines[:30]):
-        return None, audit_item(url, "mariinsky", "skipped", "external_stage", title=title, venue=venue, date_text=date_text, time_text=time_text)
+        return None, audit_item(
+            url,
+            "mariinsky",
+            "skipped",
+            "external_stage",
+            title=title,
+            venue=venue,
+            date_text=date_text,
+            time_text=time_text,
+        )
 
     combined_for_class = list_lines + lines[:100]
     event_type, class_reason = classify_event(title, combined_for_class, list_type=list_type)
+
     if event_type == "ballet":
-        return None, audit_item(url, "mariinsky", "skipped", class_reason, title=title, venue=venue, date_text=date_text, time_text=time_text, event_type=event_type)
-    if event_type == "unknown":
-        return None, audit_item(url, "mariinsky", "skipped", "unknown_event_type", title=title, venue=venue, date_text=date_text, time_text=time_text, event_type=event_type)
+        return None, audit_item(
+            url,
+            "mariinsky",
+            "skipped",
+            class_reason,
+            title=title,
+            venue=venue,
+            date_text=date_text,
+            time_text=time_text,
+            event_type=event_type,
+        )
 
     detail_performers = extract_detail_performers(lines)
     list_performers = extract_list_performers(list_text)
     list_main_roles = extract_list_main_roles(list_text)
     program = extract_program_section(lines, title)
-    rec = build_event_record("mariinsky", url, title, venue, event_date, date_text, time_text, event_type, detail_performers, list_performers, list_main_roles, program)
+
+    rec = build_event_record(
+        "mariinsky",
+        url,
+        title,
+        venue,
+        event_date,
+        date_text,
+        time_text,
+        event_type,
+        detail_performers,
+        list_performers,
+        list_main_roles,
+        program,
+    )
+
     return rec, audit_item(
-        url, "mariinsky", "included", class_reason,
-        title=rec.title, venue=rec.venue, date_text=rec.date_text, time_text=rec.time_text, event_type=rec.event_type,
-        performers=rec.performers, performers_source=rec.performers_source,
-        main_roles=rec.main_roles, program=rec.program, program_source=rec.program_source,
+        url,
+        "mariinsky",
+        "included",
+        class_reason,
+        title=rec.title,
+        venue=rec.venue,
+        date_text=rec.date_text,
+        time_text=rec.time_text,
+        event_type=rec.event_type,
+        performers=rec.performers,
+        performers_source=rec.performers_source,
+        main_roles=rec.main_roles,
+        program=rec.program,
+        program_source=rec.program_source,
     )
 
 
@@ -896,11 +1299,14 @@ def extract_mariinsky_links_from_html(html, base_url):
         title = clean(a.get_text(" ", strip=True))
         card_text = mariinsky_card_text_for_link(a)
         list_type = infer_mariinsky_list_type(card_text)
-        out.setdefault(url, {
-            "title": title if is_valid_title(title) else "",
-            "list_type": list_type,
-            "list_text": card_text[:2400],
-        })
+        out.setdefault(
+            url,
+            {
+                "title": title if is_valid_title(title) else "",
+                "list_type": list_type,
+                "list_text": card_text[:2400],
+            },
+        )
     return out
 
 
@@ -910,24 +1316,31 @@ def collect_mariinsky_links(audit):
         try:
             links.update(extract_mariinsky_links_from_html(fetch(url), url))
         except Exception as exc:
-            audit["source_errors"].append({"source": "mariinsky", "url": url, "error": f"{type(exc).__name__}: {exc}"})
+            audit["source_errors"].append(
+                {"source": "mariinsky", "url": url, "error": f"{type(exc).__name__}: {exc}"}
+            )
     return links
 
 
 def read_source(source, links, parser, audit):
     events = {}
-    seen_urls = set(links.keys())
+    seen_urls = set()
     failed_urls = set()
+
     for url, fallback in sorted(links.items()):
         try:
             rec, item = parser(url, fallback)
             audit["items"].append(item)
             if rec:
                 events[rec.url] = rec.to_state_record()
+                seen_urls.add(rec.url)
             time.sleep(0.2)
         except Exception as exc:
             failed_urls.add(canonical_url(url))
-            audit["items"].append(audit_item(url, source, "failed", "fetch_or_parse_failed", error=f"{type(exc).__name__}: {exc}"))
+            audit["items"].append(
+                audit_item(url, source, "failed", "fetch_or_parse_failed", error=f"{type(exc).__name__}: {exc}")
+            )
+
     return events, seen_urls, failed_urls
 
 
@@ -943,9 +1356,16 @@ def scan_all():
         "items": [],
         "summary": {},
     }
+
     links = collect_mariinsky_links(audit)
     scanned, seen_urls, failed_urls = {}, {}, {}
-    scanned["mariinsky"], seen_urls["mariinsky"], failed_urls["mariinsky"] = read_source("mariinsky", links, parse_mariinsky_event, audit)
+    scanned["mariinsky"], seen_urls["mariinsky"], failed_urls["mariinsky"] = read_source(
+        "mariinsky",
+        links,
+        parse_mariinsky_event,
+        audit,
+    )
+
     source_items = [x for x in audit["items"] if x["source"] == "mariinsky"]
     audit["summary"]["mariinsky"] = {
         "links_found": len(links),
@@ -953,6 +1373,7 @@ def scan_all():
         "skipped": sum(1 for x in source_items if x["status"] == "skipped"),
         "failed": sum(1 for x in source_items if x["status"] == "failed"),
     }
+
     return scanned, seen_urls, failed_urls, audit
 
 
@@ -971,7 +1392,18 @@ def is_future_removed(record):
 def is_mariinsky_ballet_record(record):
     if not isinstance(record, dict) or record.get("source") != "mariinsky":
         return False
-    return is_ballet_event(record.get("title", ""), [record.get("title", ""), record.get("event_type", "")] + list(record.get("performers", []) or []), list_type=record.get("event_type", ""))[0]
+
+    event_type = clean(record.get("event_type", ""))
+    if event_type == "ballet":
+        return True
+
+    is_ballet, _ = is_ballet_event(
+        record.get("title", ""),
+        [record.get("title", ""), event_type] + list(record.get("performers", []) or []),
+        list_type=event_type,
+        allow_content_markers=False,
+    )
+    return is_ballet
 
 
 def normalize_source(src):
@@ -982,12 +1414,15 @@ def normalize_source(src):
 def sanitize_events(source, events):
     events = dict(events or {})
     out = {}
+
     for url, rec in events.items():
         if not isinstance(rec, dict):
             continue
+
         rec = dict(rec)
         if rec.get("source") and rec.get("source") != "mariinsky":
             continue
+
         rec["source"] = "mariinsky"
         rec["url"] = canonical_url(rec.get("url") or url)
 
@@ -997,19 +1432,29 @@ def sanitize_events(source, events):
 
         if is_mariinsky_ballet_record(rec):
             continue
+
         if rec.get("event_type") not in {"opera", "concert"}:
-            inferred, _ = classify_event(rec.get("title", ""), [rec.get("title", "")] + list(rec.get("program", []) or []), list_type="")
-            if inferred not in {"opera", "concert"}:
+            inferred, _ = classify_event(
+                rec.get("title", ""),
+                [rec.get("title", "")] + list(rec.get("program", []) or []),
+                list_type="",
+            )
+            if inferred == "ballet":
                 continue
             rec["event_type"] = inferred
+
         rec["performers"] = sanitize_parsed_performers(rec.get("performers", []) or [])
-        rec["performers_source"] = normalize_source(rec.get("performers_source", "detail_section" if rec["performers"] else "none"))
+        rec["performers_source"] = normalize_source(
+            rec.get("performers_source", "detail_section" if rec["performers"] else "none")
+        )
         rec["main_roles"] = sanitize_main_roles(rec.get("main_roles", []) or [])
         rec["main_roles_source"] = "list_main_roles" if rec["main_roles"] else "none"
         rec["program"] = sanitize_parsed_program(rec.get("program", []) or [], rec.get("title", ""))
         rec["program_source"] = "program_section" if rec["program"] else "none"
+
         refresh_record_digest(rec)
         out[rec["url"]] = rec
+
     return out
 
 
@@ -1020,19 +1465,30 @@ def source_rank(src):
 def merge_safe_record(old, new):
     if not isinstance(old, dict):
         return dict(new)
+
     merged = dict(new)
+
     old_performers = sanitize_parsed_performers(old.get("performers", []) or [])
     new_performers = sanitize_parsed_performers(new.get("performers", []) or [])
     old_src = normalize_source(old.get("performers_source", "detail_section" if old_performers else "none"))
     new_src = normalize_source(new.get("performers_source", "detail_section" if new_performers else "none"))
-    if old_performers and (source_rank(new_src) < source_rank(old_src) or (len(new_performers) < max(1, len(old_performers) // 2) and old_src == "detail_section")):
-        merged["performers"] = old_performers
-        merged["performers_source"] = old_src
-    old_roles = sanitize_main_roles(old.get("main_roles", []) or [])
-    new_roles = sanitize_main_roles(new.get("main_roles", []) or [])
-    if old_roles and not new_roles and not performer_names(merged.get("performers", [])):
-        merged["main_roles"] = old_roles
-        merged["main_roles_source"] = "list_main_roles"
+
+    title_changed = title_key(old.get("title", "")) != title_key(new.get("title", ""))
+
+    if not title_changed:
+        if old_performers and (
+            source_rank(new_src) < source_rank(old_src)
+            or (len(new_performers) < max(1, len(old_performers) // 2) and old_src == "detail_section")
+        ):
+            merged["performers"] = old_performers
+            merged["performers_source"] = old_src
+
+        old_roles = sanitize_main_roles(old.get("main_roles", []) or [])
+        new_roles = sanitize_main_roles(new.get("main_roles", []) or [])
+        if old_roles and not new_roles and not performer_names(merged.get("performers", [])):
+            merged["main_roles"] = old_roles
+            merged["main_roles_source"] = "list_main_roles"
+
     refresh_record_digest(merged)
     return merged
 
@@ -1050,13 +1506,17 @@ def section_added_removed(title, added, removed):
     removed = uniq_text(removed, key_func=lambda x: title_key(x))
     if not added and not removed:
         return ""
+
     parts = [title, ""]
     if added:
         parts += [f"{EMOJI_ADDED} Добавлено:"] + added + [""]
+
     if removed:
         parts += [f"{EMOJI_REMOVED} Удалено:"] + removed + [""]
+
     while parts and parts[-1] == "":
         parts.pop()
+
     return "\n".join(parts)
 
 
@@ -1069,23 +1529,37 @@ def before_after(title, old, new):
 
 
 def format_new(record):
-    parts = [source_line(record), f"{EMOJI_NEW} Новое событие", "", f"Название: {record.get('title', 'Без названия')}"]
+    parts = [
+        source_line(record),
+        display_title(record),
+        f"{EMOJI_NEW} Новое событие",
+    ]
+
     dt = date_line(record)
     if dt:
         parts.append(dt)
+
     if record.get("main_roles"):
         parts += ["", "В главных партиях:"] + list(record.get("main_roles", []))
+
     if record.get("performers"):
         parts += ["", "Исполнители:"] + list(record.get("performers", [])[:12])
+
     parts += ["", f"Ссылка: {record.get('url', '')}"]
     return "\n".join(parts).strip()
 
 
 def format_removed(record):
-    parts = [source_line(record), f"{EMOJI_REMOVED} Событие исчезло", "", f"Название: {record.get('title', 'Без названия')}"]
+    parts = [
+        source_line(record),
+        display_title(record),
+        f"{EMOJI_REMOVED} Событие исчезло",
+    ]
+
     dt = date_line(record)
     if dt:
         parts.append(dt)
+
     parts += ["", f"Ссылка: {record.get('url', '')}"]
     return "\n".join(parts).strip()
 
@@ -1100,7 +1574,8 @@ def is_mariinsky_url_time_guess(record):
 
 def is_parser_time_correction(old, new):
     return (
-        old.get("source") == "mariinsky" and new.get("source") == "mariinsky"
+        old.get("source") == "mariinsky"
+        and new.get("source") == "mariinsky"
         and clean(old.get("title", "")) == clean(new.get("title", ""))
         and clean(old.get("venue", "")) == clean(new.get("venue", ""))
         and clean(old.get("date_text", "")) == clean(new.get("date_text", ""))
@@ -1114,72 +1589,140 @@ def allow_performer_removals(old, new):
     new_src = normalize_source(new.get("performers_source", "detail_section" if new.get("performers") else "none"))
     old_count = len(old.get("performers", []) or [])
     new_count = len(new.get("performers", []) or [])
+
     if old_src == "detail_section" and new_src == "detail_section" and new_count >= max(1, old_count // 2):
         return True
+
     return False
 
 
 def allow_main_role_removals(old, new):
     old_roles = old.get("main_roles", []) or []
     new_roles = new.get("main_roles", []) or []
+
     if not old_roles:
         return False
+
     if new_roles:
         return True
+
     if performer_names(new.get("performers", []) or []):
         return False
+
     return False
+
+
+def is_title_replacement(old, new):
+    return title_key(old.get("title", "")) != title_key(new.get("title", ""))
+
+
+def format_replacement(old, new):
+    old_title = display_title(old)
+    new_title = display_title(new)
+
+    parts = [
+        source_line(new),
+        f"{old_title} → {new_title}",
+    ]
+
+    dt = date_line(new)
+    if dt:
+        parts.append(dt)
+
+    parts += [
+        "",
+        "Замена спектакля:",
+        "",
+        f"{EMOJI_REMOVED} Было:",
+        old_title,
+        "",
+        f"{EMOJI_ADDED} Стало:",
+        new_title,
+        "",
+        f"Ссылка: {new.get('url', '')}",
+    ]
+
+    return "\n".join(parts).strip()
 
 
 def change_sections(old, new):
     sections = []
-    title_change = before_after("Изменение названия:", old.get("title", ""), new.get("title", ""))
-    if title_change:
-        sections.append(title_change)
+
     if not is_parser_time_correction(old, new):
         date_time_change = before_after("Изменение даты / времени:", date_line(old), date_line(new))
         if date_time_change:
             sections.append(date_time_change)
+
     venue_change = before_after("Изменение площадки:", source_line(old), source_line(new))
     if venue_change:
         sections.append(venue_change)
 
-    perf_added, perf_removed = normalized_set_diff(old.get("performers", []), new.get("performers", []), performer_compare_key)
+    perf_added, perf_removed = normalized_set_diff(
+        old.get("performers", []),
+        new.get("performers", []),
+        performer_compare_key,
+    )
     if perf_removed and not allow_performer_removals(old, new):
         perf_removed = []
+
     perf_section = section_added_removed("Изменение в составе:", perf_added, perf_removed)
     if perf_section:
         sections.append(perf_section)
 
     old_names = performer_names(old.get("performers", []) or [])
     new_names = performer_names(new.get("performers", []) or [])
+
     old_roles = [x for x in old.get("main_roles", []) or [] if title_key(strip_voice_note(x)) not in new_names]
     new_roles = [x for x in new.get("main_roles", []) or [] if title_key(strip_voice_note(x)) not in old_names]
-    role_added, role_removed = normalized_set_diff(old_roles, new_roles, lambda x: title_key(strip_voice_note(x)))
+
+    role_added, role_removed = normalized_set_diff(
+        old_roles,
+        new_roles,
+        lambda x: title_key(strip_voice_note(x)),
+    )
     if role_removed and not allow_main_role_removals(old, new):
         role_removed = []
+
     role_section = section_added_removed("Изменение в главных партиях:", role_added, role_removed)
     if role_section:
         sections.append(role_section)
 
-    prog_added, prog_removed = normalized_set_diff(old.get("program", []), new.get("program", []), lambda x: title_key(x))
+    prog_added, prog_removed = normalized_set_diff(
+        old.get("program", []),
+        new.get("program", []),
+        lambda x: title_key(x),
+    )
+
     prog_section = section_added_removed("Изменение в программе:", prog_added, prog_removed)
     if prog_section:
         sections.append(prog_section)
+
     return sections
 
 
 def format_changed(old, new):
+    if is_title_replacement(old, new):
+        return format_replacement(old, new)
+
     sections = change_sections(old, new)
     if not sections:
         return ""
-    parts = [source_line(new), "", f"Название: {new.get('title', 'Без названия')}"]
+
+    parts = [
+        source_line(new),
+        display_title(new),
+    ]
+
     dt = date_line(new)
     if dt:
         parts.append(dt)
+
+    parts.append("")
     parts.append(sections[0])
+
     for section in sections[1:]:
         parts += ["", section]
+
     parts += ["", f"Ссылка: {new.get('url', '')}"]
     return "\n".join(parts).strip()
 
@@ -1198,8 +1741,10 @@ def default_state():
 
 def is_false_venue_pending_message(text):
     text = str(text or "")
+
     if "Изменение площадки:" not in text:
         return False
+
     other_sections = [
         "Изменение в составе:",
         "Изменение в главных партиях:",
@@ -1208,21 +1753,27 @@ def is_false_venue_pending_message(text):
         "Изменение в программе:",
         "Событие исчезло",
         "Новое событие",
+        "Замена спектакля",
     ]
+
     if any(section in text for section in other_sections):
         return False
+
     url_match = re.search(
         r"https?://(?:www\.)?mariinsky\.ru/playbill/playbill/\d{4}/\d{1,2}/\d{1,2}/\d+_\d{4}/",
         text,
     )
     if not url_match:
         return False
+
     expected_venue = venue_from_mariinsky_url(url_match.group(0))
     if not expected_venue:
         return False
+
     new_match = re.search(r"✅ Стало:\s*\n\s*𝄞\s*([^\n\r]+)", text)
     if not new_match:
         return False
+
     new_venue = clean(new_match.group(1))
     return title_key(new_venue) != title_key(expected_venue)
 
@@ -1230,44 +1781,55 @@ def is_false_venue_pending_message(text):
 def sanitize_pending_messages(messages):
     out = []
     seen = set()
+
     for msg in messages or []:
         text = str(msg or "")
-        low = canonical_low(text)
+
         if MARIINSKY_MARK not in text:
             continue
+
         if is_false_venue_pending_message(text):
             continue
-        if "philharmonia" in low or "филармони" in low:
-            continue
+
         k = title_key(text)
         if k not in seen:
             out.append(text)
             seen.add(k)
+
     return out
 
 
 def load_state():
     if not STATE_FILE.exists():
         return None
+
     try:
         state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
     except Exception:
         return None
+
     if not isinstance(state, dict):
         return None
+
     state.setdefault("sources", {})
     state.setdefault("pending_messages", [])
     state["sources"].setdefault("mariinsky", {}).setdefault("events", {})
-    state["sources"]["mariinsky"]["events"] = sanitize_events("mariinsky", state["sources"]["mariinsky"].get("events", {}))
+    state["sources"]["mariinsky"]["events"] = sanitize_events(
+        "mariinsky",
+        state["sources"]["mariinsky"].get("events", {}),
+    )
     state["pending_messages"] = sanitize_pending_messages(state.get("pending_messages", []))
+
     return state
 
 
 def is_uninitialized_state(state):
     if not isinstance(state, dict):
         return True
+
     if state.get("app") or state.get("engine_version") or state.get("updated_at"):
         return False
+
     sources = state.get("sources", {})
     return not any(source_data.get("events") for source_data in sources.values() if isinstance(source_data, dict))
 
@@ -1278,9 +1840,11 @@ def save_state(state):
     state["schema_version"] = SCHEMA_VERSION
     state["filter_version"] = FILTER_VERSION
     state["updated_at"] = now_utc()
+
     mariinsky_events = state.get("sources", {}).get("mariinsky", {}).get("events", {})
     state["sources"] = {"mariinsky": {"events": sanitize_events("mariinsky", mariinsky_events)}}
     state["pending_messages"] = sanitize_pending_messages(state.get("pending_messages", []))
+
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
 
 
@@ -1291,63 +1855,88 @@ def save_audit(audit):
 def build_effective_new_events(old_events, new_events):
     old_events = sanitize_events("mariinsky", old_events)
     new_events = sanitize_events("mariinsky", new_events)
+
     out = {}
     for url, new in new_events.items():
         out[url] = merge_safe_record(old_events.get(url), new) if url in old_events else new
+
     return out
 
 
 def build_messages_for_source(source, old_events, new_events, seen_urls, failed_urls):
     old_events = sanitize_events(source, old_events)
     new_events = build_effective_new_events(old_events, new_events)
+
     messages = []
+
     if not old_events and new_events:
         return messages, "initial_source_baseline_no_messages", new_events
+
     matched_old = set()
     matched_new = set()
+
     for url, new in sorted(new_events.items()):
         old = old_events.get(url)
         if old is None:
             continue
+
         matched_old.add(url)
         matched_new.add(url)
+
         msg = format_changed(old, new)
         if msg:
             messages.append(msg)
-    old_unmatched = {url: rec for url, rec in old_events.items() if url not in matched_old and url not in failed_urls and url not in seen_urls and is_future_removed(rec)}
+
+    old_unmatched = {
+        url: rec
+        for url, rec in old_events.items()
+        if url not in matched_old and url not in failed_urls and url not in seen_urls and is_future_removed(rec)
+    }
     new_unmatched = {url: rec for url, rec in new_events.items() if url not in matched_new}
+
     old_by_move_key = {}
     new_by_move_key = {}
+
     for url, rec in old_unmatched.items():
         old_by_move_key.setdefault(event_move_key(rec), []).append((url, rec))
+
     for url, rec in new_unmatched.items():
         new_by_move_key.setdefault(event_move_key(rec), []).append((url, rec))
+
     for move_key in sorted(set(old_by_move_key) & set(new_by_move_key)):
         old_group = old_by_move_key[move_key]
         new_group = new_by_move_key[move_key]
+
         if len(old_group) != 1 or len(new_group) != 1:
             continue
+
         old_url, old_rec = old_group[0]
         new_url, new_rec = new_group[0]
+
         matched_old.add(old_url)
         matched_new.add(new_url)
+
         msg = format_changed(old_rec, new_rec)
         if msg:
             messages.append(msg)
+
     for url, new in sorted(new_events.items()):
         if url not in matched_new:
             messages.append(format_new(new))
+
     for url, old in sorted(old_events.items()):
         if url in matched_old or url in failed_urls or url in seen_urls:
             continue
         if is_future_removed(old):
             messages.append(format_removed(old))
+
     return messages, "", new_events
 
 
 def add_pending(state, messages):
     state.setdefault("pending_messages", [])
     state["pending_messages"] = sanitize_pending_messages(state["pending_messages"] + list(messages or []))
+
     if len(state["pending_messages"]) > PENDING_WARNING_THRESHOLD:
         print(f"WARNING: pending_messages is {len(state['pending_messages'])}, above threshold {PENDING_WARNING_THRESHOLD}.")
 
@@ -1355,8 +1944,10 @@ def add_pending(state, messages):
 def chunks(text, limit=3900):
     if len(text) <= limit:
         return [text]
+
     out = []
     cur = ""
+
     for block in text.split("\n\n"):
         nxt = block if not cur else cur + "\n\n" + block
         if len(nxt) <= limit:
@@ -1365,18 +1956,31 @@ def chunks(text, limit=3900):
             if cur:
                 out.append(cur)
             cur = block
+
     if cur:
         out.append(cur)
+
     return out
 
 
 def send_message(text):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         raise RuntimeError("Telegram secrets are missing; message was not sent.")
+
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+
     for chunk in chunks(text):
         for attempt in range(1, 5):
-            response = SESSION.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": chunk, "disable_web_page_preview": True}, timeout=30)
+            response = SESSION.post(
+                url,
+                json={
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "text": chunk,
+                    "disable_web_page_preview": True,
+                },
+                timeout=30,
+            )
+
             if response.status_code == 429:
                 try:
                     retry_after = int(response.json().get("parameters", {}).get("retry_after") or 30)
@@ -1385,6 +1989,7 @@ def send_message(text):
                 print(f"Telegram rate limit. Sleeping {retry_after} seconds before retry.")
                 time.sleep(retry_after)
                 continue
+
             try:
                 response.raise_for_status()
                 break
@@ -1399,52 +2004,77 @@ def send_message(text):
 def flush_pending(state):
     pending = state.setdefault("pending_messages", [])
     pending[:] = sanitize_pending_messages(pending)
+
     sent = 0
     while pending and sent < MAX_TELEGRAM_MESSAGES_PER_RUN:
         send_message(pending[0])
         pending.pop(0)
         sent += 1
+
         if pending and MESSAGE_SEND_DELAY_SECONDS > 0:
             time.sleep(MESSAGE_SEND_DELAY_SECONDS)
+
     return sent
 
 
 def debug_single_url(url):
     if "mariinsky.ru" not in url:
         raise ValueError("Only Mariinsky event URLs are supported in this script.")
+
     rec, item = parse_mariinsky_event(normalize_url(url), "")
-    payload = {"audit": item, "record": rec.to_state_record() if rec else None}
+    payload = {
+        "audit": item,
+        "record": rec.to_state_record() if rec else None,
+    }
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
 
 
 def main():
     if RUN_MODE not in {"dry_run", "bootstrap", "live"}:
         raise RuntimeError("RUN_MODE must be dry_run, bootstrap, or live")
+
     if DEBUG_URL:
         debug_single_url(DEBUG_URL)
         return
+
     scanned, seen_urls, failed_urls, audit = scan_all()
     save_audit(audit)
+
     old_state = load_state()
+
     if old_state is None or is_uninitialized_state(old_state):
         new_state = default_state()
         new_state["sources"]["mariinsky"]["events"] = scanned["mariinsky"]
+
         if RUN_MODE == "dry_run":
             print("DRY_RUN: no state exists. Current scan was audited but state was not created.")
             return
+
         save_state(new_state)
         print("No previous V2 state. Baseline created without Telegram messages.")
         return
+
     old_events = old_state.get("sources", {}).get("mariinsky", {}).get("events", {})
-    messages, reason, effective_new_events = build_messages_for_source("mariinsky", old_events, scanned["mariinsky"], seen_urls["mariinsky"], failed_urls["mariinsky"])
+
+    messages, reason, effective_new_events = build_messages_for_source(
+        "mariinsky",
+        old_events,
+        scanned["mariinsky"],
+        seen_urls["mariinsky"],
+        failed_urls["mariinsky"],
+    )
+
     suppressed = {}
     if reason:
         suppressed["mariinsky"] = reason
+
     messages = sanitize_pending_messages(messages)
+
     audit["would_notify_count"] = len(messages)
     audit["would_notify_preview"] = messages[:20]
     audit["suppressed"] = suppressed
     save_audit(audit)
+
     if RUN_MODE == "dry_run":
         print(f"DRY_RUN: would queue {len(messages)} messages. State was not changed.")
         if suppressed:
@@ -1453,35 +2083,47 @@ def main():
             print("--- WOULD NOTIFY ---")
             print(msg)
         return
+
     old_state.setdefault("sources", {}).setdefault("mariinsky", {})["events"] = effective_new_events
+
     if RUN_MODE == "bootstrap":
         old_state["pending_messages"] = []
         save_state(old_state)
         print(f"BOOTSTRAP: state refreshed. Pending cleared. {len(messages)} possible messages were not queued or sent.")
         return
+
     if messages:
         add_pending(old_state, messages)
         print(f"Queued messages: {len(messages)}. Pending total: {len(old_state.get('pending_messages', []))}")
     else:
         print("No repertoire-significant changes.")
+
     try:
         sent = flush_pending(old_state)
     except Exception as exc:
         print(f"Telegram send stopped: {type(exc).__name__}: {exc}")
         sent = 0
+
     save_state(old_state)
     print(f"Telegram messages sent this run: {sent}. Pending left: {len(old_state.get('pending_messages', []))}")
 
 
 def run_self_tests():
     assert SCHEMA_VERSION == 2
-    assert FILTER_VERSION == "V2.9.1-section-based-safe-parser-url-venue"
+    assert FILTER_VERSION == "V2.9.2-fail-open-opera-safe-replacement"
     assert parse_time("20:00") == "20:00"
     assert parse_time("25:99") == ""
 
-    assert infer_mariinsky_list_type("Бахчисарайский фонтан балет Бориса Асафьева") == "ballet"
     assert infer_mariinsky_list_type("Джоконда опера Амилькаре Понкьелли") == "opera"
     assert infer_mariinsky_list_type("Шостакович. Четвертая симфония Симфонический оркестр Мариинского театра") == "concert"
+    assert infer_mariinsky_list_type("Бахчисарайский фонтан балет Бориса Асафьева") == "ballet"
+
+    assert classify_event("Джоконда", ["хореография", "балет в третьем акте"], list_type="opera") == ("opera", "list_opera")
+    assert classify_event("Пиковая дама", ["хореография", "балет"], list_type="") == ("opera", "opera_title")
+    assert classify_event("Неизвестный вечер", ["что-то непонятное"], list_type="") == ("concert", "ambiguous_included")
+
+    assert is_ballet_event("Джоконда", ["хореография", "балет"], list_type="opera")[0] is False
+    assert is_ballet_event("Спящая красавица", ["балет"], list_type="ballet")[0] is True
 
     bad_section = [
         "Первое исполнение — 9 февраля 1886 года",
@@ -1507,20 +2149,39 @@ def run_self_tests():
     assert "Наннетта — Изабелла Андриасян" in perfs
     assert not any(x.startswith("Главные партии") for x in perfs)
 
-    pulenk = ["Исполнители", "Солистка – Юлия Маточкина (меццо-сопрано)", "Симфонический оркестр Мариинского театра", "Дирижер – Кристиан Кнапп"]
+    pulenk = [
+        "Исполнители",
+        "Солистка – Юлия Маточкина (меццо-сопрано)",
+        "Симфонический оркестр Мариинского театра",
+        "Дирижер – Кристиан Кнапп",
+    ]
     perfs = extract_detail_performers(pulenk)
     assert "Солистка — Юлия Маточкина (меццо—сопрано)" in perfs
     assert "Солистка" not in perfs
     assert "Дирижер — Кристиан Кнапп" in perfs
 
-    list_roles = extract_list_main_roles("Джоконда опера Амилькаре Понкьелли В главных партиях: Ирина Чурилова, Зинаида Царенко, Ахмед Агади Дирижер – Валерий Гергиев Мариинский-2")
+    list_roles = extract_list_main_roles(
+        "Джоконда опера Амилькаре Понкьелли В главных партиях: Ирина Чурилова, Зинаида Царенко, Ахмед Агади Дирижер – Валерий Гергиев Мариинский-2"
+    )
     assert list_roles == ["Ирина Чурилова", "Зинаида Царенко", "Ахмед Агади"]
-    assert extract_list_performers("Джоконда опера Амилькаре Понкьелли В главных партиях: Ирина Чурилова Дирижер – Валерий Гергиев Мариинский-2") == ["Дирижер — Валерий Гергиев"]
+
+    assert extract_list_performers(
+        "Джоконда опера Амилькаре Понкьелли В главных партиях: Ирина Чурилова Дирижер – Валерий Гергиев Мариинский-2"
+    ) == ["Дирижер — Валерий Гергиев"]
 
     old_j = {
-        "source": "mariinsky", "url": "u", "title": "Джоконда", "venue": "Мариинский-2",
-        "date_text": "4 июля 2026", "time_text": "19:00", "event_date": "2026-07-04", "event_type": "opera",
-        "performers": ["Дирижер — Валерий Гергиев"], "performers_source": "detail_section", "main_roles": [], "program": [],
+        "source": "mariinsky",
+        "url": "u",
+        "title": "Джоконда",
+        "venue": "Мариинский-2",
+        "date_text": "4 июля 2026",
+        "time_text": "19:00",
+        "event_date": "2026-07-04",
+        "event_type": "opera",
+        "performers": ["Дирижер — Валерий Гергиев"],
+        "performers_source": "detail_section",
+        "main_roles": [],
+        "program": [],
     }
     new_j = dict(old_j)
     new_j["main_roles"] = ["Ирина Чурилова", "Зинаида Царенко"]
@@ -1528,11 +2189,31 @@ def run_self_tests():
     msg = format_changed(old_j, new_j)
     assert "Изменение в главных партиях" in msg
     assert "Ирина Чурилова" in msg
+    assert "Название:" not in msg
+
+    old_repl = dict(old_j)
+    old_repl["title"] = "Пиковая дама"
+    old_repl["url"] = "https://www.mariinsky.ru/playbill/playbill/2026/7/17/2_1900/"
+    new_repl = dict(old_repl)
+    new_repl["title"] = "Джоконда"
+    repl_msg = format_changed(old_repl, new_repl)
+    assert "Пиковая дама → Джоконда" in repl_msg
+    assert "Замена спектакля" in repl_msg
+    assert "Название:" not in repl_msg
 
     old_p = {
-        "source": "mariinsky", "url": "u", "title": "Пуленк. Моноопера «Человеческий голос»", "venue": "Концертный зал",
-        "date_text": "15 июля 2026", "time_text": "19:00", "event_date": "2026-07-15", "event_type": "concert",
-        "performers": ["Солистка — Юлия Маточкина"], "performers_source": "detail_section", "main_roles": [], "program": [],
+        "source": "mariinsky",
+        "url": "u",
+        "title": "Пуленк. Моноопера «Человеческий голос»",
+        "venue": "Концертный зал",
+        "date_text": "15 июля 2026",
+        "time_text": "19:00",
+        "event_date": "2026-07-15",
+        "event_type": "concert",
+        "performers": ["Солистка — Юлия Маточкина"],
+        "performers_source": "detail_section",
+        "main_roles": [],
+        "program": [],
     }
     new_p = dict(old_p)
     new_p["performers"] = []
@@ -1540,9 +2221,16 @@ def run_self_tests():
     assert format_changed(old_p, merge_safe_record(old_p, new_p)) == ""
 
     concert = {
-        "source": "mariinsky", "url": "u", "title": "Шостакович. Четвертая симфония", "venue": "Мариинский-2",
-        "date_text": "6 июля 2026", "time_text": "20:00", "event_date": "2026-07-06", "event_type": "concert",
-        "performers": ["Симфонический оркестр Мариинского театра", "Дирижер — Валерий Гергиев"], "program": ["Симфония № 4 до минор, соч. 43"],
+        "source": "mariinsky",
+        "url": "u",
+        "title": "Шостакович. Четвертая симфония",
+        "venue": "Мариинский-2",
+        "date_text": "6 июля 2026",
+        "time_text": "20:00",
+        "event_date": "2026-07-06",
+        "event_type": "concert",
+        "performers": ["Симфонический оркестр Мариинского театра", "Дирижер — Валерий Гергиев"],
+        "program": ["Симфония № 4 до минор, соч. 43"],
     }
     assert sanitize_events("mariinsky", {"u": concert})
 
@@ -1553,19 +2241,68 @@ def run_self_tests():
 
     assert venue_from_mariinsky_url("https://www.mariinsky.ru/playbill/playbill/2026/9/5/2_1700/") == "Мариинский-2"
     assert venue_from_mariinsky_url("https://www.mariinsky.ru/playbill/playbill/2026/9/5/1_1700/") == "Мариинский театр"
-    false_venue_message = "𝄞 Мариинский театр\n\nНазвание: Парсифаль\n🔸 5 сентября 2026. 17:00\nИзменение площадки:\n\n⛔ Было:\n𝄞 Мариинский-2\n\n✅ Стало:\n𝄞 Мариинский театр\n\nСсылка: https://www.mariinsky.ru/playbill/playbill/2026/9/5/2_1700/"
+
+    false_venue_message = (
+        "𝄞 Мариинский театр\n\n"
+        "Парсифаль\n"
+        "🔸 5 сентября 2026. 17:00\n"
+        "Изменение площадки:\n\n"
+        "⛔ Было:\n"
+        "𝄞 Мариинский-2\n\n"
+        "✅ Стало:\n"
+        "𝄞 Мариинский театр\n\n"
+        "Ссылка: https://www.mariinsky.ru/playbill/playbill/2026/9/5/2_1700/"
+    )
     assert sanitize_pending_messages([false_venue_message]) == []
 
-    pending = sanitize_pending_messages(["СПб филармония, Большой зал\n🐣 Новое событие", "𝄞 Мариинский-2\n🐣 Новое событие\n\nНазвание: Тоска"])
-    assert pending == ["𝄞 Мариинский-2\n🐣 Новое событие\n\nНазвание: Тоска"]
+    pending = sanitize_pending_messages([
+        "Сторонняя площадка\n🐣 Новое событие",
+        "𝄞 Мариинский-2\nТоска\n🐣 Новое событие",
+    ])
+    assert pending == ["𝄞 Мариинский-2\nТоска\n🐣 Новое событие"]
 
     old_move = dict(concert)
-    old_move.update({"url": "old", "title": "Тоска", "event_type": "opera", "date_text": "1 августа 2026", "event_date": "2026-08-01"})
+    old_move.update({
+        "url": "old",
+        "title": "Тоска",
+        "event_type": "opera",
+        "date_text": "1 августа 2026",
+        "event_date": "2026-08-01",
+    })
     new_move = dict(old_move)
-    new_move.update({"url": "new", "date_text": "2 августа 2026", "event_date": "2026-08-02"})
-    move_messages, _, _ = build_messages_for_source("mariinsky", {"old": old_move}, {"new": new_move}, seen_urls=set(), failed_urls=set())
+    new_move.update({
+        "url": "new",
+        "date_text": "2 августа 2026",
+        "event_date": "2026-08-02",
+    })
+    move_messages, _, _ = build_messages_for_source(
+        "mariinsky",
+        {"old": old_move},
+        {"new": new_move},
+        seen_urls=set(),
+        failed_urls=set(),
+    )
     assert len(move_messages) == 1
     assert "Изменение даты / времени" in move_messages[0]
+
+    old_removed = dict(concert)
+    old_removed.update({
+        "url": "https://www.mariinsky.ru/playbill/playbill/2026/7/17/2_1900/",
+        "title": "Пиковая дама",
+        "event_type": "opera",
+        "date_text": "17 июля 2026",
+        "event_date": "2026-07-17",
+    })
+    removed_messages, _, _ = build_messages_for_source(
+        "mariinsky",
+        {old_removed["url"]: old_removed},
+        {},
+        seen_urls=set(),
+        failed_urls=set(),
+    )
+    assert len(removed_messages) == 1
+    assert "Пиковая дама" in removed_messages[0]
+    assert "Событие исчезло" in removed_messages[0]
 
     print("SELF_TEST_OK")
 
