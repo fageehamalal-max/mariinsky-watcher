@@ -1158,8 +1158,7 @@ def merge_detail_and_list_performers(detail_performers, list_performers):
         for name in item_names:
             parts = [p for p in name.split() if p]
             if parts:
-                item_last_names.add(parts[-1])
-
+                item_last_names.add(normalize_last_name_for_match(parts[-1]))
         if item_last_names and item_last_names <= detail_last_names:
             continue
 
