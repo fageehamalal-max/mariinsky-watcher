@@ -6,14 +6,14 @@ name: Mariinsky Watcher
       run_mode:
         description: "dry_run = audit only, bootstrap = baseline without Telegram, live = send Telegram notifications"
         required: false
-        default: "live"
+        default: "dry_run"
         type: choice
         options:
           - dry_run
           - bootstrap
           - live
       debug_url:
-        description: "Optional single Mariinsky or Philharmonia event URL to diagnose"
+        description: "Optional single Mariinsky event URL to diagnose"
         required: false
         default: ""
 
@@ -44,14 +44,14 @@ jobs:
         working-directory: main-repo
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements_v3.txt
 
-      - name: Validate files
+      - name: Validate V3 files
         working-directory: main-repo
         run: |
-          python -m json.tool rules.json >/dev/null
-          python -m py_compile mariinsky_filter_v2.py
-          SELF_TEST=1 RULES_FILE=rules.json python mariinsky_filter_v2.py
+          python -m py_compile mariinsky_watcher_v3.py test_mariinsky_watcher_v3.py
+          python test_mariinsky_watcher_v3.py
+          SELF_TEST=1 python mariinsky_watcher_v3.py
 
       - name: Prepare state branch
         env:
@@ -78,21 +78,20 @@ jobs:
             git push origin HEAD:theatre-watcher-state
           fi
 
-      - name: Run watcher
+      - name: Run V3 watcher
         working-directory: main-repo
         env:
-          RUN_MODE: ${{ github.event.inputs.run_mode || 'live' }}
+          RUN_MODE: ${{ github.event.inputs.run_mode || 'dry_run' }}
           DEBUG_URL: ${{ github.event.inputs.debug_url || '' }}
           STATE_FILE: ../state-repo/state.json
           AUDIT_FILE: ../state-repo/scan_audit.json
-          RULES_FILE: rules.json
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           MAX_TELEGRAM_MESSAGES_PER_RUN: "20"
           PENDING_WARNING_THRESHOLD: "500"
           MESSAGE_SEND_DELAY_SECONDS: "1.5"
           MONTHS_AHEAD: "8"
-        run: python mariinsky_filter_v2.py
+        run: python mariinsky_watcher_v3.py
 
       - name: Update heartbeat
         if: always()
