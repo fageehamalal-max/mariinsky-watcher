@@ -966,12 +966,33 @@ def performer_names(items):
     return names
 
 
+def normalize_last_name_for_match(token):
+    token = title_key(token)
+
+    if not token:
+        return ""
+
+    if token.endswith("овой") or token.endswith("евой"):
+        return token[:-2] + "а"
+
+    if token.endswith("иной"):
+        return token[:-2] + "а"
+
+    if token.endswith("ской") or token.endswith("цкой"):
+        return token[:-2] + "ая"
+
+    return token
+
+
 def performer_last_names(items):
     out = set()
+
     for name in performer_names(items):
         parts = [p for p in name.split() if p]
+
         if parts:
-            out.add(parts[-1])
+            out.add(normalize_last_name_for_match(parts[-1]))
+
     return out
 
 
