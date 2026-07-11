@@ -6,7 +6,7 @@ name: Mariinsky Watcher
       run_mode:
         description: "dry_run = audit only, bootstrap = baseline without Telegram, live = send Telegram notifications"
         required: false
-       default: "live"
+        default: "live"
         type: choice
         options:
           - dry_run
