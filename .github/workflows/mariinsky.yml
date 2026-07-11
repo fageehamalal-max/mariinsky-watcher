@@ -6,7 +6,7 @@ name: Mariinsky Watcher
       run_mode:
         description: "dry_run = audit only, bootstrap = baseline without Telegram, live = send Telegram notifications"
         required: false
-        default: "dry_run"
+       default: "live"
         type: choice
         options:
           - dry_run
@@ -81,7 +81,7 @@ jobs:
       - name: Run V3 watcher
         working-directory: main-repo
         env:
-          RUN_MODE: ${{ github.event.inputs.run_mode || 'dry_run' }}
+          RUN_MODE: ${{ github.event.inputs.run_mode || 'live' }}
           DEBUG_URL: ${{ github.event.inputs.debug_url || '' }}
           STATE_FILE: ../state-repo/state.json
           AUDIT_FILE: ../state-repo/scan_audit.json
