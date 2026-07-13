@@ -80,7 +80,7 @@ def make_soup(raw_html):
 
 APP_NAME = "Mariinsky Watcher V3"
 SCHEMA_VERSION = 3
-ENGINE_VERSION = "V3.3-complete"
+ENGINE_VERSION = "V3.5-person-emoji"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -106,11 +106,19 @@ SESSION.headers.update(
     }
 )
 
-EMOJI_NEW = "🐣"
-EMOJI_EVENT = "🎵"
-EMOJI_CANCELLED = "❌"
-EMOJI_ADDED = "✅"
-EMOJI_REMOVED = "⛔"
+EMOJI_NEW = "𝄞"
+EMOJI_EVENT = "𝄞"
+EMOJI_CANCELLED = "𝄞"
+EMOJI_ADDED = "🟢"
+EMOJI_REMOVED = "🔴"
+
+# Персональные значки добавляются только при формировании Telegram-сообщений.
+# В state.json сохраняются исходные имена без эмодзи.
+PERSON_EMOJI_RULES = [
+    (("михаил", "векуа"), "👰‍♂"),
+    (("юли", "маточкин"), "🦹🏻‍♀"),
+    (("екатерин", "семенчук"), "🧝🏼‍♀"),
+]
 
 MONTHS = {
     1: "января",
@@ -142,9 +150,9 @@ VENUE_BY_CODE = {
 # Внутренние названия площадок остаются стабильными для state.json.
 # Эта карта используется только при формировании Telegram-сообщений.
 VENUE_DISPLAY = {
-    "Мариинский театр": "⚒️Мариинский-1🪏",
-    "Мариинский-2": "🔱Мариинский-2🔱",
-    "Концертный зал": "🧱Концертный зал🧱",
+    "Мариинский театр": "Мариинский-1",
+    "Мариинский-2": "Мариинский-2",
+    "Концертный зал": "Концертный зал",
     "Камерные залы": "Камерный зал",
     "Камерный зал": "Камерный зал",
     "Зал Стравинского": "Зал Стравинского",
@@ -1071,21 +1079,18 @@ def date_line(record, is_cancelled=False):
     # Год хранится в state.json, но в Telegram не выводится.
     date_text = re.sub(r"\s+\d{4}\s*$", "", date_text)
 
-    date_symbol = "🔻" if is_cancelled else "🔷"
-    time_symbol = "🔻" if is_cancelled else "🔹"
-
     if date_text and time_text:
-        return f"{date_symbol}{date_text}{time_symbol}{time_text}"
+        return f"{date_text}▫️{time_text}"
     if date_text:
-        return f"{date_symbol}{date_text}"
+        return date_text
     if time_text:
-        return f"{time_symbol}{time_text}"
+        return f"▫️{time_text}"
     return ""
 
 
 def header_lines(record, title=None):
     title = clean(title if title is not None else record.get("title", "Без названия"))
-    lines = [venue_line(record), f"{EMOJI_EVENT}{title}"]
+    lines = [venue_line(record), f"{EMOJI_EVENT} {title}"]
     dt = date_line(record)
     if dt:
         lines.append(dt)
@@ -1098,7 +1103,7 @@ def link_line(record):
 
 def format_new(record):
     title = clean(record.get("title", "Без названия"))
-    parts = [venue_line(record), f"{EMOJI_NEW}{title}"]
+    parts = [venue_line(record), f"{EMOJI_NEW} {title}"]
     dt = date_line(record)
     if dt:
         parts.append(dt)
@@ -1108,7 +1113,7 @@ def format_new(record):
 
 def format_removed(record):
     title = clean(record.get("title", "Без названия"))
-    parts = [venue_line(record), f"{EMOJI_CANCELLED}{title}"]
+    parts = [venue_line(record), f"{EMOJI_CANCELLED} {title}"]
     dt = date_line(record, is_cancelled=True)
     if dt:
         parts.append(dt)
@@ -1146,9 +1151,33 @@ def normalized_set_diff(old_items, new_items, key_func=title_key):
     return added, removed
 
 
-def section_added_removed(title, added, removed):
+def performer_emoji_for(text):
+    normalized = key(text)
+    for stems, emoji in PERSON_EMOJI_RULES:
+        if all(stem in normalized for stem in stems):
+            return emoji
+    return ""
+
+
+def decorate_performer_line(line):
+    line = clean(line)
+    emoji = performer_emoji_for(line)
+    if not emoji or emoji in line:
+        return line
+
+    # В строке роли значок ставится непосредственно перед именем исполнителя.
+    match = re.match(r"^(.*?)(\s+[—–-]\s+)(.+)$", line)
+    if match and performer_emoji_for(match.group(3)):
+        return f"{match.group(1)}{match.group(2)}{emoji}{match.group(3)}"
+    return f"{emoji}{line}"
+
+
+def section_added_removed(title, added, removed, item_formatter=None):
     added = [x for x in added if clean(x)]
     removed = [x for x in removed if clean(x)]
+    if item_formatter is not None:
+        added = [item_formatter(x) for x in added]
+        removed = [item_formatter(x) for x in removed]
     if not added and not removed:
         return ""
     parts = [title, ""]
@@ -1179,10 +1208,18 @@ def change_sections(old, new):
             sections.append(section)
     perf_added, perf_removed = normalized_set_diff(old.get("performers", []), new.get("performers", []), person_compare_key)
     role_added, role_removed = normalized_set_diff(old.get("main_roles", []), new.get("main_roles", []), person_compare_key)
+
+    # Не показываем технический перенос одного и того же артиста между
+    # кратким списком главных партий и детальным составом как удаление.
+    perf_added_keys = {person_compare_key(item) for item in perf_added}
+    role_added_keys = {person_compare_key(item) for item in role_added}
+    role_removed = [item for item in role_removed if person_compare_key(item) not in perf_added_keys]
+    perf_removed = [item for item in perf_removed if person_compare_key(item) not in role_added_keys]
+
     prog_added, prog_removed = normalized_set_diff(old.get("program", []), new.get("program", []), title_key)
     for section in [
-        section_added_removed("Изменение в составе:", perf_added, perf_removed),
-        section_added_removed("Изменение в главных партиях:", role_added, role_removed),
+        section_added_removed("Изменение в составе:", perf_added, perf_removed, decorate_performer_line),
+        section_added_removed("Изменение в главных партиях:", role_added, role_removed, decorate_performer_line),
         section_added_removed("Изменение в программе:", prog_added, prog_removed),
     ]:
         if section:
