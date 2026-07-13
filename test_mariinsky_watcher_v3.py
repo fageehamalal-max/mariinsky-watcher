@@ -45,7 +45,7 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         new = sample_record("/playbill/playbill/2026/7/17/2_1900/", "Джоконда")
         messages = watcher.build_messages({old["url"]: old}, {new["url"]: new})
         self.assertEqual(len(messages), 1)
-        self.assertIn("🎵Пиковая дама → Джоконда", messages[0])
+        self.assertIn("𝄞 Пиковая дама → Джоконда", messages[0])
         self.assertIn("Замена спектакля", messages[0])
 
     def test_venue_code_two_is_mariinsky_two(self):
@@ -121,9 +121,9 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertNotIn("Название:", message)
         self.assertNotIn("Новое событие", message)
         lines = message.splitlines()
-        self.assertEqual(lines[0], "🔱Мариинский-2🔱")
-        self.assertEqual(lines[1], "🐣Турандот")
-        self.assertEqual(lines[2], "🔷31 июля🔹19:00")
+        self.assertEqual(lines[0], "Мариинский-2")
+        self.assertEqual(lines[1], "𝄞 Турандот")
+        self.assertEqual(lines[2], "31 июля▫️19:00")
         self.assertIn("ℹ️ https://www.mariinsky.ru/", message)
         self.assertNotIn("Ссылка:", message)
 
@@ -144,8 +144,8 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         message = watcher.format_new(record)
         lines = message.splitlines()
         self.assertEqual(lines[0], "Зал Стравинского")
-        self.assertEqual(lines[1], "🐣Песни рек: звуки Янцзы и Невы")
-        self.assertEqual(lines[2], "🔷22 июля🔹19:00")
+        self.assertEqual(lines[1], "𝄞 Песни рек: звуки Янцзы и Невы")
+        self.assertEqual(lines[2], "22 июля▫️19:00")
         self.assertIn("ℹ️ https://www.mariinsky.ru/", message)
         self.assertNotIn("Ссылка:", message)
 
@@ -153,10 +153,64 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         record = sample_record()
         message = watcher.format_removed(record)
         lines = message.splitlines()
-        self.assertEqual(lines[0], "🔱Мариинский-2🔱")
-        self.assertEqual(lines[1], "❌Турандот")
-        self.assertEqual(lines[2], "🔻31 июля🔻19:00")
+        self.assertEqual(lines[0], "Мариинский-2")
+        self.assertEqual(lines[1], "𝄞 Турандот")
+        self.assertEqual(lines[2], "31 июля▫️19:00")
         self.assertNotIn("Событие исчезло", message)
+
+    def test_cross_section_transfer_is_not_reported_as_removal(self):
+        old = sample_record(
+            "/playbill/playbill/2026/7/18/3_1900/",
+            "Травиата",
+            performers=["Виолетта Валери — Инара Козловская"],
+        )
+        old["main_roles"] = ["Екатерина Гончарова"]
+        old["main_roles_source"] = "list_main_roles"
+        old = watcher.with_digest(old)
+
+        new = sample_record(
+            "/playbill/playbill/2026/7/18/3_1900/",
+            "Травиата",
+            performers=["Виолетта Валери — Екатерина Гончарова"],
+        )
+
+        message = watcher.build_messages({old["url"]: old}, {new["url"]: new})[0]
+        self.assertIn("Виолетта Валери — Екатерина Гончарова", message)
+        self.assertIn("Виолетта Валери — Инара Козловская", message)
+        self.assertNotIn("Изменение в главных партиях", message)
+        self.assertNotIn("🔴 Удалено:\nЕкатерина Гончарова", message)
+
+    def test_change_markers_and_personal_performer_emojis(self):
+        old = sample_record(
+            "/playbill/playbill/2026/7/18/3_1900/",
+            "Травиата",
+            performers=[
+                "Виолетта Валери — Инара Козловская",
+                "Маддалена — Юлия Маточкина",
+            ],
+        )
+        new = sample_record(
+            "/playbill/playbill/2026/7/18/3_1900/",
+            "Травиата",
+            performers=[
+                "Виолетта Валери — Михаил Векуа",
+                "Любаша — Екатерина Семенчук",
+            ],
+        )
+
+        message = watcher.build_messages({old["url"]: old}, {new["url"]: new})[0]
+        self.assertIn("🟢 Добавлено:", message)
+        self.assertIn("🔴 Удалено:", message)
+        self.assertIn("Виолетта Валери — 👰‍♂Михаил Векуа", message)
+        self.assertIn("Любаша — 🧝🏼‍♀Екатерина Семенчук", message)
+        self.assertIn("Маддалена — 🦹🏻‍♀Юлия Маточкина", message)
+        self.assertNotIn("✅ Добавлено:", message)
+        self.assertNotIn("⛔ Удалено:", message)
+
+    def test_personal_emoji_matches_surname_first_order(self):
+        self.assertEqual(watcher.decorate_performer_line("Векуа Михаил"), "👰‍♂Векуа Михаил")
+        self.assertEqual(watcher.decorate_performer_line("Маточкина Юлия"), "🦹🏻‍♀Маточкина Юлия")
+        self.assertEqual(watcher.decorate_performer_line("Семенчук Екатерина"), "🧝🏼‍♀Семенчук Екатерина")
 
     def test_cancelled_event_is_detected_and_formatted(self):
         cancelled, source = watcher.detect_cancellation(
@@ -174,8 +228,8 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         new = watcher.with_digest(new)
         messages = watcher.build_messages({old["url"]: old}, {new["url"]: new})
         self.assertEqual(len(messages), 1)
-        self.assertIn("❌Турандот", messages[0])
-        self.assertIn("🔻31 июля🔻19:00", messages[0])
+        self.assertIn("𝄞 Турандот", messages[0])
+        self.assertIn("31 июля▫️19:00", messages[0])
 
     def test_dry_run_does_not_mutate_state_or_send_telegram(self):
         old = sample_record(title="Турандот")
