@@ -18,8 +18,8 @@ name: Mariinsky Watcher
         default: ""
 
 concurrency:
-  group: mariinsky-watcher
-  cancel-in-progress: false
+  group: mariinsky-watcher-v3
+  cancel-in-progress: true
 
 permissions:
   contents: write
