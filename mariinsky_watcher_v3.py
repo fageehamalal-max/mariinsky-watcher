@@ -80,7 +80,7 @@ def make_soup(raw_html):
 
 APP_NAME = "Mariinsky Watcher V3"
 SCHEMA_VERSION = 3
-ENGINE_VERSION = "V3.5-person-emoji"
+ENGINE_VERSION = "V3.6-strict-parser"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -314,6 +314,9 @@ PRODUCTION_CREDIT_WORDS = [
     "костюмы",
     "свет",
     "либретто",
+    "композитор",
+    "аранжировка",
+    "автор музыки",
 ]
 HISTORY_OR_DESCRIPTION_STARTS = [
     "первое исполнение",
@@ -323,6 +326,75 @@ HISTORY_OR_DESCRIPTION_STARTS = [
     "описание спектакля",
     "краткое содержание",
     "смешанный хор и четыре солиста",
+]
+
+# Биографические и аннотационные фразы никогда не считаются составом или программой.
+BIOGRAPHY_MARKERS = [
+    "лауреат",
+    "родился",
+    "родилась",
+    "родом из",
+    "окончил",
+    "окончила",
+    "обучался",
+    "обучалась",
+    "учился",
+    "училась",
+    "студент",
+    "студентка",
+    "в настоящее время",
+    "был приглашен",
+    "была приглашена",
+    "приглашенный артист",
+    "приглашенная артистка",
+    "состоит в труппе",
+    "солистка театра",
+    "солист театра",
+    "в репертуаре",
+    "удостоен",
+    "удостоена",
+    "премия",
+    "конкурс",
+    "консерватори",
+    "училищ",
+    "академи",
+    "институт",
+    "кафедр",
+    "мастерская",
+    "член союза",
+    "выступал",
+    "выступала",
+]
+
+NAME_PARTICLES = {"де", "да", "ди", "дель", "ла", "ле", "фон", "ван", "дер", "аль", "ибн"}
+MAX_PERFORMER_LINE_LENGTH = 140
+MAX_PROGRAM_LINE_LENGTH = 180
+PROGRAM_PROSE_MARKERS = [
+    "написал",
+    "написала",
+    "создал",
+    "создала",
+    "сочинил",
+    "сочинила",
+    "посвятил",
+    "посвятила",
+    "работал",
+    "работала",
+    "впервые",
+    "звучит",
+    "исполняется",
+    "исполнял",
+    "исполняла",
+    "длится",
+    "содержит",
+    "состоит",
+    "представляет",
+    "является",
+    "рассказывает",
+    "описывает",
+    "напоминает",
+    "соединяет",
+    "использует",
 ]
 ENSEMBLE_MARKERS = [
     "Хор Мариинского театра",
@@ -699,28 +771,128 @@ def is_history_or_description(line):
     return any(low.startswith(start) for start in HISTORY_OR_DESCRIPTION_STARTS)
 
 
-def is_role_line(line):
-    line = normalize_dash(line)
-    if "—" not in line or is_history_or_description(line):
-        return False
-    left, right = [clean(x) for x in line.split("—", 1)]
-    if not left or not right:
-        return False
-    low_left = key(left)
-    if any(word in low_left for word in PRODUCTION_CREDIT_WORDS):
-        return False
-    if any(word in low_left for word in ROLE_WORDS):
+def contains_biography_marker(line):
+    low = key(line)
+    return any(marker in low for marker in BIOGRAPHY_MARKERS)
+
+
+def looks_like_annotation(line, max_length=MAX_PERFORMER_LINE_LENGTH):
+    text = clean(line)
+    if not text:
         return True
-    # Opera roles often have custom character names rather than generic role words.
-    return bool(re.fullmatch(r"[А-ЯЁA-Z][А-Яа-яЁёA-Za-z0-9 .,'-]{1,45}", left)) and looks_like_person_or_ensemble(right)
+    if len(text) > max_length or contains_biography_marker(text):
+        return True
+    if len(text.split()) > 18:
+        return True
+    if len(re.findall(r"[.!?](?:\s|$)", text)) >= 2:
+        return True
+    return False
+
+
+def _strip_person_qualifiers(text):
+    text = clean(text)
+    text = re.sub(r"\s*\((?:[^()]|\([^()]*\))*\)\s*$", "", text)
+    return clean(text.strip(" ,;:"))
+
+
+def looks_like_person_name(text):
+    text = _strip_person_qualifiers(text)
+    if not text or len(text) > 80 or contains_biography_marker(text):
+        return False
+    if re.search(r"\d|[.!?;:]", text):
+        return False
+    words = [word for word in re.split(r"\s+", text) if word]
+    if not 2 <= len(words) <= 5:
+        return False
+    name_words = 0
+    for word in words:
+        bare = word.strip(",")
+        if key(bare) in NAME_PARTICLES:
+            continue
+        if not re.fullmatch(r"[А-ЯЁA-Z][А-Яа-яЁёA-Za-z'’.-]*", bare):
+            return False
+        name_words += 1
+    return name_words >= 2
+
+
+def looks_like_person_list(text):
+    text = clean(text)
+    if looks_like_person_name(text):
+        return True
+    parts = [clean(part) for part in re.split(r"\s*(?:,|;|\s+и\s+)\s*", text) if clean(part)]
+    return 2 <= len(parts) <= 4 and all(looks_like_person_name(part) for part in parts)
+
+
+def looks_like_role_label(text):
+    text = clean(text).strip("–—- ")
+    if not text or len(text) > 70 or contains_biography_marker(text):
+        return False
+    if re.search(r"\d|[.!?;:]", text) or len(text.split()) > 8:
+        return False
+    low = key(text)
+    if any(word in low for word in PRODUCTION_CREDIT_WORDS):
+        return False
+    if any(word in low for word in ROLE_WORDS):
+        return True
+    return bool(re.fullmatch(r"[А-ЯЁA-Z][А-Яа-яЁёA-Za-z0-9 .,'’()-]{0,68}", text))
+
+
+def sanitize_performer_line(line):
+    line = normalize_dash(line).strip("–—- ")
+    if not line or is_history_or_description(line):
+        return ""
+
+    # Допустимые компактные варианты без тире: "Имя Фамилия, сопрано"
+    # и "Имя Фамилия (сопрано)". Любой последующий биографический текст отсекается.
+    if "—" not in line:
+        comma_parts = [clean(part) for part in line.split(",") if clean(part)]
+        if len(comma_parts) >= 2 and looks_like_person_name(comma_parts[0]) and looks_like_role_label(comma_parts[1]):
+            return f"{comma_parts[0]} — {comma_parts[1]}"
+        parenthetical = re.fullmatch(r"(.+?)\s*\(([^()]+)\)", line)
+        if parenthetical:
+            person, role = [clean(part) for part in parenthetical.groups()]
+            if looks_like_person_name(person) and looks_like_role_label(role):
+                return f"{person} — {role}"
+        return ""
+
+    if looks_like_annotation(line):
+        # Если рядом с биографией всё же есть точная пара "роль — Имя Фамилия"
+        # или "Имя Фамилия — голос", сохраняем только эту короткую пару.
+        first_left, first_right = [clean(x) for x in line.split("—", 1)]
+        short_right = clean(first_right.split(",", 1)[0])
+        if looks_like_role_label(first_left) and looks_like_person_name(short_right):
+            return f"{first_left} — {short_right}"
+        if looks_like_person_name(first_left) and looks_like_role_label(short_right):
+            return f"{first_left} — {short_right}"
+        return ""
+
+    dash_parts = [clean(part) for part in line.split("—")]
+    for index in range(1, len(dash_parts)):
+        left = clean(" — ".join(dash_parts[:index]))
+        right = clean(" — ".join(dash_parts[index:]))
+        right_short = clean(right.split(",", 1)[0])
+        left_short = clean(left.split(",", 1)[0])
+
+        if looks_like_role_label(left) and looks_like_person_or_ensemble(right):
+            return f"{left} — {right}"
+        if looks_like_role_label(left) and looks_like_person_name(right_short):
+            return f"{left} — {right_short}"
+        if looks_like_person_name(left) and looks_like_role_label(right_short):
+            return f"{left} — {right_short}"
+        if looks_like_person_name(left_short) and looks_like_role_label(right):
+            return f"{left_short} — {right}"
+    return ""
+
+
+def is_role_line(line):
+    return bool(sanitize_performer_line(line))
 
 
 def looks_like_person_or_ensemble(line):
-    if any(marker in line for marker in ENSEMBLE_MARKERS):
-        return True
-    words = [w for w in re.split(r"\s+", clean(line)) if w]
-    capitals = [w for w in words if re.match(r"^[А-ЯЁA-Z]", w)]
-    return len(capitals) >= 1 and len(clean(line)) <= 120
+    text = clean(line)
+    if any(marker == text or marker in text for marker in ENSEMBLE_MARKERS):
+        return len(text) <= 120 and not contains_biography_marker(text)
+    return looks_like_person_list(text)
 
 
 def is_ensemble_line(line):
@@ -787,14 +959,20 @@ def extract_performers_from_lines(lines):
     for line in lines:
         if is_history_or_description(line):
             continue
+        performer_line = sanitize_performer_line(line)
+        if performer_line:
+            role_lines.append(performer_line)
+            continue
+        if contains_biography_marker(line):
+            continue
         low = key(line)
         if low.startswith("при участии"):
-            participants.extend(split_participation(line))
+            participants.extend([name for name in split_participation(line) if looks_like_person_name(name)])
             continue
-        if is_role_line(line):
-            role_lines.append(normalize_dash(line))
+        if looks_like_person_name(line):
+            participants.append(clean(line))
             continue
-        if is_ensemble_line(line) and len(line) < 150:
+        if is_ensemble_line(line) and len(line) < 150 and not looks_like_annotation(line):
             ensembles.append(clean(line))
     performer_keys = {person_compare_key(line) for line in role_lines}
     participants = [p for p in participants if person_compare_key(p) not in performer_keys]
@@ -815,30 +993,74 @@ def extract_list_performers(list_text):
         lines.append(normalize_dash(m.group(1)))
     for m in re.finditer(r"При участии\s+(.+?)(?:Мариинский|Концертный зал|$)", list_text, re.I):
         lines.extend(split_participation("При участии " + m.group(1)))
-    return dedupe_preserve_order(lines, person_compare_key)
+
+    clean_lines = []
+    for line in lines:
+        performer_line = sanitize_performer_line(line)
+        if performer_line:
+            clean_lines.append(performer_line)
+        elif looks_like_person_name(line):
+            clean_lines.append(clean(line))
+    return dedupe_preserve_order(clean_lines, person_compare_key)
 
 
 def has_composer(line):
     return any(key(composer) in key(line) for composer in COMPOSERS)
 
 
-def is_program_line(line, title=""):
-    if is_role_line(line) or is_ensemble_line(line) or is_history_or_description(line):
+def looks_like_composer_name_line(line):
+    text = clean(line).strip("–—- ")
+    if not text or len(text) > 80 or re.search(r"\d|[.!?;:,]", text):
         return False
-    low = key(line)
+    low = key(text)
+    if not has_composer(text):
+        return False
+    words = [word for word in text.split() if word]
+    if not 1 <= len(words) <= 5:
+        return False
+    for word in words:
+        if key(word) in NAME_PARTICLES:
+            continue
+        if not re.fullmatch(r"[А-ЯЁA-Z][А-Яа-яЁёA-Za-z'’.-]*", word):
+            return False
+    return any(low == key(composer) or low.endswith(" " + key(composer)) for composer in COMPOSERS)
+
+
+def is_program_line(line, title=""):
+    line = clean(line).strip("–—- ")
+    if not line or is_role_line(line) or is_ensemble_line(line) or is_history_or_description(line):
+        return False
     if title_key(line) == title_key(title):
         return False
-    return has_composer(line) or any(word in low for word in PROGRAM_WORDS)
+    if len(line) > MAX_PROGRAM_LINE_LENGTH or len(line.split()) > 20:
+        return False
+    if contains_biography_marker(line):
+        return False
+    if len(re.findall(r"[.!?](?:\s|$)", line)) >= 2:
+        return False
+    low = key(line)
+    if any(marker in low for marker in PROGRAM_PROSE_MARKERS):
+        return False
+    if looks_like_composer_name_line(line):
+        return True
+    if looks_like_role_label(line) and any(marker_in_text(low, word) for word in ROLE_WORDS):
+        return False
+    return any(word in low for word in PROGRAM_WORDS)
 
 
 def extract_program_and_performers(lines, title=""):
     program = []
     performers = []
     for line in merge_broken_role_lines(lines):
-        if is_role_line(line) or is_ensemble_line(line):
-            performers.append(normalize_dash(line))
+        performer_line = sanitize_performer_line(line)
+        if performer_line:
+            performers.append(performer_line)
+        elif is_ensemble_line(line) and not looks_like_annotation(line):
+            performers.append(clean(line))
+        elif looks_like_person_name(line) and not has_composer(line):
+            performers.append(clean(line))
         elif is_program_line(line, title):
-            program.append(clean(line))
+            program.append(clean(line).strip("–—- "))
     return dedupe_preserve_order(program), dedupe_preserve_order(performers, person_compare_key)
 
 
@@ -968,10 +1190,15 @@ def parse_mariinsky_event(url, list_text="", list_type="", html=None):
     detail_performers = extract_performers_from_lines(performer_section)
     program, program_performers = extract_program_and_performers(program_section, title)
     list_performers = extract_list_performers(list_text)
-    performers = dedupe_preserve_order(detail_performers + program_performers + list_performers, person_compare_key)
+    performers = filter_stored_items(
+        detail_performers + program_performers + list_performers,
+        normalize_stored_performer_item,
+        person_compare_key,
+    )
     performers_source = "detail_section" if detail_performers else "program_adjacent" if program_performers else "list_card" if list_performers else "none"
 
-    main_roles = extract_list_main_roles(list_text)
+    program = filter_stored_items(program, normalize_stored_program_item, title_key)
+    main_roles = filter_stored_items(extract_list_main_roles(list_text), normalize_stored_performer_item, person_compare_key)
     role_keys = {person_compare_key(line) for line in performers}
     main_roles = [role for role in main_roles if person_compare_key(role) not in role_keys]
     main_roles_source = "list_main_roles" if main_roles else "none"
@@ -1143,6 +1370,30 @@ def format_replacement(old, new):
     return "\n".join(parts).strip()
 
 
+def normalize_stored_performer_item(item):
+    text = clean(item)
+    if not text:
+        return ""
+    performer_line = sanitize_performer_line(text)
+    if performer_line:
+        return performer_line
+    if looks_like_person_name(text):
+        return text
+    if is_ensemble_line(text) and not looks_like_annotation(text):
+        return text
+    return ""
+
+
+def normalize_stored_program_item(item):
+    text = clean(item).strip("–—- ")
+    return text if is_program_line(text) else ""
+
+
+def filter_stored_items(items, normalizer, key_func=title_key):
+    normalized = [normalizer(item) for item in items or []]
+    return dedupe_preserve_order([item for item in normalized if item], key_func)
+
+
 def normalized_set_diff(old_items, new_items, key_func=title_key):
     old_map = {key_func(item): clean(item) for item in old_items or [] if clean(item)}
     new_map = {key_func(item): clean(item) for item in new_items or [] if clean(item)}
@@ -1206,8 +1457,13 @@ def change_sections(old, new):
     ]:
         if section:
             sections.append(section)
-    perf_added, perf_removed = normalized_set_diff(old.get("performers", []), new.get("performers", []), person_compare_key)
-    role_added, role_removed = normalized_set_diff(old.get("main_roles", []), new.get("main_roles", []), person_compare_key)
+    old_performers = filter_stored_items(old.get("performers", []), normalize_stored_performer_item, person_compare_key)
+    new_performers = filter_stored_items(new.get("performers", []), normalize_stored_performer_item, person_compare_key)
+    old_main_roles = filter_stored_items(old.get("main_roles", []), normalize_stored_performer_item, person_compare_key)
+    new_main_roles = filter_stored_items(new.get("main_roles", []), normalize_stored_performer_item, person_compare_key)
+
+    perf_added, perf_removed = normalized_set_diff(old_performers, new_performers, person_compare_key)
+    role_added, role_removed = normalized_set_diff(old_main_roles, new_main_roles, person_compare_key)
 
     # Не показываем технический перенос одного и того же артиста между
     # кратким списком главных партий и детальным составом как удаление.
@@ -1216,7 +1472,9 @@ def change_sections(old, new):
     role_removed = [item for item in role_removed if person_compare_key(item) not in perf_added_keys]
     perf_removed = [item for item in perf_removed if person_compare_key(item) not in role_added_keys]
 
-    prog_added, prog_removed = normalized_set_diff(old.get("program", []), new.get("program", []), title_key)
+    old_program = filter_stored_items(old.get("program", []), normalize_stored_program_item, title_key)
+    new_program = filter_stored_items(new.get("program", []), normalize_stored_program_item, title_key)
+    prog_added, prog_removed = normalized_set_diff(old_program, new_program, title_key)
     for section in [
         section_added_removed("Изменение в составе:", perf_added, perf_removed, decorate_performer_line),
         section_added_removed("Изменение в главных партиях:", role_added, role_removed, decorate_performer_line),
