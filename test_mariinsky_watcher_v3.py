@@ -414,6 +414,270 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
 
 
 
+    def test_voice_and_role_require_a_real_person_name(self):
+        valid = [
+            "Сопрано — Мария Пайманова",
+            "Мария Пайманова — сопрано",
+            "Меццо-сопрано — Юлия Маточкина",
+            "Тенор — Михаил Векуа",
+            "Виолетта Валери — Екатерина Гончарова",
+            "Дирижер — Валерий Гергиев",
+        ]
+        invalid = [
+            "– сопрано, лауреат международных конкурсов. Родилась в Ленинграде.",
+            "сопрано — лауреат международных конкурсов",
+            "меццо-сопрано — в настоящее время студентка консерватории",
+            "тенор — выступал в Большом зале филармонии",
+            "баритон — удостоен первой премии конкурса",
+        ]
+        for line in valid:
+            with self.subTest(line=line):
+                self.assertTrue(watcher.is_role_line(line))
+        for line in invalid:
+            with self.subTest(line=line):
+                self.assertFalse(watcher.is_role_line(line))
+
+    def test_named_voice_line_is_trimmed_before_biography(self):
+        line = "Мария Пайманова — сопрано, лауреат международных конкурсов. Родилась в Орле."
+        self.assertEqual(watcher.sanitize_performer_line(line), "Мария Пайманова — сопрано")
+        self.assertEqual(watcher.extract_performers_from_lines([line]), ["Мария Пайманова — сопрано"])
+
+    def test_exact_user_beard_is_rejected_from_cast_and_program(self):
+        beard = [
+            "– сопрано, лауреат международных конкурсов. Родилась в Ленинграде. Окончила музыкальную школу по классу виолончели, а в 2003 году — с отличием — Санкт-Петербургскую государственную академию театрального искусства по специальности «артист музыкального театра».",
+            "– сопрано, лауреат международных конкурсов. Родилась в Орле. Обучалась в московском Музыкальном училище им. Гнесиных. В настоящее время — студентка Санкт-Петербургской государственной консерватории.",
+            "– меццо-сопрано, лауреат международных конкурсов. Родилась в Китае. В 2026 году окончила ассистентуру-стажировку Санкт-Петербургской государственной консерватории.",
+            "– пианистка, лауреат международных и всероссийских конкурсов. Ведущий концертмейстер Санкт-Петербургской государственной консерватории. Доцент кафедры концертмейстерского мастерства.",
+        ]
+        self.assertEqual(watcher.extract_performers_from_lines(beard), [])
+        program, performers = watcher.extract_program_and_performers(beard, "Песни рек: звуки Янцзы и Невы")
+        self.assertEqual(program, [])
+        self.assertEqual(performers, [])
+
+    def test_cold_annotation_corpus_never_becomes_cast_or_program(self):
+        openings = [
+            "Родилась в Санкт-Петербурге",
+            "Окончил Московскую государственную консерваторию",
+            "Лауреат международных конкурсов",
+            "В настоящее время студентка консерватории",
+            "Удостоена первой премии международного конкурса",
+            "В репертуаре концертных программ произведения русских композиторов",
+            "Выступала в Большом зале Санкт-Петербургской филармонии",
+            "Член Союза концертных деятелей Санкт-Петербурга",
+        ]
+        tails = [
+            "С 2020 года — солистка театра.",
+            "В 2026 году окончила ассистентуру-стажировку.",
+            "Обучалась в классе профессора Ольги Кондиной.",
+            "Принимала участие в фестивалях и конкурсах.",
+        ]
+        corpus = [f"{opening}. {tail}" for opening in openings for tail in tails]
+        for line in corpus:
+            with self.subTest(line=line):
+                self.assertFalse(watcher.is_role_line(line))
+                self.assertFalse(watcher.is_program_line(line, "Тестовый концерт"))
+        self.assertEqual(watcher.extract_performers_from_lines(corpus), [])
+        program, performers = watcher.extract_program_and_performers(corpus, "Тестовый концерт")
+        self.assertEqual(program, [])
+        self.assertEqual(performers, [])
+
+    def test_program_keeps_only_composers_and_work_titles(self):
+        lines = [
+            "Вольфганг Амадей Моцарт",
+            "Концерт № 2 для фортепиано с оркестром",
+            "Петр Чайковский",
+            "Сюита из балета «Щелкунчик»",
+            "В репертуаре концертных программ Марии Паймановой — произведения зарубежных и русских композиторов.",
+            "Лауреат международного конкурса выступала в Большом зале филармонии.",
+        ]
+        program, performers = watcher.extract_program_and_performers(lines, "Гала-концерт")
+        self.assertEqual(
+            program,
+            [
+                "Вольфганг Амадей Моцарт",
+                "Концерт № 2 для фортепиано с оркестром",
+                "Петр Чайковский",
+                "Сюита из балета «Щелкунчик»",
+            ],
+        )
+        self.assertEqual(performers, [])
+
+    def test_full_parser_filters_biographies_but_keeps_named_cast(self):
+        html = """
+        <html><body>
+        <div>22 июля 2026</div>
+        <div>19:00</div>
+        <h1>Песни рек: звуки Янцзы и Невы</h1>
+        <h2>Исполнители</h2>
+        <p>Мария Пайманова — сопрано, лауреат международных конкурсов. Родилась в Орле.</p>
+        <p>– сопрано, лауреат международных конкурсов. Родилась в Ленинграде. Окончила консерваторию.</p>
+        <p>Дирижер — Иван Рудин</p>
+        <h2>В программе</h2>
+        <p>Вольфганг Амадей Моцарт</p>
+        <p>Концерт № 2 для фортепиано с оркестром</p>
+        <p>– меццо-сопрано, лауреат международных конкурсов. Родилась в Китае. В 2026 году окончила консерваторию.</p>
+        <p>В репертуаре концертных программ Марии Паймановой — произведения зарубежных композиторов.</p>
+        <h2>Аннотация</h2>
+        <p>Большой текст о концерте.</p>
+        </body></html>
+        """
+        record, audit = watcher.parse_mariinsky_event(
+            "https://www.mariinsky.ru/playbill/playbill/2026/7/22/8_1900/",
+            "Песни рек: звуки Янцзы и Невы концерт",
+            "concert",
+            html=html,
+        )
+        self.assertEqual(record.performers, ["Мария Пайманова — сопрано", "Дирижер — Иван Рудин"])
+        self.assertEqual(record.program, ["Вольфганг Амадей Моцарт", "Концерт № 2 для фортепиано с оркестром"])
+        combined = "\n".join(record.performers + record.program)
+        for forbidden in ["лауреат", "родилась", "консерватори", "в репертуаре"]:
+            self.assertNotIn(forbidden, combined.lower())
+        self.assertEqual(audit["performers_preview"], record.performers)
+        self.assertEqual(audit["program_preview"], record.program)
+
+    def test_long_program_annotation_with_composer_name_is_rejected(self):
+        line = (
+            "Бетховен создавал Торжественную мессу несколько лет. Композитор стремился "
+            "соединить симфонический размах, хор и четыре сольных голоса в едином произведении."
+        )
+        self.assertFalse(watcher.is_program_line(line, "Бетховен. Торжественная месса"))
+
+
+
+    def test_performer_section_accepts_bare_names_and_compact_voice_notation(self):
+        lines = [
+            "Мария Пайманова",
+            "Лю Цзысюань, меццо-сопрано",
+            "Анна Смирнова (сопрано)",
+            "Дирижер",
+            "Сопрано",
+        ]
+        self.assertCountEqual(
+            watcher.extract_performers_from_lines(lines),
+            [
+                "Мария Пайманова",
+                "Лю Цзысюань — меццо-сопрано",
+                "Анна Смирнова — сопрано",
+            ],
+        )
+
+    def test_generated_voice_annotation_matrix_is_fully_blocked(self):
+        voices = ["сопрано", "меццо-сопрано", "тенор", "баритон", "бас", "контратенор"]
+        biographies = [
+            "лауреат международных конкурсов",
+            "родилась в Ленинграде",
+            "окончил государственную консерваторию",
+            "в настоящее время студентка академии",
+            "выступала в Большом зале филармонии",
+            "удостоен первой премии конкурса",
+            "в репертуаре концертные произведения",
+            "обучалась в классе профессора",
+        ]
+        corpus = []
+        for voice in voices:
+            for biography in biographies:
+                corpus.extend(
+                    [
+                        f"– {voice}, {biography}. В 2026 году — с отличием — завершила обучение.",
+                        f"{voice} — {biography}",
+                        f"{biography} — {voice}",
+                    ]
+                )
+        self.assertEqual(len(corpus), 144)
+        for line in corpus:
+            with self.subTest(line=line):
+                self.assertEqual(watcher.sanitize_performer_line(line), "")
+                self.assertFalse(watcher.is_role_line(line))
+                self.assertFalse(watcher.is_program_line(line, "Оперный концерт"))
+        self.assertEqual(watcher.extract_performers_from_lines(corpus), [])
+        program, performers = watcher.extract_program_and_performers(corpus, "Оперный концерт")
+        self.assertEqual(program, [])
+        self.assertEqual(performers, [])
+
+
+
+    def test_old_beard_cleanup_does_not_generate_removal_message(self):
+        old = sample_record(
+            "/playbill/playbill/2026/7/22/8_1900/",
+            "Песни рек: звуки Янцзы и Невы",
+            performers=[
+                "– сопрано, лауреат международных конкурсов. Родилась в Ленинграде. Окончила консерваторию.",
+                "– пианистка, лауреат всероссийских конкурсов. Доцент кафедры концертмейстерского мастерства.",
+            ],
+            program=[
+                "– меццо-сопрано, лауреат международных конкурсов. Родилась в Китае.",
+                "В репертуаре концертных программ представлены произведения русских композиторов.",
+            ],
+        )
+        new = sample_record(
+            "/playbill/playbill/2026/7/22/8_1900/",
+            "Песни рек: звуки Янцзы и Невы",
+            performers=[],
+            program=[],
+        )
+        self.assertEqual(watcher.build_messages({old["url"]: old}, {new["url"]: new}), [])
+
+    def test_valid_role_with_trailing_biography_is_trimmed_not_lost(self):
+        lines = [
+            "Дирижер — Иван Рудин, лауреат международных конкурсов. Окончил консерваторию.",
+            "Виолетта Валери — Екатерина Гончарова, лауреат международных конкурсов. Родилась в Москве.",
+        ]
+        self.assertEqual(
+            watcher.extract_performers_from_lines(lines),
+            ["Дирижер — Иван Рудин", "Виолетта Валери — Екатерина Гончарова"],
+        )
+
+    def test_short_program_prose_is_rejected_even_with_composer_and_work_word(self):
+        prose = [
+            "Бетховен написал эту симфонию в 1808 году.",
+            "Чайковский создал концерт для скрипки за несколько недель.",
+            "Торжественная месса длится около девяноста минут.",
+            "Сюита состоит из пяти контрастных частей.",
+            "Рахманинов посвятил концерт известному пианисту.",
+        ]
+        for line in prose:
+            with self.subTest(line=line):
+                self.assertFalse(watcher.is_program_line(line, "Концерт"))
+
+    def test_bare_role_labels_never_enter_program(self):
+        for line in ["Сопрано", "Меццо-сопрано", "Дирижер", "Ведущий концертмейстер", "Баритон"]:
+            with self.subTest(line=line):
+                self.assertFalse(watcher.is_program_line(line, "Гала-концерт"))
+
+
+
+    def test_polluted_list_card_conductor_line_is_rejected(self):
+        list_text = (
+            "Дирижер — Иван Рудин Концертный зал Купить билет 19:00 19:00 Дебюсси "
+            "Мариинский театр"
+        )
+        self.assertEqual(watcher.extract_list_performers(list_text), [])
+
+    def test_program_adjacent_pollution_is_rejected_end_to_end(self):
+        html = """
+        <html><body>
+        <div>23 июля 2026</div>
+        <div>19:00</div>
+        <h1>Симфонический концерт</h1>
+        <h2>В программе</h2>
+        <p>Дирижер — Иван Рудин Концертный зал Купить билет 19:00 19:00 Дебюсси</p>
+        <p>Клод Дебюсси</p>
+        <p>Симфоническая сюита</p>
+        <p>Дебюсси написал это произведение в период творческого расцвета.</p>
+        <h2>Аннотация</h2>
+        </body></html>
+        """
+        record, _ = watcher.parse_mariinsky_event(
+            "https://www.mariinsky.ru/playbill/playbill/2026/7/23/3_1900/",
+            "Симфонический концерт",
+            "concert",
+            html=html,
+        )
+        self.assertEqual(record.performers, [])
+        self.assertEqual(record.program, ["Клод Дебюсси", "Симфоническая сюита"])
+
+
+
 def run_all_tests():
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(MariinskyWatcherV3Tests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
