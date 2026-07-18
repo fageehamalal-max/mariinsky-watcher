@@ -909,6 +909,65 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertNotIn("Новый спектакль", message)
         self.assertNotIn("Новое событие", message)
 
+    def test_feminine_nominative_is_not_masculinized(self):
+        self.assertEqual(watcher.normalize_person_name("Евгения Муравьёва", "nomn"), "Евгения Муравьёва")
+        self.assertEqual(
+            watcher.extract_list_main_roles(
+                "В главных партиях: Евгения Муравьёва Дирижер — Валерий Гергиев Мариинский-2"
+            ),
+            ["Евгения Муравьёва"],
+        )
+
+    def test_gotterdammerung_main_role_duplicate_is_suppressed(self):
+        old = sample_record(
+            "/playbill/playbill/2026/7/26/2_1700/",
+            "Гибель богов",
+            performers=[
+                "Дирижер — Валерий Гергиев",
+                "Гутруна — Евгения Муравьёва",
+            ],
+        )
+        new = copy.deepcopy(old)
+        new["main_roles"] = watcher.extract_list_main_roles(
+            "В главных партиях: Евгения Муравьёва Дирижер — Валерий Гергиев Мариинский-2"
+        )
+        performer_keys = {watcher.person_compare_key(item) for item in new["performers"]}
+        new["main_roles"] = [
+            item for item in new["main_roles"]
+            if watcher.person_compare_key(item) not in performer_keys
+        ]
+        new = watcher.with_digest(new)
+        self.assertEqual(new["main_roles"], [])
+        self.assertEqual(watcher.build_messages({old["url"]: old}, {new["url"]: new}), [])
+
+    def test_flattened_person_plus_role_fragment_is_rejected(self):
+        bad = "Екатерины Семенчук Дирижер — Валерий Гергиев"
+        self.assertTrue(watcher.has_person_role_collision("Екатерины Семенчук Дирижер"))
+        self.assertEqual(watcher.sanitize_performer_line(bad), "")
+        self.assertEqual(watcher.normalize_stored_performer_item(bad), "")
+
+    def test_old_hovanshchina_garbage_is_silently_purged(self):
+        old = sample_record(
+            "/playbill/playbill/2026/8/2/2_1700/",
+            "Хованщина",
+            performers=[
+                "Марфа — Екатерина Семенчук",
+                "Екатерины Семенчук Дирижер — Валерий Гергиев",
+            ],
+        )
+        new = sample_record(
+            "/playbill/playbill/2026/8/2/2_1700/",
+            "Хованщина",
+            performers=["Марфа — Екатерина Семенчук"],
+        )
+        self.assertEqual(watcher.build_messages({old["url"]: old}, {new["url"]: new}), [])
+
+    def test_reverse_person_voice_form_still_works(self):
+        self.assertEqual(
+            watcher.sanitize_performer_line("Юлия Маточкина — меццо-сопрано"),
+            "Юлия Маточкина — меццо-сопрано",
+        )
+
 
 def run_all_tests():
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(MariinskyWatcherV3Tests)
