@@ -87,7 +87,7 @@ def make_soup(raw_html):
 
 APP_NAME = "Mariinsky Watcher V3"
 SCHEMA_VERSION = 3
-ENGINE_VERSION = "V3.9-program-service-filter"
+ENGINE_VERSION = "V3.10-identity-cleanup"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -878,6 +878,31 @@ def looks_like_person_list(text):
     return 2 <= len(parts) <= 4 and all(looks_like_person_name(part) for part in parts)
 
 
+def has_explicit_role_marker(text):
+    return any(marker_in_text(text, word) for word in ROLE_WORDS)
+
+
+def has_person_role_collision(text):
+    """Detect a flattened fragment that mixes a person name with a role label.
+
+    Examples rejected by this rule:
+    ``Екатерины Семенчук Дирижер`` and ``Солист Иван Иванов``.
+    Such fragments are page-card concatenation artefacts, not one clean role label.
+    """
+    text = clean(text).strip("–—- ,")
+    words = [word for word in text.split() if word]
+    if len(words) < 3 or not has_explicit_role_marker(text):
+        return False
+    for split_at in range(1, len(words)):
+        left = clean(" ".join(words[:split_at]).strip(" ,"))
+        right = clean(" ".join(words[split_at:]).strip(" ,"))
+        if has_explicit_role_marker(left) and looks_like_person_name(right):
+            return True
+        if looks_like_person_name(left) and has_explicit_role_marker(right):
+            return True
+    return False
+
+
 def looks_like_role_label(text):
     text = clean(text).strip("–—- ")
     if not text or len(text) > 70 or contains_biography_marker(text):
@@ -887,9 +912,15 @@ def looks_like_role_label(text):
     low = key(text)
     if any(word in low for word in PRODUCTION_CREDIT_WORDS):
         return False
-    if any(word in low for word in ROLE_WORDS):
+    if has_person_role_collision(text):
+        return False
+    if has_explicit_role_marker(text):
         return True
     return bool(re.fullmatch(r"[А-ЯЁA-Z][А-Яа-яЁёA-Za-z0-9 .,'’()-]{0,68}", text))
+
+
+def looks_like_explicit_role_label(text):
+    return looks_like_role_label(text) and has_explicit_role_marker(text)
 
 
 def sanitize_performer_line(line):
@@ -900,15 +931,21 @@ def sanitize_performer_line(line):
     # Compact forms: "Имя Фамилия, сопрано" and "Имя Фамилия (сопрано)".
     if "—" not in line:
         comma_parts = [clean(part) for part in line.split(",") if clean(part)]
-        if len(comma_parts) >= 2 and looks_like_person_name(comma_parts[0]) and looks_like_role_label(comma_parts[1]):
+        if len(comma_parts) >= 2 and looks_like_person_name(comma_parts[0]) and looks_like_explicit_role_label(comma_parts[1]):
             person = normalize_person_name(comma_parts[0], "nomn")
             return f"{person} — {comma_parts[1]}" if person else ""
         parenthetical = re.fullmatch(r"(.+?)\s*\(([^()]+)\)", line)
         if parenthetical:
             person, role = [clean(part) for part in parenthetical.groups()]
             person = normalize_person_name(person, "nomn")
-            if person and looks_like_role_label(role):
+            if person and looks_like_explicit_role_label(role):
                 return f"{person} — {role}"
+        return ""
+
+    first_left = clean(line.split("—", 1)[0])
+    if has_person_role_collision(first_left):
+        # Never salvage a flattened card fragment such as
+        # "Екатерины Семенчук Дирижер — Валерий Гергиев".
         return ""
 
     if looks_like_annotation(line):
@@ -918,7 +955,7 @@ def sanitize_performer_line(line):
         if looks_like_role_label(first_left) and looks_like_person_name(short_right):
             person = normalize_person_name(short_right, "nomn")
             return f"{first_left} — {person}" if person else ""
-        if looks_like_person_name(first_left) and looks_like_role_label(short_right):
+        if looks_like_person_name(first_left) and looks_like_explicit_role_label(short_right):
             person = normalize_person_name(first_left, "nomn")
             return f"{person} — {short_right}" if person else ""
         return ""
@@ -935,10 +972,10 @@ def sanitize_performer_line(line):
         if looks_like_role_label(left) and looks_like_person_name(right_short):
             person = normalize_person_name(right_short, "nomn")
             return f"{left} — {person}" if person else ""
-        if looks_like_person_name(left_short) and looks_like_role_label(right):
+        if looks_like_person_name(left_short) and looks_like_explicit_role_label(right):
             person = normalize_person_name(left_short, "nomn")
             return f"{person} — {right}"
-        if looks_like_person_name(left) and looks_like_role_label(right_short):
+        if looks_like_person_name(left) and looks_like_explicit_role_label(right_short):
             person = normalize_person_name(left, "nomn")
             return f"{person} — {right_short}"
     return ""
@@ -1298,7 +1335,10 @@ def extract_list_main_roles(list_text):
     if not m:
         return []
     raw = clean(m.group(1))
-    roles = normalize_person_list(raw)
+    # The site prints the names after this heading as a nominative list.
+    # The hint prevents ambiguous feminine forms such as "Евгения Муравьёва"
+    # from being reinterpreted as masculine genitives.
+    roles = normalize_person_list(raw, "nomn")
     return dedupe_preserve_order(roles, person_compare_key)
 
 
@@ -1315,7 +1355,7 @@ def extract_list_performers(list_text):
         if performer_line:
             clean_lines.append(performer_line)
         elif looks_like_person_name(line):
-            clean_lines.append(normalize_person_name(line))
+            clean_lines.append(normalize_person_name(line, "nomn"))
     return dedupe_preserve_order(clean_lines, person_compare_key)
 
 
@@ -1713,7 +1753,8 @@ def normalize_stored_performer_item(item):
     if performer_line:
         return performer_line
     if looks_like_person_name(text):
-        return normalize_person_name(text)
+        # Stored standalone names are display values and therefore nominative.
+        return normalize_person_name(text, "nomn")
     if is_ensemble_line(text) and not looks_like_annotation(text):
         return text
     return ""
