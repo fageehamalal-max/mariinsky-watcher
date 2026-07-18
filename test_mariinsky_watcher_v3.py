@@ -66,11 +66,11 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
     def test_participation_splits_participants(self):
         self.assertEqual(
             watcher.split_participation("При участии Екатерины Семенчук и Марины Шахдинаровой"),
-            ["Екатерины Семенчук", "Марины Шахдинаровой"],
+            ["Екатерина Семенчук", "Марина Шахдинарова"],
         )
         self.assertEqual(
             watcher.split_participation("При участии Екатерины Семенчук, Марины Шахдинаровой и Ольги Пудовой"),
-            ["Екатерины Семенчук", "Марины Шахдинаровой", "Ольги Пудовой"],
+            ["Екатерина Семенчук", "Марина Шахдинарова", "Ольга Пудова"],
         )
 
     def test_role_lines_override_participation_duplicates(self):
@@ -122,7 +122,7 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertNotIn("Новое событие", message)
         lines = message.splitlines()
         self.assertEqual(lines[0], "Мариинский-2")
-        self.assertEqual(lines[1], "𝄞 Турандот")
+        self.assertEqual(lines[1], "🐣𝄞 Турандот")
         self.assertEqual(lines[2], "31 июля▫️19:00")
         self.assertIn("ℹ️ https://www.mariinsky.ru/", message)
         self.assertNotIn("Ссылка:", message)
@@ -144,7 +144,7 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         message = watcher.format_new(record)
         lines = message.splitlines()
         self.assertEqual(lines[0], "Зал Стравинского")
-        self.assertEqual(lines[1], "𝄞 Песни рек: звуки Янцзы и Невы")
+        self.assertEqual(lines[1], "🐣𝄞 Песни рек: звуки Янцзы и Невы")
         self.assertEqual(lines[2], "22 июля▫️19:00")
         self.assertIn("ℹ️ https://www.mariinsky.ru/", message)
         self.assertNotIn("Ссылка:", message)
@@ -179,6 +179,65 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertIn("Виолетта Валери — Инара Козловская", message)
         self.assertNotIn("Изменение в главных партиях", message)
         self.assertNotIn("🔴 Удалено:\nЕкатерина Гончарова", message)
+
+    def test_person_identity_matches_nominative_and_genitive(self):
+        self.assertEqual(
+            watcher.person_compare_key("Рогожин — Владислав Сулимский"),
+            watcher.person_compare_key("Владислава Сулимского"),
+        )
+        self.assertEqual(
+            watcher.person_compare_key("Амелия — Инара Козловская"),
+            watcher.person_compare_key("Инары Козловской"),
+        )
+        self.assertEqual(
+            watcher.person_compare_key("Виолетта Валери — Екатерина Гончарова"),
+            watcher.person_compare_key("Екатерины Гончаровой"),
+        )
+
+    def test_existing_performer_is_not_removed_when_main_role_disappears(self):
+        url = "/playbill/playbill/2026/7/26/3_1900/"
+        old = sample_record(
+            url,
+            "Идиот",
+            performers=[
+                "Дирижер — Заурбек Гугкаев",
+                "Рогожин — Владислав Сулимский",
+            ],
+        )
+        old["main_roles"] = ["Владислава Сулимского"]
+        old["main_roles_source"] = "list_main_roles"
+        old = watcher.with_digest(old)
+
+        new = sample_record(
+            url,
+            "Идиот",
+            performers=[
+                "Дирижер — Заурбек Гугкаев",
+                "Князь Мышкин — Илья Селиванов",
+                "Настасья Филипповна — Мария Баянкина",
+                "Аглая — Екатерина Сергеева",
+                "Рогожин — Владислав Сулимский",
+                "Ганя — Александр Трофимов",
+                "Лебедев — Дмитрий Колеушко",
+            ],
+        )
+
+        message = watcher.build_messages({old["url"]: old}, {new["url"]: new})[0]
+        self.assertIn("Князь Мышкин — Илья Селиванов", message)
+        self.assertNotIn("Владислава Сулимского", message)
+        self.assertNotIn("Владислав Сулимский", message.split("🔴 Удалено:")[-1] if "🔴 Удалено:" in message else "")
+        self.assertNotIn("Изменение в главных партиях", message)
+
+    def test_new_faust_and_parsifal_messages_keep_chick_and_treble_clef(self):
+        for url, title in [
+            ("/playbill/playbill/2026/9/17/1_1900/", "Фауст"),
+            ("/playbill/playbill/2026/9/12/2_1700/", "Парсифаль"),
+        ]:
+            with self.subTest(title=title):
+                record = sample_record(url, title)
+                message = watcher.format_new(record)
+                self.assertIn(f"🐣𝄞 {title}", message)
+                self.assertIn(f"𝄞 {title}", message)
 
     def test_change_markers_and_personal_performer_emojis(self):
         old = sample_record(
@@ -639,6 +698,75 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
             with self.subTest(line=line):
                 self.assertFalse(watcher.is_program_line(line, "Концерт"))
 
+    def test_exact_without_intermission_notice_is_not_program(self):
+        self.assertFalse(watcher.is_program_line("Концерт идет без антракта", "Симфонический концерт"))
+
+    def test_service_notices_never_enter_program(self):
+        notices = [
+            "Концерт идёт без антракта",
+            "Концерт пройдет без антракта",
+            "Спектакль идет с одним антрактом",
+            "Опера состоится с антрактом",
+            "Мероприятие начнется в 19:00",
+            "Программа завершится около 21:30",
+            "Продолжительность концерта — 1 час 20 минут",
+            "Длительность спектакля 3 часа",
+            "Начало концерта в 19:00",
+            "Окончание спектакля ориентировочно в 22:00",
+            "Двери открываются за 45 минут до начала",
+            "Вход в зал после третьего звонка запрещен",
+            "Опоздавшие зрители в зал не допускаются",
+            "Возрастное ограничение 12+",
+            "Рекомендуемый возраст — от 12 лет",
+            "Программа может быть изменена",
+            "В программе возможны изменения",
+            "Обращаем внимание: концерт идет без антракта",
+            "Просим обратить внимание на время начала",
+        ]
+        for line in notices:
+            with self.subTest(line=line):
+                self.assertTrue(watcher.is_program_service_note(line))
+                self.assertFalse(watcher.is_program_line(line, "Тестовый концерт"))
+
+    def test_valid_concert_titles_survive_service_filter(self):
+        valid = [
+            "Скрипичный концерт",
+            "Концерт № 2 для фортепиано с оркестром",
+            "Концерт для скрипки с оркестром ре мажор, соч. 35",
+            "Двойной концерт для скрипки и виолончели",
+        ]
+        for line in valid:
+            with self.subTest(line=line):
+                self.assertFalse(watcher.is_program_service_note(line))
+                self.assertTrue(watcher.is_program_line(line, "Тестовый концерт"))
+
+    def test_service_notice_is_removed_end_to_end(self):
+        html = """
+        <html><body>
+        <div>18 июля 2026</div>
+        <div>11:00</div>
+        <h1>Дебюсси. Прелюдия к отдыху фавна</h1>
+        <h2>В программе</h2>
+        <p>Клод Дебюсси</p>
+        <p>Прелюдия к «Послеполуденному отдыху фавна»</p>
+        <p>Концерт идет без антракта</p>
+        <h2>Аннотация</h2>
+        </body></html>
+        """
+        record, audit = watcher.parse_mariinsky_event(
+            "https://www.mariinsky.ru/playbill/playbill/2026/7/18/3_1100/",
+            "Симфонический концерт",
+            "concert",
+            html=html,
+        )
+        self.assertEqual(record.program, ["Клод Дебюсси", "Прелюдия к «Послеполуденному отдыху фавна»"])
+        self.assertNotIn("Концерт идет без антракта", audit["program_preview"])
+
+    def test_old_service_notice_does_not_create_removed_notification(self):
+        old = sample_record(program=["Концерт идет без антракта"])
+        new = sample_record(program=[])
+        self.assertEqual(watcher.change_sections(old, new), [])
+
     def test_bare_role_labels_never_enter_program(self):
         for line in ["Сопрано", "Меццо-сопрано", "Дирижер", "Ведущий концертмейстер", "Баритон"]:
             with self.subTest(line=line):
@@ -676,6 +804,110 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertEqual(record.performers, [])
         self.assertEqual(record.program, ["Клод Дебюсси", "Симфоническая сюита"])
 
+
+
+    def test_all_russian_cases_normalize_to_nominative(self):
+        cases = {
+            "Владислава Сулимского": "Владислав Сулимский",
+            "Владиславу Сулимскому": "Владислав Сулимский",
+            "Владиславом Сулимским": "Владислав Сулимский",
+            "Владиславе Сулимском": "Владислав Сулимский",
+            "Екатерины Гончаровой": "Екатерина Гончарова",
+            "Екатерине Гончаровой": "Екатерина Гончарова",
+            "Екатериной Гончаровой": "Екатерина Гончарова",
+            "Юлии Маточкиной": "Юлия Маточкина",
+            "Юлией Маточкиной": "Юлия Маточкина",
+            "Михаила Векуа": "Михаил Векуа",
+            "Михаилу Векуа": "Михаил Векуа",
+            "Ильи Селиванова": "Илья Селиванов",
+            "Марии Баянкиной": "Мария Баянкина",
+            "Александра Трофимова": "Александр Трофимов",
+            "Дмитрия Колеушко": "Дмитрий Колеушко",
+            "Инары Козловской": "Инара Козловская",
+            "Марины Шахдинаровой": "Марина Шахдинарова",
+            "Ольги Пудовой": "Ольга Пудова",
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(watcher.normalize_person_name(source), expected)
+
+    def test_role_lines_are_always_emitted_with_nominative_names(self):
+        lines = [
+            "Рогожин — Владислава Сулимского",
+            "Виолетта Валери — Екатерины Гончаровой",
+            "Сопрано — Марии Паймановой",
+            "Юлии Маточкиной — меццо-сопрано",
+        ]
+        self.assertEqual(
+            watcher.extract_performers_from_lines(lines),
+            [
+                "Рогожин — Владислав Сулимский",
+                "Виолетта Валери — Екатерина Гончарова",
+                "Сопрано — Мария Пайманова",
+                "Юлия Маточкина — меццо-сопрано",
+            ],
+        )
+
+    def test_case_matrix_has_one_identity_key_for_every_artist(self):
+        groups = [
+            [
+                "Владислав Сулимский",
+                "Владислава Сулимского",
+                "Владиславу Сулимскому",
+                "Владиславом Сулимским",
+                "Владиславе Сулимском",
+            ],
+            [
+                "Екатерина Гончарова",
+                "Екатерины Гончаровой",
+                "Екатерине Гончаровой",
+                "Екатериной Гончаровой",
+            ],
+            [
+                "Инара Козловская",
+                "Инары Козловской",
+                "Инаре Козловской",
+                "Инарой Козловской",
+            ],
+        ]
+        for forms in groups:
+            keys = {watcher.person_compare_key(form) for form in forms}
+            self.assertEqual(len(keys), 1, forms)
+
+    def test_old_inflected_state_never_generates_false_removal(self):
+        old = sample_record(
+            "/playbill/playbill/2026/7/26/3_1900/",
+            "Идиот",
+            performers=["Дирижер — Заурбек Гугкаев"],
+        )
+        old["main_roles"] = ["Владислава Сулимского"]
+        old["main_roles_source"] = "list_main_roles"
+        old = watcher.with_digest(old)
+        new = sample_record(
+            "/playbill/playbill/2026/7/26/3_1900/",
+            "Идиот",
+            performers=[
+                "Дирижер — Заурбек Гугкаев",
+                "Рогожин — Владислав Сулимский",
+            ],
+        )
+        messages = watcher.build_messages({old["url"]: old}, {new["url"]: new})
+        self.assertEqual(len(messages), 1)
+        self.assertNotIn("🔴 Удалено", messages[0])
+        self.assertNotIn("Владислава Сулимского", messages[0])
+
+    def test_unknown_foreign_nominative_name_is_not_distorted(self):
+        self.assertEqual(watcher.normalize_person_name("Лю Цзысюань", "nomn"), "Лю Цзысюань")
+        self.assertEqual(
+            watcher.sanitize_performer_line("Лю Цзысюань, меццо-сопрано"),
+            "Лю Цзысюань — меццо-сопрано",
+        )
+
+    def test_new_event_uses_only_chick_before_treble_clef(self):
+        message = watcher.format_new(sample_record(title="Фауст"))
+        self.assertIn("🐣𝄞 Фауст", message)
+        self.assertNotIn("Новый спектакль", message)
+        self.assertNotIn("Новое событие", message)
 
 
 def run_all_tests():
