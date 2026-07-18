@@ -1,4 +1,6 @@
 import hashlib
+import itertools
+import math
 import html as html_module
 import json
 import os
@@ -19,6 +21,11 @@ try:
     from bs4 import BeautifulSoup
 except (ImportError, ModuleNotFoundError):
     BeautifulSoup = None
+
+try:
+    import pymorphy3
+except (ImportError, ModuleNotFoundError):
+    pymorphy3 = None
 
 
 class _FallbackTag:
@@ -80,7 +87,7 @@ def make_soup(raw_html):
 
 APP_NAME = "Mariinsky Watcher V3"
 SCHEMA_VERSION = 3
-ENGINE_VERSION = "V3.6-strict-parser"
+ENGINE_VERSION = "V3.9-program-service-filter"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -98,6 +105,10 @@ MONTHS_AHEAD = int(os.getenv("MONTHS_AHEAD", "8"))
 MARIINSKY_ROOT = "https://www.mariinsky.ru/playbill/playbill/"
 TZ = ZoneInfo("Europe/Moscow")
 
+# Русская морфология используется для универсального сопоставления падежных
+# форм и вывода всех персональных имен в именительном падеже.
+MORPH = pymorphy3.MorphAnalyzer() if pymorphy3 is not None else None
+
 SESSION = requests.Session()
 SESSION.headers.update(
     {
@@ -106,7 +117,7 @@ SESSION.headers.update(
     }
 )
 
-EMOJI_NEW = "𝄞"
+EMOJI_NEW = "🐣"
 EMOJI_EVENT = "𝄞"
 EMOJI_CANCELLED = "𝄞"
 EMOJI_ADDED = "🟢"
@@ -396,6 +407,50 @@ PROGRAM_PROSE_MARKERS = [
     "соединяет",
     "использует",
 ]
+
+# Служебная информация о проведении мероприятия не является музыкальной программой.
+# Эти правила применяются массово ко всем концертам и спектаклям.
+PROGRAM_SERVICE_MARKERS = [
+    "без антракта",
+    "с антрактом",
+    "с одним антрактом",
+    "с двумя антрактами",
+    "продолжительность",
+    "длительность",
+    "начало концерта",
+    "начало спектакля",
+    "окончание концерта",
+    "окончание спектакля",
+    "двери открываются",
+    "вход в зал",
+    "после начала",
+    "опоздавшие",
+    "возрастное ограничение",
+    "рекомендуемый возраст",
+    "программа может быть изменена",
+    "в программе возможны изменения",
+    "обращаем внимание",
+    "просим обратить внимание",
+]
+
+PROGRAM_SERVICE_EVENT_WORDS = (
+    "концерт",
+    "спектакль",
+    "опера",
+    "балет",
+    "мероприятие",
+    "программа",
+)
+PROGRAM_SERVICE_VERBS = (
+    "идет",
+    "идёт",
+    "пройдет",
+    "пройдёт",
+    "состоится",
+    "начнется",
+    "начнётся",
+    "завершится",
+)
 ENSEMBLE_MARKERS = [
     "Хор Мариинского театра",
     "Женский хор Мариинского театра",
@@ -842,28 +897,30 @@ def sanitize_performer_line(line):
     if not line or is_history_or_description(line):
         return ""
 
-    # Допустимые компактные варианты без тире: "Имя Фамилия, сопрано"
-    # и "Имя Фамилия (сопрано)". Любой последующий биографический текст отсекается.
+    # Compact forms: "Имя Фамилия, сопрано" and "Имя Фамилия (сопрано)".
     if "—" not in line:
         comma_parts = [clean(part) for part in line.split(",") if clean(part)]
         if len(comma_parts) >= 2 and looks_like_person_name(comma_parts[0]) and looks_like_role_label(comma_parts[1]):
-            return f"{comma_parts[0]} — {comma_parts[1]}"
+            person = normalize_person_name(comma_parts[0], "nomn")
+            return f"{person} — {comma_parts[1]}" if person else ""
         parenthetical = re.fullmatch(r"(.+?)\s*\(([^()]+)\)", line)
         if parenthetical:
             person, role = [clean(part) for part in parenthetical.groups()]
-            if looks_like_person_name(person) and looks_like_role_label(role):
+            person = normalize_person_name(person, "nomn")
+            if person and looks_like_role_label(role):
                 return f"{person} — {role}"
         return ""
 
     if looks_like_annotation(line):
-        # Если рядом с биографией всё же есть точная пара "роль — Имя Фамилия"
-        # или "Имя Фамилия — голос", сохраняем только эту короткую пару.
+        # Retain only a compact exact pair and discard the biographical tail.
         first_left, first_right = [clean(x) for x in line.split("—", 1)]
         short_right = clean(first_right.split(",", 1)[0])
         if looks_like_role_label(first_left) and looks_like_person_name(short_right):
-            return f"{first_left} — {short_right}"
+            person = normalize_person_name(short_right, "nomn")
+            return f"{first_left} — {person}" if person else ""
         if looks_like_person_name(first_left) and looks_like_role_label(short_right):
-            return f"{first_left} — {short_right}"
+            person = normalize_person_name(first_left, "nomn")
+            return f"{person} — {short_right}" if person else ""
         return ""
 
     dash_parts = [clean(part) for part in line.split("—")]
@@ -873,16 +930,18 @@ def sanitize_performer_line(line):
         right_short = clean(right.split(",", 1)[0])
         left_short = clean(left.split(",", 1)[0])
 
-        if looks_like_role_label(left) and looks_like_person_or_ensemble(right):
+        if looks_like_role_label(left) and is_ensemble_line(right):
             return f"{left} — {right}"
         if looks_like_role_label(left) and looks_like_person_name(right_short):
-            return f"{left} — {right_short}"
-        if looks_like_person_name(left) and looks_like_role_label(right_short):
-            return f"{left} — {right_short}"
+            person = normalize_person_name(right_short, "nomn")
+            return f"{left} — {person}" if person else ""
         if looks_like_person_name(left_short) and looks_like_role_label(right):
-            return f"{left_short} — {right}"
+            person = normalize_person_name(left_short, "nomn")
+            return f"{person} — {right}"
+        if looks_like_person_name(left) and looks_like_role_label(right_short):
+            person = normalize_person_name(left, "nomn")
+            return f"{person} — {right_short}"
     return ""
-
 
 def is_role_line(line):
     return bool(sanitize_performer_line(line))
@@ -904,37 +963,292 @@ def split_participation(line):
     text = re.sub(r"^[:—–-]\s*", "", text)
     if not text:
         return []
-    parts = re.split(r"\s*(?:,|;|\s+и\s+)\s*", text)
-    return [clean(part) for part in parts if clean(part)]
+    return normalize_person_list(text, "gent")
+
+
+def _restore_name_case(original, normalized):
+    original = clean(original)
+    normalized = clean(normalized)
+    if not normalized:
+        return original
+    if original.isupper():
+        return normalized.upper()
+    if original[:1].isupper():
+        return "-".join(part[:1].upper() + part[1:] for part in normalized.split("-"))
+    return normalized
+
+
+def _name_parse_candidates(token):
+    """Return a compact list of morphological candidates for one name token."""
+    if MORPH is None:
+        return []
+    token = clean(token).strip("–—-.,;:()[]{}")
+    if not token or re.fullmatch(r"[А-ЯЁA-Z]\.?(?:-[А-ЯЁA-Z]\.)?", token):
+        return []
+
+    parses = MORPH.parse(token.lower())
+    proper = [p for p in parses if {"Name", "Surn", "Patr"} & set(p.tag.grammemes)]
+    fixed = [p for p in parses if "Fixd" in p.tag]
+    selected = proper or fixed or parses[:3]
+
+    out = []
+    seen = set()
+    for parse in selected:
+        marker = (parse.normal_form, str(parse.tag))
+        if marker in seen:
+            continue
+        seen.add(marker)
+        out.append(parse)
+        if len(out) >= 6:
+            break
+    return out
+
+
+def _parse_case(parse):
+    for case in ("nomn", "gent", "datv", "accs", "ablt", "loct"):
+        if case in parse.tag:
+            return case
+    return ""
+
+
+def _parse_gender(parse):
+    for gender in ("masc", "femn", "neut"):
+        if gender in parse.tag:
+            return gender
+    return ""
+
+
+def _name_combo_score(combo, source_case_hint=None):
+    """Prefer a coherent Russian full-name interpretation over token-by-token guesses."""
+    score = 0.0
+    cases = []
+    genders = []
+    kinds = []
+    for parse in combo:
+        grammemes = set(parse.tag.grammemes)
+        score += math.log(max(float(parse.score), 1e-9))
+        if {"Name", "Surn", "Patr"} & grammemes:
+            score += 8.0
+        if "Name" in grammemes:
+            kinds.append("Name")
+        elif "Surn" in grammemes:
+            kinds.append("Surn")
+        elif "Patr" in grammemes:
+            kinds.append("Patr")
+        else:
+            kinds.append("")
+        case = _parse_case(parse)
+        gender = _parse_gender(parse)
+        if case:
+            cases.append(case)
+        if gender:
+            genders.append(gender)
+        if source_case_hint and case == source_case_hint:
+            score += 5.0
+        if "sing" in grammemes:
+            score += 0.5
+
+    if len(set(cases)) == 1 and len(cases) > 1:
+        score += 8.0
+    elif len(set(cases)) > 1:
+        score -= 4.0
+    if len(set(genders)) == 1 and len(genders) > 1:
+        score += 6.0
+    elif len(set(genders)) > 1:
+        score -= 3.0
+
+    # Typical two-/three-part Russian names: Name + Surn or Surn + Name,
+    # with an optional patronymic between them.
+    if "Name" in kinds and "Surn" in kinds:
+        score += 5.0
+    if "Patr" in kinds:
+        score += 2.0
+    return score
+
+
+def _fallback_surname_nominative(original, gender_hint=""):
+    """Normalize common Russian surname endings when a dictionary tag is absent."""
+    source = clean(original)
+    low = key(source)
+    rules = []
+    if gender_hint == "femn":
+        rules = [
+            ("цкой", "цкая"), ("ской", "ская"),
+            ("овой", "ова"), ("евой", "ева"), ("иной", "ина"),
+            ("ову", "ова"), ("еву", "ева"), ("ину", "ина"),
+        ]
+    elif gender_hint == "masc":
+        rules = [
+            ("цкого", "цкий"), ("цкому", "цкий"), ("цком", "цкий"), ("цким", "цкий"),
+            ("ского", "ский"), ("скому", "ский"), ("ском", "ский"), ("ским", "ский"),
+            ("овым", "ов"), ("ову", "ов"), ("ове", "ов"), ("ова", "ов"),
+            ("евым", "ев"), ("еву", "ев"), ("еве", "ев"), ("ева", "ев"),
+            ("иным", "ин"), ("ину", "ин"), ("ине", "ин"), ("ина", "ин"),
+        ]
+    else:
+        rules = [
+            ("цкого", "цкий"), ("цкому", "цкий"), ("цком", "цкий"), ("цким", "цкий"),
+            ("ского", "ский"), ("скому", "ский"), ("ском", "ский"), ("ским", "ский"),
+            ("цкой", "цкая"), ("ской", "ская"),
+            ("овой", "ова"), ("евой", "ева"), ("иной", "ина"),
+        ]
+    for suffix, replacement in rules:
+        if low.endswith(suffix) and len(low) > len(suffix) + 2:
+            return _restore_name_case(source, low[:-len(suffix)] + replacement)
+    return source
+
+
+def _looks_like_inflected_surname(token):
+    low = key(token)
+    return any(low.endswith(suffix) for suffix in (
+        "цкого", "цкому", "цком", "цким", "ского", "скому", "ском", "ским",
+        "цкой", "ской", "овой", "евой", "иной", "овым", "евым", "иным",
+        "ову", "еву", "ину", "ове", "еве", "ине",
+    ))
+
+
+def _nominative_word(original, parse, expected_surname=False, gender_hint=""):
+    grammemes = set(parse.tag.grammemes)
+    if {"Name", "Surn", "Patr"} & grammemes or "Fixd" in grammemes:
+        inflected = parse.inflect({"nomn"})
+        normalized = inflected.word if inflected is not None else parse.normal_form
+        return _restore_name_case(original, normalized)
+    if expected_surname:
+        return _fallback_surname_nominative(original, gender_hint)
+    return original
+
+
+def normalize_person_name(text, source_case_hint=None):
+    """Convert a Russian personal name to nominative while preserving word order.
+
+    The whole phrase is parsed jointly, so gender and case agreement disambiguate
+    forms such as ``Владислава Сулимского`` and ``Инары Козловской``. Unknown or
+    indeclinable foreign tokens are preserved unchanged.
+    """
+    text = _strip_person_qualifiers(text)
+    if not looks_like_person_name(text):
+        return ""
+
+    words = [word for word in text.split() if word]
+    parse_slots = []
+    parse_positions = []
+    for index, word in enumerate(words):
+        bare = word.strip(",")
+        if key(bare) in NAME_PARTICLES or re.fullmatch(r"[А-ЯЁA-Z]\.?(?:-[А-ЯЁA-Z]\.)?", bare):
+            continue
+        candidates = _name_parse_candidates(bare)
+        if candidates:
+            parse_positions.append(index)
+            parse_slots.append(candidates)
+
+    if not parse_slots:
+        return text
+
+    best_combo = max(
+        itertools.product(*parse_slots),
+        key=lambda combo: _name_combo_score(combo, source_case_hint),
+    )
+    result = list(words)
+    genders = [_parse_gender(parse) for parse in best_combo if _parse_gender(parse)]
+    gender_hint = max(set(genders), key=genders.count) if genders else ""
+    last_name_index = parse_positions[-1] if parse_positions else -1
+    for slot, (index, parse) in enumerate(zip(parse_positions, best_combo)):
+        original = result[index].strip(",")
+        candidates = parse_slots[slot]
+        grammemes = set(parse.tag.grammemes)
+        proper = bool({"Name", "Surn", "Patr"} & grammemes)
+        only_plural_or_vocative = proper and all(("plur" in candidate.tag or "voct" in candidate.tag) for candidate in candidates)
+        # Preserve unknown foreign nominative forms when the dictionary offers
+        # only weak plural/vocative guesses (e.g. ``Лю Цзысюань``).
+        if source_case_hint == "nomn" and only_plural_or_vocative:
+            result[index] = original
+            continue
+        expected_surname = index == last_name_index and len(parse_positions) >= 2
+        result[index] = _nominative_word(original, parse, expected_surname, gender_hint)
+    return clean(" ".join(result))
+
+
+def normalize_person_list(text, source_case_hint=None):
+    parts = [clean(part) for part in re.split(r"\s*(?:,|;|\s+и\s+)\s*", clean(text)) if clean(part)]
+    normalized = [normalize_person_name(part, source_case_hint) for part in parts]
+    normalized = [part for part in normalized if part]
+    return normalized
+
+
+def _identity_stem_from_parse(parse):
+    grammemes = set(parse.tag.grammemes)
+    value = key(parse.normal_form)
+    if "Name" in grammemes and value.endswith(("а", "я")) and len(value) > 4:
+        value = value[:-1]
+    if "Surn" in grammemes:
+        for suffix, replacement in (
+            ("ская", "ск"), ("цкая", "цк"), ("ский", "ск"), ("цкий", "цк"),
+            ("ова", "ов"), ("ева", "ев"), ("ина", "ин"),
+        ):
+            if value.endswith(suffix) and len(value) > len(suffix) + 2:
+                value = value[:-len(suffix)] + replacement
+                break
+    return value
+
+
+def _common_name_stem(values):
+    values = sorted({key(value) for value in values if value}, key=len)
+    if not values:
+        return ""
+    prefix = values[0]
+    for value in values[1:]:
+        while prefix and not value.startswith(prefix):
+            prefix = prefix[:-1]
+    if len(prefix) >= 4:
+        return prefix
+    return values[0]
+
+
+def identity_token_stem(token):
+    token = clean(token).strip("–—-.,;:()[]{}")
+    if not token:
+        return ""
+    candidates = _name_parse_candidates(token)
+    proper = [p for p in candidates if {"Name", "Surn", "Patr"} & set(p.tag.grammemes)]
+    if proper:
+        stems = [_identity_stem_from_parse(parse) for parse in proper]
+        return _common_name_stem(stems)
+
+    low = key(token)
+    suffix_groups = [
+        (("цкого", "цкому", "цком", "цким", "цкий", "цкая", "цкой"), "цк"),
+        (("ского", "скому", "ском", "ским", "ский", "ская", "ской"), "ск"),
+        (("овой", "овым", "ову", "ове", "ова", "ов"), "ов"),
+        (("евой", "евым", "еву", "еве", "ева", "ев"), "ев"),
+        (("иной", "иным", "ину", "ине", "ина", "ин"), "ин"),
+    ]
+    for suffixes, replacement in suffix_groups:
+        for suffix in suffixes:
+            if low.endswith(suffix) and len(low) > len(suffix) + 2:
+                return low[:-len(suffix)] + replacement
+    return low
+
+
+def extract_person_identity_text(line):
+    text = normalize_dash(clean(line))
+    text = re.sub(r"\([^)]*\)", " ", text)
+    if "—" in text:
+        left, right = [clean(part) for part in text.split("—", 1)]
+        if looks_like_person_name(right):
+            text = right
+        elif looks_like_person_name(left):
+            text = left
+        else:
+            text = right
+    return clean(text)
 
 
 def person_compare_key(line):
-    text = key(line)
-    if "—" in text:
-        text = text.split("—", 1)[1]
-    text = re.sub(r"\([^)]*\)", " ", text)
-    words = [w for w in re.split(r"[^а-яёa-z-]+", text) if len(w) > 2]
-    if not words:
-        return title_key(line)
-    last = words[-1]
-    suffix_replacements = [
-        ("овой", "ов"),
-        ("евой", "ев"),
-        ("иной", "ин"),
-        ("ской", "ск"),
-        ("цкой", "цк"),
-        ("ой", ""),
-        ("а", ""),
-        ("я", ""),
-        ("ы", ""),
-        ("и", ""),
-    ]
-    for suffix, replacement in suffix_replacements:
-        if last.endswith(suffix) and len(last) > len(suffix) + 3:
-            last = last[: -len(suffix)] + replacement
-            break
-    return last
-
+    text = extract_person_identity_text(line)
+    words = [w for w in re.split(r"[^А-ЯЁа-яёA-Za-z'’.-]+", text) if w]
+    stems = [identity_token_stem(word) for word in words if key(word) not in NAME_PARTICLES]
+    stems = sorted(stem for stem in stems if stem)
+    return "|".join(stems) if stems else title_key(line)
 
 def dedupe_preserve_order(items, key_func=title_key):
     out = []
@@ -970,7 +1284,7 @@ def extract_performers_from_lines(lines):
             participants.extend([name for name in split_participation(line) if looks_like_person_name(name)])
             continue
         if looks_like_person_name(line):
-            participants.append(clean(line))
+            participants.append(normalize_person_name(line, "nomn"))
             continue
         if is_ensemble_line(line) and len(line) < 150 and not looks_like_annotation(line):
             ensembles.append(clean(line))
@@ -984,7 +1298,8 @@ def extract_list_main_roles(list_text):
     if not m:
         return []
     raw = clean(m.group(1))
-    return dedupe_preserve_order([clean(x) for x in re.split(r"\s*(?:,|;|\s+и\s+)\s*", raw) if clean(x)], person_compare_key)
+    roles = normalize_person_list(raw)
+    return dedupe_preserve_order(roles, person_compare_key)
 
 
 def extract_list_performers(list_text):
@@ -1000,7 +1315,7 @@ def extract_list_performers(list_text):
         if performer_line:
             clean_lines.append(performer_line)
         elif looks_like_person_name(line):
-            clean_lines.append(clean(line))
+            clean_lines.append(normalize_person_name(line))
     return dedupe_preserve_order(clean_lines, person_compare_key)
 
 
@@ -1026,6 +1341,24 @@ def looks_like_composer_name_line(line):
     return any(low == key(composer) or low.endswith(" " + key(composer)) for composer in COMPOSERS)
 
 
+def is_program_service_note(line):
+    """Return True for timing, intermission and visitor notices near a program."""
+    low = key(line)
+    if not low:
+        return False
+    if any(marker in low for marker in PROGRAM_SERVICE_MARKERS):
+        return True
+
+    event_words = "|".join(re.escape(word) for word in PROGRAM_SERVICE_EVENT_WORDS)
+    verbs = "|".join(re.escape(word) for word in PROGRAM_SERVICE_VERBS)
+    if re.search(rf"\b(?:{event_words})\s+(?:{verbs})\b", low, re.I):
+        return True
+
+    if re.search(r"\b(?:без|с)\s+(?:(?:одним|двумя)\s+)?антракт(?:а|ом|ами)?\b", low, re.I):
+        return True
+    return False
+
+
 def is_program_line(line, title=""):
     line = clean(line).strip("–—- ")
     if not line or is_role_line(line) or is_ensemble_line(line) or is_history_or_description(line):
@@ -1039,6 +1372,8 @@ def is_program_line(line, title=""):
     if len(re.findall(r"[.!?](?:\s|$)", line)) >= 2:
         return False
     low = key(line)
+    if is_program_service_note(line):
+        return False
     if any(marker in low for marker in PROGRAM_PROSE_MARKERS):
         return False
     if looks_like_composer_name_line(line):
@@ -1058,7 +1393,7 @@ def extract_program_and_performers(lines, title=""):
         elif is_ensemble_line(line) and not looks_like_annotation(line):
             performers.append(clean(line))
         elif looks_like_person_name(line) and not has_composer(line):
-            performers.append(clean(line))
+            performers.append(normalize_person_name(line, "nomn"))
         elif is_program_line(line, title):
             program.append(clean(line).strip("–—- "))
     return dedupe_preserve_order(program), dedupe_preserve_order(performers, person_compare_key)
@@ -1330,7 +1665,7 @@ def link_line(record):
 
 def format_new(record):
     title = clean(record.get("title", "Без названия"))
-    parts = [venue_line(record), f"{EMOJI_NEW} {title}"]
+    parts = [venue_line(record), f"{EMOJI_NEW}{EMOJI_EVENT} {title}"]
     dt = date_line(record)
     if dt:
         parts.append(dt)
@@ -1378,7 +1713,7 @@ def normalize_stored_performer_item(item):
     if performer_line:
         return performer_line
     if looks_like_person_name(text):
-        return text
+        return normalize_person_name(text)
     if is_ensemble_line(text) and not looks_like_annotation(text):
         return text
     return ""
@@ -1465,12 +1800,16 @@ def change_sections(old, new):
     perf_added, perf_removed = normalized_set_diff(old_performers, new_performers, person_compare_key)
     role_added, role_removed = normalized_set_diff(old_main_roles, new_main_roles, person_compare_key)
 
-    # Не показываем технический перенос одного и того же артиста между
-    # кратким списком главных партий и детальным составом как удаление.
-    perf_added_keys = {person_compare_key(item) for item in perf_added}
-    role_added_keys = {person_compare_key(item) for item in role_added}
-    role_removed = [item for item in role_removed if person_compare_key(item) not in perf_added_keys]
-    perf_removed = [item for item in perf_removed if person_compare_key(item) not in role_added_keys]
+    # Сравниваем личность по всему текущему событию, а не только по списку
+    # добавлений. Если артист остаётся хотя бы в одном разделе, удаление ложно.
+    new_performer_keys = {person_compare_key(item) for item in new_performers}
+    new_role_keys = {person_compare_key(item) for item in new_main_roles}
+    role_removed = [item for item in role_removed if person_compare_key(item) not in new_performer_keys]
+    perf_removed = [item for item in perf_removed if person_compare_key(item) not in new_role_keys]
+
+    # Один артист выводится один раз; приоритет имеет подробная строка с ролью.
+    role_added = [item for item in role_added if person_compare_key(item) not in new_performer_keys]
+    perf_added = [item for item in perf_added if person_compare_key(item) not in new_role_keys]
 
     old_program = filter_stored_items(old.get("program", []), normalize_stored_program_item, title_key)
     new_program = filter_stored_items(new.get("program", []), normalize_stored_program_item, title_key)
