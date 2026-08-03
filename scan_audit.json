@@ -1,0 +1,3171 @@
+{
+  "app": "Mariinsky Watcher V3",
+  "engine_version": "V3.11-new-event-cast",
+  "items": [
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "10 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Карнавал Видение розы Лебедь Шехеразада",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/10/1_1200/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "10 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Лебединое озеро",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/10/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "10 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Валерий Гергиев",
+        "Ганс Сакс — Михаил Петренко",
+        "Ева — Ирина Чурилова",
+        "Вальтер фон Штольцинг — Михаил Векуа",
+        "Давид — Андрей Зорин",
+        "Сикстус Бекмессер — Ярослав Петряник",
+        "Магдалена — Анна Кикнадзе",
+        "Фейт Погнер — Евгений Никитин"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "17:00",
+      "title": "Нюрнбергские мейстерзингеры",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/10/2_1700/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "10 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Маленький принц",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/10/3_1200/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "10 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Заурбек Гугкаев"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "20:00",
+      "title": "Скупой рыцарь",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/10/3_2000/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "театр балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "11 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Жизель",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/11/1_1200/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "11 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Лебединое озеро",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/11/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "11 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Валерий Гергиев",
+        "Парсифаль — Михаил Векуа",
+        "Кундри — Екатерина Лукаш",
+        "Гурнеманц — Юрий Воробьёв",
+        "Амфортас — Алексей Марков",
+        "Клингзор — Михаил Петренко",
+        "Титурель — Владимир Феляуэр"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "17:00",
+      "title": "Парсифаль",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/11/2_1700/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "11 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Заурбек Гугкаев",
+        "Фигаро — Евгений Чернядьев",
+        "Сюзанна — Анна Денисова",
+        "Графиня — Екатерина Соловьёва",
+        "Граф Альмавива — Егор Чубаков",
+        "Керубино — Светлана Карпова",
+        "Марцелина — Ирма Джиголаты",
+        "Бартоло — Григорий Карасёв"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Свадьба Фигаро",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/11/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "low",
+      "classification_source": "ambiguous_not_ballet",
+      "date_text": "11 октября 2026",
+      "event_type": "unknown",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Сказка о крылатом льве и скрипаче Антонио",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/11/5_1200/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "low",
+      "classification_source": "ambiguous_not_ballet",
+      "date_text": "11 октября 2026",
+      "event_type": "unknown",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "14:00",
+      "title": "Сказка о крылатом льве и скрипаче Антонио",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/11/5_1400/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "12 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Гурген Петросян"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Евгений Онегин",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/12/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "12 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Пульчинелла Игра в карты Поцелуй феи",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/12/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балеты"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "12 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:30",
+      "title": "Гранд-опера от бренд-шефа: рецепты французской и итальянской оперы от автора «Вильгельма Телля»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/12/5_1930/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореография",
+        "хореограф",
+        "вариация"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "13 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Алексей Асланов"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Дон Кихот",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/13/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "13 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Владислава Карклин"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Сон в летнюю ночь",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/13/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "14 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Пахита",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/14/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "14 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Валерий Гергиев",
+        "Симфонический оркестр Мариинского театра",
+        "дирижер — Валерий Гергиев Симфонический оркестр Мариинского театра",
+        "дирижер — Валерий Гергиев К 120-летию со дня рождения Дмитрия Шостаковича Симфонический оркестр Мариинского театра"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Симфонический оркестр Мариинского театра, дирижер – Валерий Гергиев",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/14/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балеты",
+        "хореограф",
+        "вариация"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "14 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:30",
+      "title": "Воскрешая утраченное. Балеты: «Бабочка», «Качуча», «Маркитантка», «Сильфида», «Неаполь», «Ундина»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/14/5_1930/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "15 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Пахита",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/15/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "15 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Царская невеста",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/15/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "16 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Пахита",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/16/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "16 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Вильгельм Телль"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Вильгельм Телль",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/16/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "16 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Солист — Абисал Гергиев",
+        "Cолист и дирижер — Лоренц Настурика-Гершовичи"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Вольфганг Амадей Моцарт",
+        "Концерт для фортепиано с оркестром № 24 до минор, KV 491",
+        "Симфония № 40 соль минор, KV 550"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Моцарт. Дивертисмент фа мажор, Фортепианный концерт № 24, Симфония № 40",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/16/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "17 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Фея кукол",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/17/1_1200/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "17 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Анюта",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/17/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "17 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Вильгельм Телль"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Вильгельм Телль",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/17/2_1200/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "17 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Вильгельм Телль"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Вильгельм Телль",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/17/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "18 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Конек-горбунок",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/18/1_1300/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "18 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Конек-горбунок",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/18/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "18 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [
+        "Дмитрий Шостакович",
+        "«Праздничная увертюра», соч. 96",
+        "Два фрагмента из Струнного квартета № 8, соч. 110",
+        "Сюита из музыки к кинофильму «Овод», соч. 97а",
+        "Концертино ля минор, соч. 94"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "15:00",
+      "title": "Шостакович",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/18/3_1500/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "18 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Илья Папоян"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Фредерик Шопен",
+        "Соната для фортепиано № 2 си-бемоль минор, соч. 35",
+        "Сергей Рахманинов"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Шопен. Полонез, Соната № 2 Рахманинов. Пьесы-фантазии, Вариации на тему Корелли",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/18/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "театр балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "19 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Спящая красавица",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/19/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "19 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Паяцы",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/19/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "19 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Солист — Егор Семенков",
+        "Чтец — Владимир Рылов",
+        "Дирижер — Константин Рылов"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Георгий Свиридов"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Свиридов. «Поэма памяти Сергея Есенина», «Метель»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/19/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "20 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Ромео и Джульетта",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/20/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "20 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Кристиан Кнапп"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Адриана Лекуврёр",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/20/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "20 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Константин Рылов",
+        "Хор Мариинского театра",
+        "Ольга Котлярова"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Открытие ХIV Международного органного фестиваля «Мариинский»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/20/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "21 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Ромео и Джульетта",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/21/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "low",
+      "classification_source": "ambiguous_not_ballet",
+      "date_text": "21 октября 2026",
+      "event_type": "unknown",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Пётр Дранга",
+        "Хор и Симфонический оркестр Мариинского театра",
+        "Юра Борисов",
+        "Евгений Водолазкин"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "20:00",
+      "title": "Лавр",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/21/2_2000/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "21 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Кристиан Кнапп"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Фальстаф",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/21/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "22 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Георгий Албегов"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Дон Паскуале",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/22/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "22 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Коппелия",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/22/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "22 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Кристиан Кнапп",
+        "Симфонический оркестр Мариинского театра",
+        "Альбина Шагимуратова"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Альбина Шагимуратова (сопрано)",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/22/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "23 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Гурген Петросян",
+        "Графиня — Ольга Бородина"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Пиковая дама",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/23/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "23 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Коппелия",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/23/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "23 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Валерий Карчагин",
+        "Оксана Анисимова",
+        "Илья Тарасенко",
+        "Ярослава Кучерявых",
+        "Софья Кипрская",
+        "Эрнст Теодор Амадей Гофман",
+        "Луиджи Боккерини",
+        "Сергей Кравцов"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Квинтет для арфы и струнного квартета до минор",
+        "Вольфганг Амадей Моцарт",
+        "Струнный квартет № 17 си-бемоль мажор, KV 458",
+        "Квинтет для гитары и струнных № 4 ре мажор («Фанданго»)",
+        "«Английские сюиты» (Транскрипция песен The Beatles для струнного квартета)",
+        "«Элегическое концертино» для арфы и струнного квартета"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Гофман. Моцарт. Боккерини. Кравцов. Кипрский",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/23/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "24 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Шурале",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/24/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "24 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [
+        "Надежда Павлова"
+      ],
+      "performers_preview": [
+        "Дирижер — Кристиан Кнапп",
+        "Адальджиза — Диана Казанлиева",
+        "Поллион — Сергей Скороходов",
+        "Оровезо — Юрий Воробьёв"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Норма",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/24/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "24 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Евгений Онегин",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/24/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "medium",
+      "classification_source": "concert_indicator",
+      "date_text": "24 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Ксилофон и колокольчики, или две ночные истории на музыку Вивальди",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/24/6_1200/",
+      "venue": "Зал Мусоргского",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "medium",
+      "classification_source": "concert_indicator",
+      "date_text": "24 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "14:00",
+      "title": "Ксилофон и колокольчики, или две ночные истории на музыку Вивальди",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/24/6_1400/",
+      "venue": "Зал Мусоргского",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "25 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Шурале",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/25/1_1300/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "25 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Шурале",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/25/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "25 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Кристиан Кнапп",
+        "Норма — Мария Баянкина",
+        "Адальджиза — Ирина Шишкова",
+        "Поллион — Ярамир Низамутдинов",
+        "Оровезо — Глеб Перязев"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Норма",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/25/2_1300/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "25 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Кристиан Кнапп",
+        "Норма — Инара Козловская",
+        "Адальджиза — Екатерина Лукаш",
+        "Поллион — Игорь Морозов",
+        "Оровезо — Геворг Григорян"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Норма",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/25/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "25 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Марина Вяйзя. Oрганный концерт для детей",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/25/3_1200/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "26 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Заурбек Гугкаев"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Дон Жуан",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/26/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "26 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Гурген Петросян"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Идоменей, царь Критский",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/26/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "27 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Свадьба Фигаро",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/27/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "27 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Анна Каренина",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/27/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "27 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Концерт солистов Академии молодых оперных певцов Мариинского театра",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/27/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "28 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Похищение из сераля",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/28/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "28 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Анна Каренина",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/28/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "28 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Андони Андрада",
+        "Николаус Брунс",
+        "Феликс Мендельсон",
+        "Шарль-Мари Видор",
+        "Ференц Лист"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Прелюдия ми минор Иоганн Себастьян Бах",
+        "Хоральная прелюдия Nun freut euch, lieben Christen g’mein («Радуйтесь, возлюбленные христиане»), BWV 734",
+        "Хоральная прелюдия Vater unser im Himmelreich («Отец наш в небесах»), BWV 762",
+        "Хоральная прелюдия Nun komm, der Heiden Heiland («Приди, язычников Спаситель»), BWV 661",
+        "Прелюдия и фуга для органа до мажор, BWV 547",
+        "Фантазия и фуга до минор, BWV 537",
+        "Роберт Шуман",
+        "Andante sostenuto из Органной симфонии № 9 до минор, соч. 70"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Андони Андрада (орган)",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/28/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "29 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Жизель",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/29/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "29 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Заурбек Гугкаев"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Идиот",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/29/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "30 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Жизель",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/30/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "30 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Заурбек Гугкаев"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Евгений Онегин",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/30/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "30 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Владислава Карклин"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Путешествие в Реймс",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/30/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "31 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Каменный цветок",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/31/1_1300/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "31 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Каменный цветок",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/31/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "31 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Волшебная флейта",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/31/2_1300/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "31 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Волшебная флейта",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/31/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "31 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Елена Цыбко",
+        "Софья Кипрская"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Елена Цыбко (орган), Софья Кипрская (арфа)",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/31/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "4 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Бахчисарайский фонтан",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/4/1_1300/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "4 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Бахчисарайский фонтан",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/4/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "4 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [
+        "Михаил Кит"
+      ],
+      "performers_preview": [
+        "Дирижер — Владислава Карклин",
+        "Людмила — Екатерина Савинкова",
+        "Руслан — Евгений Никитин",
+        "Ратмир — Екатерина Крапивина",
+        "Фарлаф — Михаил Колелишвили",
+        "Горислава — Жанна Домбровская",
+        "Финн — Ярамир Низамутдинов",
+        "Баян — Евгений Акимов"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "13:00",
+      "title": "Руслан и Людмила",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/4/2_1300/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балеты",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "4 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Кот Мурыч — Игорь Барбаков",
+        "Мурка Барсиковна — Луиза Губиева",
+        "Муся — Цветана Омельчук",
+        "Мусильда — Регина Рустамова",
+        "Василий — Игорь Чикишев",
+        "Тимофей — Дмитрий Григорьев",
+        "Анна Кантор"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "12:00",
+      "title": "Кот Мурыч",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/4/3_1200/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "4 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Константин Рылов",
+        "Хор, Детский хор и Симфонический оркестр Мариинского театра",
+        "Юлия Сулейманова",
+        "Александр Михайлов",
+        "Владимир Мороз",
+        "Карл Орф",
+        "Ответственный концертмейстер — Марина Мишук",
+        "Хормейстер детского хора — Ирина Яцемирская"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "«Кармина Бурана», кантата"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "20:00",
+      "title": "Кармина Бурана",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/4/3_2000/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "5 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Валерий Гергиев",
+        "Хор и Симфонический оркестр Мариинского театра",
+        "Зинаида Царенко",
+        "Александр Михайлов",
+        "Михаил Петренко",
+        "Гектор Берлиоз",
+        "Главный хормейстер — Константин Рылов",
+        "Анна Булычёва"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "«Ромео и Джульетта», драматическая симфония для солистов, хора и оркестра по трагедии Уильяма Шекспира"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "18:00",
+      "title": "Берлиоз. «Ромео и Джульетта»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/5/3_1800/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф",
+        "вариация"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "6 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Корсар",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/6/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "6 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Анна Болейн — Хибла Герзмава",
+        "Генрих VIII — Алексей Кулагин",
+        "Джейн Сеймур — Лариса Андреева",
+        "Сэр Риккардо Персиваль — Дамир Садуахасов",
+        "Паж Марк Сметон — Маргарита Глазунова"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Анна Болейн",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/6/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "6 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Солистка — София Виланд",
+        "Симфонический оркестр Мариинского театра",
+        "Феликс Мендельсон"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Концерт для скрипки с оркестром ми минор, соч. 64 (транскрипция для флейты)",
+        "Полная программа концерта будет опубликована позднее"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Мендельсон",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/6/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "7 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Сильфида",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/7/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "7 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Отторино Респиги",
+        "Джузеппе Мартуччи",
+        "Дирижер — Фабио Мастранджело"
+      ],
+      "performers_source": "program_adjacent",
+      "program_preview": [
+        "Симфоническая поэма «Фонтаны Рима»",
+        "Фредерик Шопен",
+        "Концерт для фортепиано с оркестром № 1 ми минор, соч. 11",
+        "Симфония № 1 ре минор, соч. 75"
+      ],
+      "sections_found": [
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Респиги. Шопен. Мартуччи",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/7/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "8 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Шопениана Блестящий дивертисмент ( премьера ) Юноша и смерть",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/8/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "8 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Анна Болейн — Хибла Герзмава",
+        "Генрих VIII — Алексей Кулагин",
+        "Джейн Сеймур — Лариса Андреева",
+        "Сэр Риккардо Персиваль — Дамир Садуахасов",
+        "Паж Марк Сметон — Маргарита Глазунова"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Анна Болейн",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/8/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "8 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Андрей Колясников",
+        "Симфонический оркестр Мариинского театра",
+        "Федора Освер",
+        "Тихон Евланов",
+        "Алексей Мельников",
+        "Ян Калливода",
+        "Эдуард Элгар"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Концертино для гобоя с оркестром фа мажор, соч. 110",
+        "Концерт для виолончели с оркестром ми минор, соч. 85",
+        "Сергей Прокофьев",
+        "Концерт для фортепиано с оркестром № 3 до мажор, соч. 26"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Калливода. Концертино для гобоя с оркестром Элгар. Виолончельный концерт Прокофьев. Третий фортепианный концерт",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/8/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "medium",
+      "classification_source": "concert_indicator",
+      "date_text": "8 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "16:00",
+      "title": "Открытый мастер-класс Лоренца Настурика-Гершовичи",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/8/8_1600/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "9 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Валерий Гергиев",
+        "Татьяна — Диана Казанлиева",
+        "Ленский — Роман Широких",
+        "Ольга — Светлана Карпова"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "11:30",
+      "title": "Евгений Онегин",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/9/1_1130/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета",
+        "хореография",
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "9 октября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Лебединое озеро",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/9/1_1900/",
+      "venue": "Мариинский театр",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "хореограф"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "9 октября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Валерий Гергиев",
+        "Полина — Екатерина Лукаш",
+        "Графиня — Ольга Бородина"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Пиковая дама",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/9/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "9 октября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Cолист и дирижер — Лоренц Настурика-Гершовичи",
+        "Леонид Голобородько",
+        "Софья Чалая",
+        "Оксана Ворошева",
+        "Кирилл Торченюк",
+        "Алексей Вантеев",
+        "Алёна Пешкина",
+        "София Батырева"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "Симфония для струнного оркестра № 9 до мажор",
+        "Струнный квартет ре минор («Смерть и девушка»)"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "20:00",
+      "title": "Мендельсон. Девятая симфония Шуберт – Малер. «Смерть и девушка»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/10/9/3_2000/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балеты",
+        "хореограф",
+        "вариация"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_ballet",
+      "date_text": "11 ноября 2026",
+      "event_type": "ballet",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "clear_ballet",
+      "status": "skipped",
+      "time_source": "detail_page",
+      "time_text": "19:30",
+      "title": "Причуды любви. Балеты: «Увядающие листья», «Сиреневый сад», «В ночи»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/11/5_1930/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет",
+        "балета"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "20 ноября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Саломея — Жанна Домбровская",
+        "Иоканаан — Евгений Никитин",
+        "Ирод — Андрей Попов",
+        "Иродиада — Лариса Гоголевская"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Саломея",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/20/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "28 ноября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Оксана Чунчукова",
+        "Кристина Строгова",
+        "Наталья Эрта",
+        "Семён Такмаков",
+        "Артемий Знаменский"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "арт-концерт на музыку Дмитрия Шостаковича по мотивам рассказов Михаила Зощенко"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "16:00",
+      "title": "Граждане сатирики",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/28/5_1600/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "28 ноября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Оксана Чунчукова",
+        "Кристина Строгова",
+        "Наталья Эрта",
+        "Семён Такмаков",
+        "Артемий Знаменский"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [
+        "арт-концерт на музыку Дмитрия Шостаковича по мотивам рассказов Михаила Зощенко"
+      ],
+      "sections_found": [
+        "Исполнители",
+        "В программе"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:30",
+      "title": "Граждане сатирики",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/28/5_1930/",
+      "venue": "Зал Щедрина",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "29 ноября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Cолист и дирижер — Лоренц Настурика-Гершовичи"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Страдивари-ансамбль Мариинского театра и участники Первой оркестровой академии",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/29/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [
+        "балет"
+      ],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_opera",
+      "date_text": "30 ноября 2026",
+      "event_type": "opera",
+      "included_despite_ballet_words": true,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Риголетто",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/30/2_1900/",
+      "venue": "Мариинский-2",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "high",
+      "classification_source": "list_concert",
+      "date_text": "4 ноября 2026",
+      "event_type": "concert",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [
+        "Дирижер — Павел Теплов",
+        "Камерный Хор Мариинского театра",
+        "Леонид Карев",
+        "Софья Кипрская"
+      ],
+      "performers_source": "detail_section",
+      "program_preview": [],
+      "sections_found": [
+        "Исполнители"
+      ],
+      "skip_reason": "",
+      "status": "included",
+      "time_source": "detail_page",
+      "time_text": "19:00",
+      "title": "Закрытие ХIV Международного органного фестиваля «Мариинский»",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/11/4/3_1900/",
+      "venue": "Концертный зал",
+      "venue_source": "url_code"
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "",
+      "classification_source": "",
+      "date_text": "",
+      "error": "ValueError: month must be in 1..12",
+      "event_type": "",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "failed",
+      "time_source": "",
+      "time_text": "",
+      "title": "",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/35/16/5_1930/",
+      "venue": "",
+      "venue_source": ""
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "",
+      "classification_source": "",
+      "date_text": "",
+      "error": "ValueError: month must be in 1..12",
+      "event_type": "",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "failed",
+      "time_source": "",
+      "time_text": "",
+      "title": "",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/35/19/5_1600/",
+      "venue": "",
+      "venue_source": ""
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "",
+      "classification_source": "",
+      "date_text": "",
+      "error": "ValueError: month must be in 1..12",
+      "event_type": "",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "failed",
+      "time_source": "",
+      "time_text": "",
+      "title": "",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/35/19/5_1930/",
+      "venue": "",
+      "venue_source": ""
+    },
+    {
+      "ballet_markers_found": [],
+      "cancellation_source": "",
+      "cancelled": false,
+      "classification_confidence": "",
+      "classification_source": "",
+      "date_text": "",
+      "error": "ValueError: month must be in 1..12",
+      "event_type": "",
+      "included_despite_ballet_words": false,
+      "main_roles_preview": [],
+      "performers_preview": [],
+      "performers_source": "none",
+      "program_preview": [],
+      "sections_found": [],
+      "skip_reason": "",
+      "status": "failed",
+      "time_source": "",
+      "time_text": "",
+      "title": "",
+      "url": "https://www.mariinsky.ru/playbill/playbill/2026/35/27/3_1900/",
+      "venue": "",
+      "venue_source": ""
+    }
+  ],
+  "run_at": "2026-10-04T01:00:46Z",
+  "run_mode": "live",
+  "scan_complete": true,
+  "schema_version": 3,
+  "source_errors": [],
+  "state_update_strategy": "replace",
+  "summary": {
+    "mariinsky": {
+      "failed": 4,
+      "included": 67,
+      "links_found": 105,
+      "scan_complete": true,
+      "skipped": 34
+    }
+  },
+  "would_notify_count": 0,
+  "would_notify_preview": []
+}
