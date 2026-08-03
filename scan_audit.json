@@ -1,0 +1,22 @@
+{
+  "app": "Mariinsky Watcher V3",
+  "engine_version": "V3.11-new-event-cast",
+  "items": [],
+  "run_at": "2026-10-25T00:00:58Z",
+  "run_mode": "live",
+  "scan_complete": true,
+  "schema_version": 3,
+  "source_errors": [],
+  "state_update_strategy": "replace",
+  "summary": {
+    "mariinsky": {
+      "failed": 0,
+      "included": 0,
+      "links_found": 0,
+      "scan_complete": true,
+      "skipped": 0
+    }
+  },
+  "would_notify_count": 0,
+  "would_notify_preview": []
+}

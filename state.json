@@ -1,0 +1,12 @@
+{
+  "app": "Mariinsky Watcher V3",
+  "engine_version": "V3.11-new-event-cast",
+  "pending_messages": [],
+  "schema_version": 3,
+  "sources": {
+    "mariinsky": {
+      "events": {}
+    }
+  },
+  "updated_at": "2026-10-25T00:01:01Z"
+}
