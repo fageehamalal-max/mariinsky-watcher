@@ -87,7 +87,7 @@ def make_soup(raw_html):
 
 APP_NAME = "Mariinsky Watcher V3"
 SCHEMA_VERSION = 3
-ENGINE_VERSION = "V3.10-identity-cleanup"
+ENGINE_VERSION = "V3.11-new-event-cast"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -504,6 +504,7 @@ COMPOSERS = [
     "Бизе",
     "Малер",
     "Шостакович",
+    "Свиридов",
 ]
 
 
@@ -1320,6 +1321,8 @@ def extract_performers_from_lines(lines):
         if low.startswith("при участии"):
             participants.extend([name for name in split_participation(line) if looks_like_person_name(name)])
             continue
+        if looks_like_composer_name_line(line):
+            continue
         if looks_like_person_name(line):
             participants.append(normalize_person_name(line, "nomn"))
             continue
@@ -1713,6 +1716,41 @@ def format_new(record):
     return "\n".join(parts).strip()
 
 
+def initial_cast_lines(record):
+    """Return initial performers/main roles once, preferring detailed role lines."""
+    performers = filter_stored_items(
+        record.get("performers", []),
+        normalize_stored_performer_item,
+        person_compare_key,
+    )
+    main_roles = filter_stored_items(
+        record.get("main_roles", []),
+        normalize_stored_performer_item,
+        person_compare_key,
+    )
+    performer_keys = {person_compare_key(item) for item in performers}
+    main_roles = [
+        item for item in main_roles
+        if person_compare_key(item) not in performer_keys
+    ]
+    return performers + main_roles
+
+
+def format_initial_cast(record):
+    cast = initial_cast_lines(record)
+    if not cast:
+        return ""
+    section = section_added_removed(
+        "Изменение в составе:",
+        cast,
+        [],
+        decorate_performer_line,
+    )
+    parts = header_lines(record)
+    parts += ["", section, "", link_line(record)]
+    return "\n".join(parts).strip()
+
+
 def format_removed(record):
     title = clean(record.get("title", "Без названия"))
     parts = [venue_line(record), f"{EMOJI_CANCELLED} {title}"]
@@ -1748,6 +1786,8 @@ def format_replacement(old, new):
 def normalize_stored_performer_item(item):
     text = clean(item)
     if not text:
+        return ""
+    if looks_like_composer_name_line(text):
         return ""
     performer_line = sanitize_performer_line(text)
     if performer_line:
@@ -1899,7 +1939,13 @@ def build_messages(old_events, new_events, seen_urls=None, failed_urls=None, all
     for url, new in sorted((new_events or {}).items()):
         old = (old_events or {}).get(url)
         if old is None:
-            messages.append(format_cancelled(new) if new.get("cancelled", False) else format_new(new))
+            if new.get("cancelled", False):
+                messages.append(format_cancelled(new))
+            else:
+                messages.append(format_new(new))
+                initial_cast_message = format_initial_cast(new)
+                if initial_cast_message:
+                    messages.append(initial_cast_message)
         elif old.get("digest") != new.get("digest"):
             message = format_changed(old, new)
             if message:
