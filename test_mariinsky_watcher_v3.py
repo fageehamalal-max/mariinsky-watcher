@@ -909,6 +909,62 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertNotIn("Новый спектакль", message)
         self.assertNotIn("Новое событие", message)
 
+    def test_new_event_with_initial_cast_sends_separate_cast_message(self):
+        record = sample_record(
+            "/playbill/playbill/2026/10/19/3_1900/",
+            "Свиридов. «Поэма памяти Сергея Есенина», «Метель»",
+            performers=[
+                "Солист — Егор Семенков",
+                "Чтец — Владимир Рылов",
+                "Дирижер — Константин Рылов",
+            ],
+        )
+        messages = watcher.build_messages({}, {record["url"]: record})
+        self.assertEqual(len(messages), 2)
+        self.assertIn("🐣𝄞 Свиридов. «Поэма памяти Сергея Есенина», «Метель»", messages[0])
+        self.assertNotIn("Егор Семенков", messages[0])
+        self.assertIn("Изменение в составе:", messages[1])
+        self.assertIn("🟢 Добавлено:", messages[1])
+        self.assertIn("Солист — Егор Семенков", messages[1])
+        self.assertIn("Чтец — Владимир Рылов", messages[1])
+        self.assertIn("Дирижер — Константин Рылов", messages[1])
+
+    def test_new_event_without_initial_cast_keeps_single_compact_message(self):
+        record = sample_record(title="Фауст")
+        messages = watcher.build_messages({}, {record["url"]: record})
+        self.assertEqual(messages, [watcher.format_new(record)])
+
+    def test_initial_cast_dedupes_person_between_performers_and_main_roles(self):
+        record = sample_record(
+            title="Идиот",
+            performers=["Рогожин — Владислав Сулимский"],
+        )
+        record["main_roles"] = ["Владислава Сулимского"]
+        record["main_roles_source"] = "list_main_roles"
+        record = watcher.with_digest(record)
+        cast = watcher.initial_cast_lines(record)
+        self.assertEqual(cast, ["Рогожин — Владислав Сулимский"])
+
+    def test_sviridov_name_is_not_stored_as_performer(self):
+        self.assertTrue(watcher.looks_like_composer_name_line("Георгий Свиридов"))
+        self.assertEqual(watcher.normalize_stored_performer_item("Георгий Свиридов"), "")
+        self.assertEqual(
+            watcher.extract_performers_from_lines(
+                [
+                    "Солист — Егор Семенков",
+                    "Чтец — Владимир Рылов",
+                    "Дирижер — Константин Рылов",
+                    "Георгий Свиридов",
+                ]
+            ),
+            [
+                "Солист — Егор Семенков",
+                "Чтец — Владимир Рылов",
+                "Дирижер — Константин Рылов",
+            ],
+        )
+
+
     def test_feminine_nominative_is_not_masculinized(self):
         self.assertEqual(watcher.normalize_person_name("Евгения Муравьёва", "nomn"), "Евгения Муравьёва")
         self.assertEqual(
