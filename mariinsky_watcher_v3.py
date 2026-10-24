@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import itertools
 import math
@@ -9,7 +10,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import date, datetime, timezone
 from pathlib import Path
-from urllib.parse import urljoin, urldefrag
+from urllib.parse import urljoin, urldefrag, urlsplit
 from zoneinfo import ZoneInfo
 
 try:
@@ -87,7 +88,7 @@ def make_soup(raw_html):
 
 APP_NAME = "Mariinsky Watcher V3"
 SCHEMA_VERSION = 3
-ENGINE_VERSION = "V3.11-new-event-cast"
+ENGINE_VERSION = "V3.12-safe-scan"
 
 STATE_FILE = Path(os.getenv("STATE_FILE", "state.json"))
 AUDIT_FILE = Path(os.getenv("AUDIT_FILE", "scan_audit.json"))
@@ -617,16 +618,48 @@ def fetch_page(url):
     last_exc = None
     for attempt in range(1, 4):
         try:
-            response = SESSION.get(url, timeout=30)
+            if not is_mariinsky_playbill_url(url):
+                raise PageValidationError("Unexpected playbill URL")
+            # Follow only redirects within the official HTTPS playbill, never a challenge.
+            response = SESSION.get(url, timeout=30, allow_redirects=False)
             response.raise_for_status()
+            if 300 <= response.status_code < 400:
+                raise PageValidationError("Unexpected redirect; page was not followed")
+            content_type = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
+            if content_type not in {"text/html", "application/xhtml+xml"}:
+                raise PageValidationError("Expected an HTML page")
             if not response.encoding or response.encoding.lower() in {"ascii", "iso-8859-1"}:
                 response.encoding = response.apparent_encoding or "utf-8"
+            validate_page(response.text)
             return response.text
         except requests.RequestException as exc:
             last_exc = exc
             if attempt < 3:
                 time.sleep(1.5 * attempt)
     raise last_exc
+
+
+class PageValidationError(ValueError):
+    pass
+
+
+def is_mariinsky_playbill_url(url):
+    parts = urlsplit(url)
+    return (parts.scheme == "https" and parts.netloc == "www.mariinsky.ru"
+            and parts.path.startswith("/playbill/playbill/") and not parts.query)
+
+
+def validate_page(raw_html):
+    """HTTP 200 is not proof of a usable page. Do not retry security challenges."""
+    soup = make_soup(raw_html)
+    text = clean(soup.get_text(" "))
+    if not text:
+        raise PageValidationError("Empty HTML page")
+    headings = " ".join(tag.get_text(" ", strip=True) for tag in soup.select("title") + soup.select("h1"))
+    blocked = r"проверк[аиу] безопасности|доступ (?:ограничен|запрещен)|access denied|just a moment|security check|service unavailable|bad gateway|страница не найдена|404 not found|\bошибка\b|\berror\b|(?:сервис|сайт|страница)\s+(?:временно\s+)?недоступ[а-я]*|технические работы|ведутся технические|temporarily unavailable|maintenance"
+    if re.search(blocked, headings, re.I) or re.search(r"(?:enable|включить|необходимо включить)\s+javascript|checking your browser|verify you are human", text, re.I):
+        raise PageValidationError("Security challenge or error page")
+    return soup
 
 
 def month_urls(root=MARIINSKY_ROOT, months_ahead=MONTHS_AHEAD):
@@ -774,7 +807,7 @@ def extract_playbill_links(html, base_url=MARIINSKY_ROOT):
     links = {}
     for a_tag in soup.find_all("a", href=True):
         href = normalize_url(urljoin(base_url, a_tag["href"]))
-        if not re.search(r"/playbill/playbill/\d{4}/\d{1,2}/\d{1,2}/\d+_\d{4}/", href):
+        if not is_mariinsky_playbill_url(href) or not re.fullmatch(r"/playbill/playbill/\d{4}/\d{1,2}/\d{1,2}/\d+_\d{4}/", urlsplit(href).path):
             continue
         text_parts = [clean(a_tag.get_text(" ", strip=True))]
         parent = a_tag
@@ -788,6 +821,39 @@ def extract_playbill_links(html, base_url=MARIINSKY_ROOT):
         list_text = clean(" ".join(text_parts))
         links[href] = {"url": href, "list_text": list_text, "list_type": infer_list_type(list_text)}
     return list(links.values())
+
+
+def extract_day_links(raw_html, base_url):
+    """Follow public calendar links for this month only, with no synthesized bypass URLs."""
+    month_path = urlsplit(base_url).path
+    if not re.fullmatch(r"/playbill/playbill/\d{4}/\d{1,2}/", month_path):
+        return []
+    days = set()
+    for tag in make_soup(raw_html).find_all("a", href=True):
+        url = normalize_url(urljoin(base_url, tag["href"]))
+        if is_mariinsky_playbill_url(url) and re.fullmatch(re.escape(month_path) + r"\d{1,2}/", urlsplit(url).path):
+            try:
+                year, month, day = map(int, urlsplit(url).path.strip("/").split("/")[-3:])
+                date(year, month, day)
+            except ValueError:
+                continue
+            days.add(url)
+    return sorted(days)
+
+
+def listing_links(raw_html, url, allow_empty_month=False):
+    soup = validate_page(raw_html)
+    links = extract_playbill_links(raw_html, url)
+    days = extract_day_links(raw_html, url)
+    if links or days:
+        return links, days
+    # A valid, explicitly empty future calendar is allowed. A blank/root/day page is not.
+    text = clean(soup.get_text(" "))
+    headings = " ".join(tag.get_text(" ", strip=True) for tag in soup.select("h1"))
+    empty = re.search(r"(?:событи[йя]|спектакл[еи][йя]|мероприяти[йя])\s+(?:не найден[оы]?|нет|отсутствуют)|нет\s+(?:событий|спектаклей|мероприятий)", text, re.I)
+    if allow_empty_month and "афиша" in headings.lower() and empty:
+        return [], []
+    raise PageValidationError("No event/day links or explicit empty calendar")
 
 
 def find_section(lines, headers, max_lines=120):
@@ -1525,8 +1591,16 @@ def build_audit_item(url, title="", status="failed", **extra):
 def parse_mariinsky_event(url, list_text="", list_type="", html=None):
     url = normalize_url(url)
     html = html if html is not None else fetch_page(url)
-    soup = make_soup(html)
+    soup = validate_page(html)
+    if not any(is_valid_title(tag.get_text(" ", strip=True)) for tag in soup.select("h1")):
+        raise PageValidationError("Detail page has no valid event heading")
     lines = html_lines(soup)
+    # A list card's genre must not turn an arbitrary HTML error into an event.
+    detail_evidence = any(is_date_line(line) or is_time_line(line) for line in lines)
+    detail_evidence = detail_evidence or bool(find_section(lines, PERFORMER_HEADERS) or find_section(lines, PROGRAM_HEADERS))
+    detail_evidence = detail_evidence or any(infer_list_type(line) for line in lines if len(line) < 160)
+    if not detail_evidence:
+        raise PageValidationError("Detail page lacks event content evidence")
     title = title_from_soup(soup, fallback=list_text)
     event_dt, date_text, url_time_text, venue, venue_source = parse_mariinsky_url_parts(url)
     page_time_text = extract_page_time(lines, title)
@@ -1639,14 +1713,31 @@ def scan_all():
         "run_mode": RUN_MODE,
         "run_at": now_utc(),
         "source_errors": [],
+        "pages": [],
         "items": [],
         "summary": {},
     }
     link_map = {}
+    visited_days = set()
     for month_url in month_urls():
         try:
-            for link in extract_playbill_links(fetch_page(month_url), month_url):
+            path_parts = urlsplit(month_url).path.strip("/").split("/")
+            is_future_month = (len(path_parts) == 4 and tuple(map(int, path_parts[-2:])) > (today_moscow().year, today_moscow().month))
+            links, days = listing_links(fetch_page(month_url), month_url, allow_empty_month=is_future_month)
+            audit["pages"].append({"url": month_url, "event_links": len(links), "day_links": len(days), "explicit_empty": not links and not days})
+            for link in links:
                 link_map[link["url"]] = link
+            for day_url in days:
+                if day_url in visited_days:
+                    continue
+                visited_days.add(day_url)
+                try:
+                    day_links, _ = listing_links(fetch_page(day_url), day_url)
+                    audit["pages"].append({"url": day_url, "event_links": len(day_links)})
+                    for link in day_links:
+                        link_map[link["url"]] = link
+                except Exception as exc:
+                    audit["source_errors"].append({"url": day_url, "error": f"{type(exc).__name__}: {exc}"})
         except Exception as exc:
             audit["source_errors"].append({"url": month_url, "error": f"{type(exc).__name__}: {exc}"})
     events = {}
@@ -1661,7 +1752,9 @@ def scan_all():
         except Exception as exc:
             failed_urls.add(url)
             audit["items"].append(build_audit_item(url, status="failed", error=f"{type(exc).__name__}: {exc}"))
-    audit["scan_complete"] = not audit["source_errors"]
+    if not link_map:
+        audit["source_errors"].append({"url": MARIINSKY_ROOT, "error": "No event links in the entire scan"})
+    audit["scan_complete"] = bool(link_map) and not audit["source_errors"] and not failed_urls
     audit["summary"]["mariinsky"] = {
         "links_found": len(link_map),
         "included": sum(1 for item in audit["items"] if item["status"] == "included"),
@@ -1932,7 +2025,7 @@ def is_future_removed(record):
     return event_date is None or event_date > today_moscow()
 
 
-def build_messages(old_events, new_events, seen_urls=None, failed_urls=None, allow_removals=True):
+def build_messages(old_events, new_events, seen_urls=None, failed_urls=None, allow_removals=False):
     seen_urls = set(seen_urls or [])
     failed_urls = set(failed_urls or [])
     messages = []
@@ -1975,11 +2068,13 @@ def load_state():
         return None
     try:
         state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-    if not isinstance(state, dict):
-        return None
-    state.setdefault("sources", {}).setdefault("mariinsky", {}).setdefault("events", {})
+    except (ValueError, OSError) as exc:
+        raise RuntimeError("Existing state is unreadable; refusing to replace it") from exc
+    if (not isinstance(state, dict) or not isinstance(state.get("sources"), dict)
+            or not isinstance(state["sources"].get("mariinsky"), dict)
+            or not isinstance(state["sources"]["mariinsky"].get("events"), dict)
+            or not isinstance(state.get("pending_messages", []), list)):
+        raise RuntimeError("Existing state has an invalid structure; refusing to replace it")
     state.setdefault("pending_messages", [])
     return state
 
@@ -1991,7 +2086,9 @@ def save_state(state):
     state["updated_at"] = now_utc()
     state.setdefault("sources", {}).setdefault("mariinsky", {}).setdefault("events", {})
     state.setdefault("pending_messages", [])
-    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    temporary = STATE_FILE.with_name(STATE_FILE.name + ".tmp")
+    temporary.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    temporary.replace(STATE_FILE)
 
 
 def save_audit(audit):
@@ -1999,7 +2096,10 @@ def save_audit(audit):
 
 
 def add_pending(state, messages):
-    state.setdefault("pending_messages", []).extend([m for m in messages if clean(m)])
+    pending = state.setdefault("pending_messages", [])
+    for message in messages:
+        if clean(message) and message not in pending:
+            pending.append(message)
     if len(state["pending_messages"]) > PENDING_WARNING_THRESHOLD:
         print(f"WARNING: pending_messages is {len(state['pending_messages'])}, above threshold {PENDING_WARNING_THRESHOLD}.")
 
@@ -2100,6 +2200,67 @@ def debug_single_url(url):
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
 
 
+def assess_scan(old_state, events, seen_urls, failed_urls, audit):
+    """Conservative quality gate before any diff, state advancement or delivery."""
+    reasons = []
+    if not audit.get("scan_complete") or audit.get("source_errors") or failed_urls:
+        reasons.append("incomplete_sources_or_details")
+    if not seen_urls or not events:
+        reasons.append("empty_scan")
+    old_source = (old_state or default_state())["sources"]["mariinsky"]
+    old_events = old_source["events"]
+    today = today_moscow()
+    final_month = (today.year * 12 + today.month - 1) + MONTHS_AHEAD
+
+    def in_scope(url, record=None):
+        event_day = parse_event_date(record) if record else parse_mariinsky_url_parts(url)[0]
+        return event_day and event_day >= today and event_day.year * 12 + event_day.month - 1 <= final_month
+
+    previous = {url for url, record in old_events.items() if in_scope(url, record)}
+    current = {url for url, record in events.items() if in_scope(url, record)}
+    previous_seen = set(old_source.get("last_successful_scan", {}).get("seen_urls", []))
+    previous_seen = {url for url in previous_seen if in_scope(url)}
+    current_seen = {url for url in seen_urls if in_scope(url)}
+    comparisons = [("included", previous, current), ("links", previous_seen, current_seen)]
+    # Compare each calendar month as well as the whole horizon: one missing month
+    # must not be hidden by unchanged events in another month.
+    for label, before, after in comparisons:
+        groups = {"all": (before, after)}
+        for url in before:
+            day = parse_mariinsky_url_parts(url)[0]
+            if day:
+                month = day.strftime("%Y-%m")
+                groups[month] = ({u for u in before if parse_mariinsky_url_parts(u)[0].strftime("%Y-%m") == month},
+                                 {u for u in after if parse_mariinsky_url_parts(u)[0].strftime("%Y-%m") == month})
+        for month, (prior, present) in groups.items():
+            missing = len(prior - present)
+            if len(prior) >= 5 and missing >= 3 and len(prior & present) / len(prior) < 0.75:
+                reasons.append(f"sharp_drop_{label}:{month}:{len(prior)}->{len(prior & present)}")
+    audit["quality_errors"] = list(dict.fromkeys(reasons))
+    audit["scan_complete"] = not reasons
+    audit.setdefault("summary", {}).setdefault("mariinsky", {})["scan_complete"] = not reasons
+    return not reasons
+
+
+def refreshed_baseline(state, events, seen_urls):
+    """Prepare a current baseline only; never clear or replay an existing queue."""
+    if state.get("pending_messages") or state.get("delivery_uncertain"):
+        raise RuntimeError("Baseline recovery stopped: pending or uncertain Telegram delivery requires review")
+    result = copy.deepcopy(state)
+    source = result["sources"]["mariinsky"]
+    source["events"] = retain_unconfirmed_events(source["events"], events)
+    source.setdefault("last_successful_scan", {})["seen_urls"] = sorted(seen_urls)
+    return result
+
+
+def retain_unconfirmed_events(previous, scanned):
+    """Missing links do not prove cancellation. Keep their last trusted future record."""
+    retained = {url: copy.deepcopy(record) for url, record in previous.items()
+                if parse_event_date(record) is None or parse_event_date(record) >= today_moscow()}
+    retained.update(copy.deepcopy(scanned))
+    return retained
+
+
 def main():
     if RUN_MODE not in {"dry_run", "bootstrap", "live"}:
         raise RuntimeError("RUN_MODE must be dry_run, bootstrap, or live")
@@ -2107,68 +2268,62 @@ def main():
         debug_single_url(DEBUG_URL)
         return
 
-    scanned, seen_urls, failed_urls, audit = scan_all()
     old_state = load_state()
+    scanned, seen_urls, failed_urls, audit = scan_all()
     old_events = (old_state or default_state())["sources"]["mariinsky"]["events"]
-    scan_complete = bool(audit.get("scan_complete", False))
+    scan_complete = assess_scan(old_state, scanned["mariinsky"], seen_urls["mariinsky"], failed_urls["mariinsky"], audit)
     messages = build_messages(
         old_events,
         scanned["mariinsky"],
         seen_urls["mariinsky"],
         failed_urls["mariinsky"],
-        allow_removals=scan_complete,
-    )
+        allow_removals=False,
+    ) if scan_complete else []
     audit["would_notify_count"] = len(messages)
     audit["would_notify_preview"] = messages[:20]
-    save_audit(audit)
-
-    if old_state is None:
-        new_state = default_state()
-        new_state["sources"]["mariinsky"]["events"] = scanned["mariinsky"]
-        if RUN_MODE == "dry_run":
-            print("DRY_RUN: no state exists. Current scan was audited but state was not created.")
-            return
-        if not scan_complete:
-            print("ERROR: initial baseline was not created because the scan was incomplete.")
-            return
-        save_state(new_state)
-        print("No previous V3 state. Baseline created without Telegram messages.")
-        return
-
+    audit["unconfirmed_missing_preserved"] = sum(
+        1 for url, record in old_events.items() if url not in scanned["mariinsky"]
+        and (parse_event_date(record) is None or parse_event_date(record) >= today_moscow())
+    )
+    audit["inferred_removal_notifications"] = False
     if RUN_MODE == "dry_run":
-        print(f"DRY_RUN: would queue {len(messages)} messages. State was not changed.")
-        for message in messages[:20]:
-            print("--- WOULD NOTIFY ---")
-            print(message)
-        return
+        audit["state_update_strategy"] = "read_only"
+        print(json.dumps(audit, ensure_ascii=False, indent=2, sort_keys=True))
+        if not scan_complete:
+            raise RuntimeError("Read-only scan failed quality checks")
+        return audit
 
-    if scan_complete:
-        next_events = scanned["mariinsky"]
-        audit["state_update_strategy"] = "replace"
-    else:
-        next_events = dict(old_events)
-        next_events.update(scanned["mariinsky"])
-        audit["state_update_strategy"] = "merge_preserve_missing"
-        print(
-            "WARNING: incomplete scan; missing events were preserved and "
-            "removal notifications were suppressed."
-        )
-
-    old_state["sources"]["mariinsky"]["events"] = next_events
-    save_audit(audit)
-
+    if not scan_complete:
+        audit["state_update_strategy"] = "preserve_all"
+        save_audit(audit)
+        raise RuntimeError("Scan failed quality checks; state and queue were not changed and Telegram was not called")
+    if old_state is not None and old_state.get("delivery_uncertain"):
+        raise RuntimeError("Telegram delivery is uncertain; review before continuing")
     if RUN_MODE == "bootstrap":
-        old_state["pending_messages"] = []
-        save_state(old_state)
-        print(f"BOOTSTRAP: state refreshed. Pending cleared. {len(messages)} possible messages were not queued or sent.")
+        next_state = refreshed_baseline(old_state or default_state(), scanned["mariinsky"], seen_urls["mariinsky"])
+        audit["state_update_strategy"] = "baseline_preserve_metadata_and_queue"
+        save_audit(audit)
+        if next_state != old_state:
+            save_state(next_state)
+        print("BOOTSTRAP: current baseline verified; no notifications queued or sent.")
         return
 
+    if not old_events:
+        raise RuntimeError("No nonempty baseline. Use reviewed bootstrap before live to prevent a notification flood")
+    source = old_state["sources"]["mariinsky"]
+    source["events"] = retain_unconfirmed_events(old_events, scanned["mariinsky"])
+    source.setdefault("last_successful_scan", {})["seen_urls"] = sorted(seen_urls["mariinsky"])
+    audit["state_update_strategy"] = "update_verified_preserve_unconfirmed_missing"
+    save_audit(audit)
     add_pending(old_state, messages)
+    save_state(old_state)
     try:
         sent = flush_pending(old_state)
     except Exception as exc:
-        print(f"Telegram send stopped: {type(exc).__name__}: {exc}")
-        sent = 0
+        # A timeout may occur after delivery. Do not automatically retry next run.
+        old_state["delivery_uncertain"] = {"at": now_utc(), "reason": type(exc).__name__}
+        save_state(old_state)
+        raise RuntimeError("Telegram send stopped; delivery status requires review") from None
     save_state(old_state)
     print(f"Telegram messages sent this run: {sent}. Pending left: {len(old_state.get('pending_messages', []))}")
 

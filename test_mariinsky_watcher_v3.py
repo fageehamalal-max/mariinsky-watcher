@@ -1,8 +1,11 @@
 import copy
+import contextlib
+import io
 import json
 import tempfile
 import unittest
 from pathlib import Path
+from datetime import date
 from unittest.mock import Mock, patch
 
 import mariinsky_watcher_v3 as watcher
@@ -33,6 +36,13 @@ def sample_record(url="/playbill/playbill/2026/7/31/2_1900/", title="Туран�
 
 
 class MariinskyWatcherV3Tests(unittest.TestCase):
+    def setUp(self):
+        # All tests are offline. Dedicated Telegram contract tests override this mock.
+        for method in ("get", "post"):
+            network = patch.object(watcher.SESSION, method, side_effect=AssertionError("Unexpected network call in offline test"))
+            network.start()
+            self.addCleanup(network.stop)
+
     def test_opera_titles_are_not_ballet_due_to_description_words(self):
         for title in ["Джоконда", "Пиковая дама"]:
             cls = watcher.classify_event(title, "opera", ["описание содержит балет и хореография"])
@@ -300,7 +310,7 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         self.assertEqual(state, original)
         self.assertTrue(messages)
 
-    def test_main_dry_run_writes_audit_but_not_state_or_telegram(self):
+    def test_main_dry_run_writes_no_files_or_telegram(self):
         old = sample_record(title="Турандот")
         new = sample_record(title="Джоконда")
         state = watcher.default_state()
@@ -316,14 +326,14 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
                     {"mariinsky": {new["url"]: new}},
                     {"mariinsky": {new["url"]}},
                     {"mariinsky": set()},
-                    {"items": [], "summary": {}},
+                    {"items": [], "summary": {}, "scan_complete": True},
                 ),
             ), patch.object(watcher, "save_state", side_effect=AssertionError("dry_run must not save state")), patch.object(
                 watcher, "send_message", side_effect=AssertionError("dry_run must not send Telegram")
             ):
                 watcher.main()
             self.assertEqual(json.loads(state_path.read_text(encoding="utf-8")), state)
-            self.assertTrue(audit_path.exists())
+            self.assertFalse(audit_path.exists())
 
     def test_live_preserves_pending_messages_on_telegram_failure(self):
         state = watcher.default_state()
@@ -436,13 +446,15 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
                     {"mariinsky": set()},
                     audit,
                 ),
-            ), patch.object(watcher, "flush_pending", return_value=1):
-                watcher.main()
+            ), patch.object(watcher, "flush_pending", side_effect=AssertionError("Incomplete scan must not deliver")):
+                with self.assertRaisesRegex(RuntimeError, "Scan failed quality"):
+                    watcher.main()
 
             saved = json.loads(state_path.read_text(encoding="utf-8"))
             saved_events = saved["sources"]["mariinsky"]["events"]
             self.assertIn(old["url"], saved_events)
-            self.assertIn(new["url"], saved_events)
+            self.assertNotIn(new["url"], saved_events)
+            self.assertEqual(saved, state)
 
     def test_telegram_response_is_verified_and_logged(self):
         response = Mock()
@@ -1025,8 +1037,270 @@ class MariinskyWatcherV3Tests(unittest.TestCase):
         )
 
 
+class SafeScanTests(unittest.TestCase):
+    ROOT = watcher.MARIINSKY_ROOT
+    MONTH = ROOT + "2026/10/"
+    DAY = MONTH + "25/"
+    EVENT = DAY + "2_1900/"
+    FAR = ROOT + "2027/6/"
+    DETAIL = "<html><body><h1>Турандот</h1><h2>Исполнители</h2><p>Дирижер — Валерий Гергиев</p></body></html>"
+    CARD = '<html><body><h1>Афиша</h1><a href="/playbill/playbill/2026/10/25/2_1900/">Турандот опера</a></body></html>'
+
+    def setUp(self):
+        for method in ("get", "post"):
+            mocker = patch.object(watcher.SESSION, method, side_effect=AssertionError("Offline tests cannot access network"))
+            mocker.start()
+            self.addCleanup(mocker.stop)
+        clock = patch.object(watcher, "today_moscow", return_value=date(2026, 10, 24))
+        clock.start()
+        self.addCleanup(clock.stop)
+
+    def record(self, day=25):
+        return sample_record(f"/playbill/playbill/2026/10/{day}/2_1900/")
+
+    def snapshot(self, records=None):
+        events = {r["url"]: r for r in (records if records is not None else [self.record()])}
+        return ({"mariinsky": events}, {"mariinsky": set(events)}, {"mariinsky": set()},
+                {"items": [], "summary": {}, "source_errors": [], "scan_complete": True})
+
+    def run_main(self, mode, state, snapshot, expected_error=None):
+        with tempfile.TemporaryDirectory() as folder:
+            state_path = Path(folder) / "state.json"
+            audit_path = Path(folder) / "audit.json"
+            if state is not None:
+                state_path.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+            before = state_path.read_bytes() if state_path.exists() else None
+            with patch.object(watcher, "STATE_FILE", state_path), patch.object(watcher, "AUDIT_FILE", audit_path), patch.object(watcher, "RUN_MODE", mode), patch.object(watcher, "DEBUG_URL", ""), patch.object(watcher, "scan_all", return_value=snapshot), contextlib.redirect_stdout(io.StringIO()):
+                if expected_error:
+                    with self.assertRaisesRegex(RuntimeError, expected_error):
+                        watcher.main()
+                else:
+                    watcher.main()
+            after = state_path.read_bytes() if state_path.exists() else None
+            return before, after, json.loads(after) if after else None, json.loads(audit_path.read_text(encoding="utf-8")) if audit_path.exists() else None
+
+    def test_http_200_security_fixture_is_rejected_without_retry(self):
+        raw = (Path(__file__).parent / "tests/fixtures/security_check.html").read_text(encoding="utf-8")
+        response = Mock(status_code=200, headers={"Content-Type": "text/html"}, encoding="utf-8", text=raw)
+        with patch.object(watcher.SESSION, "get", return_value=response) as get:
+            with self.assertRaisesRegex(watcher.PageValidationError, "Security challenge"):
+                watcher.fetch_page(self.ROOT)
+            self.assertEqual(get.call_count, 1)
+
+    def test_http_200_blank_and_non_html_are_rejected(self):
+        for raw, content_type in [("", "text/html"), ("<html><body></body></html>", "text/html"), (self.CARD, "application/json")]:
+            response = Mock(status_code=200, headers={"Content-Type": content_type}, encoding="utf-8", text=raw)
+            with self.subTest(raw=raw), patch.object(watcher.SESSION, "get", return_value=response):
+                with self.assertRaises(watcher.PageValidationError):
+                    watcher.fetch_page(self.ROOT)
+
+    def test_unexpected_redirect_is_not_followed(self):
+        response = Mock(status_code=302)
+        with patch.object(watcher.SESSION, "get", return_value=response) as get:
+            with self.assertRaisesRegex(watcher.PageValidationError, "redirect"):
+                watcher.fetch_page(self.ROOT)
+            self.assertFalse(get.call_args.kwargs["allow_redirects"])
+
+    def test_error_page_and_detail_without_heading_are_rejected(self):
+        for raw in ['<html><title>Service unavailable</title><p>try again</p></html>', '<html><p>Турандот опера</p></html>', '<title>Ошибка</title><h1>Сервис временно недоступен</h1><p>Попробуйте позже</p>', '<h1>Please try again later</h1><p>Something happened</p>']:
+            with self.subTest(raw=raw), self.assertRaises(watcher.PageValidationError):
+                watcher.parse_mariinsky_event(self.EVENT, "Турандот опера", "opera", html=raw)
+
+    def test_scan_traverses_month_days_and_deduplicates(self):
+        pages = {self.ROOT: self.CARD, self.MONTH: '<h1>Афиша</h1><a href="25/">25</a><a href="25/">25</a>', self.DAY: self.CARD, self.EVENT: self.DETAIL}
+        with patch.object(watcher, "month_urls", return_value=[self.ROOT, self.MONTH]), patch.object(watcher, "fetch_page", side_effect=pages.__getitem__) as fetch:
+            events, seen, failed, audit = watcher.scan_all()
+        self.assertTrue(audit["scan_complete"])
+        self.assertEqual(set(events["mariinsky"]), {self.EVENT})
+        self.assertEqual(seen["mariinsky"], {self.EVENT})
+        self.assertFalse(failed["mariinsky"])
+        self.assertEqual(sum(call.args == (self.DAY,) for call in fetch.call_args_list), 1)
+        self.assertEqual(sum(call.args == (self.EVENT,) for call in fetch.call_args_list), 1)
+
+    def test_external_urls_and_days_outside_month_are_ignored(self):
+        raw = '<a href="https://evil.example/playbill/playbill/2026/10/25/2_1900/">Турандот</a><a href="https://evil.example/playbill/playbill/2026/10/25/">25</a><a href="../11/1/">1</a><a href="32/">32</a><a href="25/">25</a>'
+        self.assertFalse(watcher.extract_playbill_links(raw, self.MONTH))
+        self.assertEqual(watcher.extract_day_links(raw, self.MONTH), [self.DAY])
+
+    def test_explicit_empty_far_month_does_not_break_nonempty_scan(self):
+        pages = {self.ROOT: self.CARD, self.FAR: '<html><h1>Афиша</h1><p>Событий не найдено</p></html>', self.EVENT: self.DETAIL}
+        with patch.object(watcher, "month_urls", return_value=[self.ROOT, self.FAR]), patch.object(watcher, "fetch_page", side_effect=pages.__getitem__):
+            _, _, _, audit = watcher.scan_all()
+        self.assertTrue(audit["scan_complete"])
+        self.assertTrue(audit["pages"][1]["explicit_empty"])
+
+    def test_unexplained_empty_month_and_empty_current_month_are_errors(self):
+        for url, raw in [(self.FAR, '<h1>Афиша</h1>'), (self.MONTH, '<h1>Афиша</h1><p>Событий не найдено</p>')]:
+            with self.subTest(url=url), patch.object(watcher, "month_urls", return_value=[url]), patch.object(watcher, "fetch_page", return_value=raw):
+                _, _, _, audit = watcher.scan_all()
+            self.assertFalse(audit["scan_complete"])
+
+    def test_failed_day_or_detail_makes_whole_scan_incomplete(self):
+        for failing in [self.DAY, self.EVENT]:
+            pages = {self.MONTH: '<h1>Афиша</h1><a href="25/">25</a>', self.DAY: self.CARD, self.EVENT: self.DETAIL}
+            def fetch(url):
+                if url == failing:
+                    raise watcher.PageValidationError("bad page")
+                return pages[url]
+            with self.subTest(failing=failing), patch.object(watcher, "month_urls", return_value=[self.MONTH]), patch.object(watcher, "fetch_page", side_effect=fetch):
+                _, _, failed, audit = watcher.scan_all()
+            self.assertFalse(audit["scan_complete"])
+            if failing == self.EVENT:
+                self.assertEqual(failed["mariinsky"], {self.EVENT})
+
+    def test_zero_links_preserves_nonempty_state_and_pending(self):
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {self.EVENT: self.record()}
+        state["pending_messages"] = ["unsent queue entry"]
+        before, after, _, audit = self.run_main("live", state, self.snapshot([]), "Scan failed quality")
+        self.assertEqual(before, after)
+        self.assertEqual(audit["would_notify_count"], 0)
+        self.assertEqual(audit["state_update_strategy"], "preserve_all")
+
+    def test_sharp_drop_of_future_events_is_rejected(self):
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {r["url"]: r for r in [self.record(d) for d in range(25, 31)]}
+        before, after, _, audit = self.run_main("live", state, self.snapshot([self.record()]), "Scan failed quality")
+        self.assertEqual(before, after)
+        self.assertTrue(any("sharp_drop_included" in reason for reason in audit["quality_errors"]))
+
+    def test_month_drop_cannot_hide_behind_other_month(self):
+        state = watcher.default_state()
+        old = [self.record(d) for d in range(25, 31)] + [sample_record(f"/playbill/playbill/2026/11/{d}/2_1900/") for d in range(1, 25)]
+        state["sources"]["mariinsky"]["events"] = {r["url"]: r for r in old}
+        before, after, _, audit = self.run_main("live", state, self.snapshot(old[6:]), "Scan failed quality")
+        self.assertEqual(before, after)
+        self.assertTrue(any("2026-10" in reason for reason in audit["quality_errors"]))
+
+    def test_past_events_roll_out_without_false_anomaly(self):
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {r["url"]: r for r in [self.record(d) for d in range(1, 15)]}
+        audit = self.snapshot()[-1]
+        self.assertTrue(watcher.assess_scan(state, self.snapshot()[0]["mariinsky"], {self.EVENT}, set(), audit))
+
+    def test_last_successful_link_coverage_also_detects_drop(self):
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["last_successful_scan"] = {"seen_urls": [self.record(d)["url"] for d in range(25, 31)]}
+        audit = self.snapshot()[-1]
+        self.assertFalse(watcher.assess_scan(state, self.snapshot()[0]["mariinsky"], {self.EVENT}, set(), audit))
+
+    def test_initial_empty_live_state_requires_reviewed_bootstrap(self):
+        for state in [None, watcher.default_state()]:
+            with self.subTest(state=state):
+                before, after, _, _ = self.run_main("live", state, self.snapshot(), "No nonempty baseline")
+                self.assertEqual(before, after)
+
+    def test_bootstrap_preserves_unknown_fields_and_is_idempotent(self):
+        state = watcher.default_state()
+        state["operator_metadata"] = {"retain": 17}
+        state["sources"]["other"] = {"retain": True}
+        state["sources"]["mariinsky"]["unknown"] = "retain"
+        state["sources"]["mariinsky"]["last_successful_scan"] = {"seen_urls": [], "operator_field": {"retain": True}}
+        _, _, saved, _ = self.run_main("bootstrap", state, self.snapshot())
+        self.assertEqual(saved["operator_metadata"], state["operator_metadata"])
+        self.assertEqual(saved["sources"]["other"], state["sources"]["other"])
+        self.assertEqual(saved["sources"]["mariinsky"]["unknown"], "retain")
+        self.assertEqual(saved["sources"]["mariinsky"]["last_successful_scan"]["operator_field"], {"retain": True})
+        self.assertEqual(saved["pending_messages"], [])
+        before, after, _, _ = self.run_main("bootstrap", saved, self.snapshot())
+        self.assertEqual(before, after)
+        self.assertEqual(watcher.build_messages(saved["sources"]["mariinsky"]["events"], self.snapshot()[0]["mariinsky"]), [])
+
+    def test_bootstrap_refuses_pending_or_uncertain_delivery(self):
+        for extra in [{"pending_messages": ["fresh queue"]}, {"delivery_uncertain": {"reason": "timeout"}}]:
+            state = watcher.default_state()
+            state.update(extra)
+            before, after, _, _ = self.run_main("bootstrap", state, self.snapshot(), "pending or uncertain|delivery is uncertain")
+            self.assertEqual(before, after)
+
+    def test_bootstrap_refuses_incomplete_scan(self):
+        snapshot = self.snapshot()
+        snapshot[-1]["scan_complete"] = False
+        before, after, _, _ = self.run_main("bootstrap", watcher.default_state(), snapshot, "Scan failed quality")
+        self.assertEqual(before, after)
+
+    def test_dry_run_never_writes_existing_audit_or_any_state(self):
+        state = watcher.default_state()
+        for snapshot in [self.snapshot(), self.snapshot([])]:
+            with self.subTest(empty=not snapshot[0]["mariinsky"]):
+                before, after, _, audit = self.run_main("dry_run", state, snapshot, "quality checks" if not snapshot[0]["mariinsky"] else None)
+                self.assertEqual(before, after)
+                self.assertIsNone(audit)
+
+    def test_repeated_scan_and_queue_append_do_not_duplicate_messages(self):
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {self.EVENT: self.record()}
+        with patch.object(watcher, "flush_pending", return_value=0):
+            _, _, first, _ = self.run_main("live", state, self.snapshot([self.record(), self.record(26)]))
+            _, _, second, _ = self.run_main("live", first, self.snapshot([self.record(), self.record(26)]))
+        self.assertTrue(first["pending_messages"])
+        self.assertEqual(first["pending_messages"], second["pending_messages"])
+        watcher.add_pending(second, first["pending_messages"] * 2)
+        self.assertEqual(first["pending_messages"], second["pending_messages"])
+
+    def test_corrupt_state_is_not_treated_as_missing(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "state.json"
+            for raw in ["{", "[]", '{"sources":{}}', '{"sources":{"mariinsky":{"events":{}}},"pending_messages":"bad"}']:
+                path.write_text(raw, encoding="utf-8")
+                with self.subTest(raw=raw), patch.object(watcher, "STATE_FILE", path), self.assertRaises(RuntimeError):
+                    watcher.load_state()
+                self.assertEqual(path.read_text(encoding="utf-8"), raw)
+
+    def test_delivery_exception_persists_uncertainty_and_stops_auto_retry(self):
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {self.EVENT: self.record()}
+        state["pending_messages"] = ["message"]
+        with patch.object(watcher, "send_message", side_effect=TimeoutError("uncertain")):
+            _, _, saved, _ = self.run_main("live", state, self.snapshot(), "delivery status requires review")
+        self.assertEqual(saved["pending_messages"], ["message"])
+        self.assertTrue(saved["delivery_uncertain"])
+        before, after, _, _ = self.run_main("live", saved, self.snapshot(), "delivery is uncertain")
+        self.assertEqual(before, after)
+
+    def test_single_missing_link_keeps_trusted_record_without_cancellation(self):
+        old, other = self.record(), self.record(26)
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {r["url"]: r for r in [old, other]}
+        _, _, saved, audit = self.run_main("live", state, self.snapshot([other]))
+        self.assertEqual(saved["sources"]["mariinsky"]["events"][old["url"]], old)
+        self.assertEqual(saved["pending_messages"], [])
+        self.assertEqual(audit["would_notify_count"], 0)
+        self.assertEqual(audit["unconfirmed_missing_preserved"], 1)
+        self.assertFalse(audit["inferred_removal_notifications"])
+
+    def test_empty_failure_does_not_freeze_later_verified_cast_change(self):
+        old = self.record()
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {old["url"]: old}
+        _, _, preserved, _ = self.run_main("live", state, self.snapshot([]), "Scan failed quality")
+        changed = copy.deepcopy(old)
+        changed["performers"] = ["Дирижер — Валерий Гергиев"]
+        changed = watcher.with_digest(changed)
+        with patch.object(watcher, "flush_pending", return_value=0):
+            _, _, updated, audit = self.run_main("live", preserved, self.snapshot([changed]))
+        self.assertEqual(updated["sources"]["mariinsky"]["events"][old["url"]], changed)
+        self.assertEqual(audit["would_notify_count"], 1)
+        self.assertIn("Валерий Гергиев", updated["pending_messages"][0])
+
+    def test_explicit_cancellation_is_still_reported(self):
+        old = self.record()
+        state = watcher.default_state()
+        state["sources"]["mariinsky"]["events"] = {old["url"]: old}
+        cancelled = copy.deepcopy(old)
+        cancelled["cancelled"] = True
+        cancelled["cancellation_source"] = "detail_page"
+        cancelled = watcher.with_digest(cancelled)
+        with patch.object(watcher, "flush_pending", return_value=0):
+            _, _, saved, audit = self.run_main("live", state, self.snapshot([cancelled]))
+        self.assertEqual(audit["would_notify_count"], 1)
+        self.assertTrue(saved["sources"]["mariinsky"]["events"][old["url"]]["cancelled"])
+        self.assertEqual(saved["pending_messages"], [watcher.format_cancelled(cancelled)])
+
+
 def run_all_tests():
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(MariinskyWatcherV3Tests)
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(SafeScanTests))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     if not result.wasSuccessful():
         raise SystemExit(1)
